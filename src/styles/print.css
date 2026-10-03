@@ -1,22 +1,25 @@
 /* Print layout for the resume PDFs. The rules below apply on screen too, so opening a
-   print route in a browser shows roughly what the paper will look like. */
+   print route in a browser shows roughly what the paper will look like.
+
+   Selectors start with ".print-sheet .resume" so they win over the component's own
+   scoped styles (which are one class lighter) no matter which stylesheet loads first. */
 
 @page {
   size: letter;
-  margin: 0.55in 0.6in;
+  margin: 0.5in 0.6in;
 }
 
 body.print {
   background: #fff;
   color: #111;
-  font-size: 10.5pt;
-  line-height: 1.38;
+  font-size: 10pt;
+  line-height: 1.32;
 }
 
 .print-sheet {
   max-width: 7.3in;
   margin: 0 auto;
-  padding: 0.55in 0.6in;
+  padding: 0.5in 0.6in;
 }
 
 @media print {
@@ -33,26 +36,54 @@ body.print {
   text-decoration: none;
 }
 
-.print-sheet h1 {
-  font-size: 22pt;
+.print-sheet .resume h1 {
+  margin-bottom: 0.1rem;
+  font-size: 20pt;
 }
 
-.print-sheet h2 {
-  margin-top: 1rem;
+.print-sheet .resume .resume-header {
+  margin-bottom: 0.6rem;
+}
+
+.print-sheet .resume .resume-contact {
+  font-size: 9.5pt;
+}
+
+.print-sheet .resume h2 {
+  margin: 0.8rem 0 0.35rem;
+  font-size: 8.5pt;
   break-after: avoid;
 }
 
-.print-sheet .role {
-  margin-top: 0.8rem;
+.print-sheet .resume h3 {
+  font-size: 10.5pt;
 }
 
-.print-sheet .role-head,
-.print-sheet .positions,
-.print-sheet .role-title {
+.print-sheet .resume .role {
+  margin-top: 0.6rem;
+}
+
+.print-sheet .resume .dates,
+.print-sheet .resume .note {
+  font-size: 9pt;
+}
+
+.print-sheet .resume .role-head,
+.print-sheet .resume .positions,
+.print-sheet .resume .role-title {
   break-after: avoid;
 }
 
-.print-sheet .bullets li {
+.print-sheet .resume .role-title,
+.print-sheet .resume .positions {
+  margin: 0 0 0.2rem;
+}
+
+.print-sheet .resume .bullets {
+  margin-top: 0.2rem;
+}
+
+.print-sheet .resume .bullets li {
+  margin-bottom: 0.15rem;
   break-inside: avoid;
-  margin-bottom: 0.2rem;
 }

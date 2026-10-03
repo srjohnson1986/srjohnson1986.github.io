@@ -41,10 +41,21 @@ const firstSentence = variant.summary.split('. ')[0].replace(/\.$/, '') + '.';
     </ul>
   </nav>
 
+  <p class="download no-print">
+    <a href={`/resume/steven-johnson-resume-${variant.id}.pdf`} type="application/pdf">
+      Download this version as a PDF
+    </a>
+  </p>
+
   <ResumeDocument variant={variant} />
 </BaseLayout>
 
 <style>
+  .download {
+    margin: 0 0 1.5rem;
+    font-size: 0.95rem;
+  }
+
   .versions {
     display: flex;
     flex-wrap: wrap;
