@@ -14,6 +14,14 @@ Read `PROJECT_BRIEF.md` (kept in `private/`) for goals, pages, and privacy rules
 - Explain non-obvious choices briefly, since I'm learning the toolchain.
 - Ask me before big decisions rather than guessing.
 
+## Commands
+
+- `npm install` - install dependencies
+- `npm run dev` - local dev server (use `astro dev --background` when started by Claude; manage with `astro dev stop|status|logs`)
+- `npm run build` - build to `dist/`
+- `npm run preview` - serve the built site locally
+- Docs: https://docs.astro.build
+
 ## Working agreements
 
 - I run the git commands myself unless I ask you to. Tell me the command and what it does.
