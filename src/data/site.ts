@@ -4,6 +4,8 @@
 export interface NavItem {
   label: string;
   href: string;
+  /** Items that share a group are listed together under its name in the phone menu. */
+  group?: string;
 }
 
 export interface EntryCard {
@@ -30,15 +32,16 @@ export const site = {
 };
 
 // Main navigation. Add an entry when a page ships; never link a page that is not built.
-// With seven items the bar wraps on phones. The plan is to move Audio, Art, and Events under a
-// "Creative" group there.
+// With seven items the bar would wrap on phones, so there the links move into a Menu button, with
+// the items that have a `group` listed together under that group's name. On wider screens every
+// item stays in one row.
 export const nav: NavItem[] = [
   { label: 'Home', href: '/' },
   { label: 'Resume', href: '/resume/' },
   { label: 'Development', href: '/development/' },
-  { label: 'Audio', href: '/audio/' },
-  { label: 'Art', href: '/art/' },
-  { label: 'Events', href: '/events/' },
+  { label: 'Audio', href: '/audio/', group: 'Creative' },
+  { label: 'Art', href: '/art/', group: 'Creative' },
+  { label: 'Events', href: '/events/', group: 'Creative' },
   { label: 'Contact', href: '/contact/' },
 ];
 
