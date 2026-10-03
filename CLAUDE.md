@@ -30,11 +30,14 @@ Same flow as the TPD-Addin-XLAM and soundboard repos. `main` deploys on every me
 2. **Branch from an up-to-date `main`**, named `type/short-description` (`feat/`, `fix/`, `docs/`, `chore/`, `ci/`, `refactor/`, `test/`). Example: `feat/resume-data-model`.
 3. **Small commits** with imperative messages that describe the change, not "updated stuff".
 4. **Pull request** with a short title and a body that explains why in prose and how it was checked. The body starts with `Closes #<issue>` so the issue closes on merge.
-5. **Steven merges on GitHub.** Then Claude deletes the branch, switches to `main`, and pulls before starting the next branch.
+5. **Claude merges the PR** once its build check has passed (see the standing permission under Working agreements), with a merge commit. Then Claude deletes the branch, switches to `main`, and pulls before starting the next branch.
 
 ## Working agreements
 
-- Claude does the GitHub work: issues, labels, branches, commits, pushes, and pull requests, using `gh` and `git`, and explains non-obvious steps as it goes. Steven reviews and merges every pull request, because a merge deploys to the live site. Never merge a PR, enable auto-merge, force-push, or rewrite history on `main` unless asked.
+- Claude does the GitHub work: issues, labels, branches, commits, pushes, and pull requests, using `gh` and `git`, and explains non-obvious steps as it goes.
+- **Standing permission to merge (given 2026-10-03, until Steven says to stop):** Claude merges its own pull requests once the build check has passed. A merge deploys to the live site, so: never merge while a check is failing or still running, check status once when returning to a PR rather than polling, and fix a red check instead of merging past it. Merge with `gh pr merge --merge --delete-branch`.
+- Never force-push or rewrite history on `main`, and never change repository settings (branch protection, GitHub's auto-merge setting, visibility) without asking.
+- To revoke the merge permission, Steven says so in chat and this section is updated.
 - Only use numbers that appear in `private/bank-export.md` or that I give you. Never invent metrics.
 - Only bullets with `public: true` appear on the site.
 - Never publish the Target Roles section, the behavioral (STAR) stories, or internal notes from the bank.
