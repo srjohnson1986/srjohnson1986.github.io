@@ -1,20 +1,203 @@
 ---
-// Placeholder home page. The real Home page is built in step 3.
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { entryCards, site } from '../data/site';
 ---
 
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="generator" content={Astro.generator} />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="icon" href="/favicon.ico" />
-    <title>Steven Johnson</title>
-  </head>
-  <body>
-    <main>
-      <h1>Steven Johnson</h1>
-      <p>Site under construction.</p>
-    </main>
-  </body>
-</html>
+<BaseLayout
+  title={`${site.name} | QA and process professional`}
+  description={`${site.name}: QA and process professional and digital transformation consultant in the ${site.area}. Resume, projects, audio, and art.`}
+>
+  <section class="intro" aria-labelledby="home-title">
+    <div class="intro-text">
+      <h1 id="home-title">{site.name}</h1>
+      <p class="tagline">QA and process professional, now working as a digital transformation consultant.</p>
+      <p>
+        I spent over ten years in quality assurance at Verizon, testing high-traffic eCommerce and
+        launch-critical releases. Today I work as a digital transformation consultant and project
+        manager, building automation tools and project schedules for capital projects.
+      </p>
+      <p>
+        Outside of work I produce and engineer recordings in my home studio, help run a charity
+        music festival, and make art in Procreate.
+      </p>
+      <p class="actions">
+        <a class="button" href="/resume/">View my resume</a>
+        <a href="/contact/">Get in touch</a>
+      </p>
+    </div>
+
+    <div class="portrait">
+      {
+        site.photo ? (
+          <img src={site.photo.src} alt={site.photo.alt} width="160" height="160" />
+        ) : (
+          <div class="portrait-placeholder" aria-hidden="true">SJ</div>
+        )
+      }
+    </div>
+  </section>
+
+  <section class="explore" aria-labelledby="explore-title">
+    <h2 id="explore-title">Explore</h2>
+    <ul class="cards">
+      {
+        entryCards.map((card) => (
+          <li>
+            {card.href ? (
+              <a class="card" href={card.href}>
+                <h3>{card.title}</h3>
+                <p>{card.blurb}</p>
+              </a>
+            ) : (
+              <div class="card card-soon">
+                <h3>{card.title}</h3>
+                <p>{card.blurb}</p>
+                <p class="soon">Coming soon</p>
+              </div>
+            )}
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+</BaseLayout>
+
+<style>
+  .intro {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1.5rem 2rem;
+  }
+
+  .intro-text {
+    flex: 1 1 22rem;
+  }
+
+  h1 {
+    margin: 0 0 0.25rem;
+    font-size: 2.2rem;
+  }
+
+  .tagline {
+    margin: 0 0 1rem;
+    font-size: 1.15rem;
+    color: var(--muted);
+  }
+
+  .intro-text p {
+    margin: 0 0 0.9rem;
+  }
+
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem 1.25rem;
+    margin-top: 1.25rem;
+  }
+
+  .portrait {
+    flex: 0 0 auto;
+  }
+
+  .portrait img,
+  .portrait-placeholder {
+    display: block;
+    width: 10rem;
+    height: 10rem;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
+  .portrait-placeholder {
+    display: grid;
+    place-items: center;
+    border: 2px dashed var(--rule);
+    background: var(--card);
+    color: var(--muted);
+    font-size: 2.5rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+  }
+
+  /* On narrow screens the portrait sits above the text. */
+  @media (max-width: 36rem) {
+    .portrait {
+      order: -1;
+    }
+
+    .portrait img,
+    .portrait-placeholder {
+      width: 7.5rem;
+      height: 7.5rem;
+    }
+
+    h1 {
+      font-size: 1.9rem;
+    }
+  }
+
+  .explore {
+    margin-top: 2.5rem;
+  }
+
+  h2 {
+    margin: 0 0 0.75rem;
+    font-size: 0.85rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+    gap: 1rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .card {
+    display: block;
+    height: 100%;
+    padding: 1rem 1.1rem;
+    border: 1px solid var(--rule);
+    border-radius: 0.6rem;
+    background: var(--card);
+    color: var(--fg);
+    text-decoration: none;
+  }
+
+  a.card:hover {
+    border-color: var(--accent);
+  }
+
+  .card h3 {
+    margin: 0 0 0.35rem;
+    font-size: 1.05rem;
+  }
+
+  .card p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.95rem;
+  }
+
+  a.card h3 {
+    color: var(--accent);
+  }
+
+  .card-soon {
+    border-style: dashed;
+  }
+
+  .card .soon {
+    margin-top: 0.6rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+</style>

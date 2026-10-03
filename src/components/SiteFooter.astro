@@ -1,0 +1,24 @@
+---
+import { site } from '../data/site';
+
+const year = new Date().getFullYear();
+---
+
+<!-- One line on purpose: Astro drops the whitespace at line breaks around expressions and links. -->
+<footer class="site-footer no-print">
+  <p>&copy; {year} {site.name}. Built with <a href="https://astro.build">Astro</a>. <a href={site.repo}>Source on GitHub</a>.</p>
+</footer>
+
+<style>
+  .site-footer {
+    margin-top: 3rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--rule);
+    color: var(--muted);
+    font-size: 0.9rem;
+  }
+
+  p {
+    margin: 0;
+  }
+</style>

@@ -1,0 +1,74 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { site } from '../data/site';
+---
+
+<BaseLayout title={`Contact | ${site.name}`} description={`How to reach ${site.name}.`}>
+  <h1>Contact</h1>
+  <p class="lead">
+    {site.email ? 'Email is the best way to reach me. ' : ''}I am based in the {site.area}.
+  </p>
+
+  <dl class="contact">
+    {
+      site.email && (
+        <div>
+          <dt>Email</dt>
+          <dd><a href={`mailto:${site.email}`}>{site.email}</a></dd>
+        </div>
+      )
+    }
+    <div>
+      <dt>LinkedIn</dt>
+      <dd><a href={site.links.linkedin.href}>{site.links.linkedin.label}</a></dd>
+    </div>
+    <div>
+      <dt>GitHub</dt>
+      <dd><a href={site.links.github.href}>{site.links.github.label}</a></dd>
+    </div>
+  </dl>
+
+  <p>
+    Looking for my background? See the <a href="/resume/">resume</a>, with a PDF download for
+    each version.
+  </p>
+</BaseLayout>
+
+<style>
+  h1 {
+    margin: 0 0 0.5rem;
+    font-size: 2rem;
+  }
+
+  .lead {
+    margin: 0 0 1.5rem;
+    color: var(--muted);
+  }
+
+  .contact {
+    margin: 0 0 1.5rem;
+  }
+
+  .contact div {
+    display: grid;
+    grid-template-columns: 7rem 1fr;
+    gap: 0.25rem 1rem;
+    padding: 0.6rem 0;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .contact dt {
+    font-weight: 600;
+  }
+
+  .contact dd {
+    margin: 0;
+    overflow-wrap: anywhere;
+  }
+
+  @media (max-width: 30rem) {
+    .contact div {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
