@@ -1,0 +1,149 @@
+---
+import { Image } from 'astro:assets';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getArtworks, groupByMedium, FORMAT_LABELS } from '../lib/art';
+import { site } from '../data/site';
+
+const pieces = await getArtworks();
+const groups = groupByMedium(pieces);
+---
+
+<BaseLayout
+  title={`Art | ${site.name}`}
+  description="Show flyers and other art made in Procreate, with the story behind each piece."
+>
+  <h1>Art</h1>
+  <p class="lead">
+    Show flyers and other work made in Procreate. Open a piece to read the story behind it.
+  </p>
+
+  {
+    groups.length === 0 ? (
+      <p class="empty">
+        Artwork is on the way. Show flyers and other Procreate work will appear here.
+      </p>
+    ) : (
+      groups.map((group) => (
+        <section class="group" aria-labelledby={`group-${group.medium}`}>
+          <h2 id={`group-${group.medium}`}>{group.label}</h2>
+          <ul class="gallery">
+            {group.pieces.map((piece) => (
+              <li>
+                <figure class="piece">
+                  <Image
+                    src={piece.data.image}
+                    alt={piece.data.alt}
+                    widths={[320, 480, 640, 960]}
+                    sizes="(max-width: 36rem) 100vw, 14rem"
+                    loading="lazy"
+                    decoding="async"
+                  />
+                  <figcaption>
+                    <strong>{piece.data.title}</strong>
+                    <span class="meta">
+                      {piece.data.year}
+                      {piece.data.format && <> &middot; {FORMAT_LABELS[piece.data.format]}</>}
+                    </span>
+                    <span class="caption">{piece.data.caption}</span>
+                  </figcaption>
+                  {piece.data.story && (
+                    <details>
+                      <summary>The story behind this piece</summary>
+                      {piece.data.story.map((paragraph) => (
+                        <p>{paragraph}</p>
+                      ))}
+                    </details>
+                  )}
+                </figure>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ))
+    )
+  }
+</BaseLayout>
+
+<style>
+  h1 {
+    margin: 0 0 0.5rem;
+    font-size: 2rem;
+  }
+
+  .lead,
+  .empty {
+    margin: 0 0 1.75rem;
+    color: var(--muted);
+  }
+
+  .group {
+    margin-top: 2rem;
+  }
+
+  h2 {
+    margin: 0 0 0.9rem;
+    padding-bottom: 0.25rem;
+    border-bottom: 1px solid var(--rule);
+    color: var(--muted);
+    font-size: 0.85rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  /* Each card keeps its image's real proportions. align-items: start means opening one
+     piece's story grows only that card and does not stretch its neighbours. */
+  .gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
+    gap: 1.25rem;
+    align-items: start;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .piece {
+    margin: 0;
+    border: 1px solid var(--rule);
+    border-radius: 0.6rem;
+    background: var(--card);
+    overflow: hidden;
+  }
+
+  .piece :global(img) {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  figcaption {
+    display: grid;
+    gap: 0.2rem;
+    padding: 0.75rem 0.9rem;
+  }
+
+  .meta {
+    color: var(--muted);
+    font-size: 0.85rem;
+  }
+
+  .caption {
+    font-size: 0.95rem;
+  }
+
+  details {
+    padding: 0 0.9rem 0.75rem;
+  }
+
+  summary {
+    cursor: pointer;
+    color: var(--accent);
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+
+  details p {
+    margin: 0.6rem 0 0;
+    font-size: 0.95rem;
+  }
+</style>
