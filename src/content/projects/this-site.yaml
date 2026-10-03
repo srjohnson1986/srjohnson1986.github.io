@@ -1,0 +1,62 @@
+title: This site and its Playwright test suite
+summary: >-
+  How this portfolio is built: Astro on GitHub Pages, one data set behind the web resume and
+  every PDF, and a build that checks itself on every pull request.
+year: 2026
+type: website
+tags:
+  - astro
+  - playwright
+  - ci-cd
+  - accessibility
+  - ai-assisted
+  - open-source
+  - documentation
+stack:
+  - Astro
+  - TypeScript
+  - GitHub Pages
+  - GitHub Actions
+  - Playwright
+  - Claude Code
+
+problem: >-
+  A personal site has to stay accurate as the resume changes. Keeping a web resume and
+  several PDFs in step by hand invites drift, and a public site that can break silently is a
+  poor advertisement for someone who tests software.
+
+built:
+  - >-
+    An Astro site hosted on GitHub Pages, built from one set of data files: roles, bullets,
+    summaries, skills, education, and resume versions.
+  - >-
+    Content collections with strict schemas, so a bad entry fails the build: single-hyphen
+    copy, no phone numbers, bullets that start with a past-tense verb, references that must
+    resolve, and a public flag on every bullet.
+  - >-
+    One resume data set renders the web pages, a print layout, and a PDF for each version,
+    printed in the build with Playwright from the same routes.
+  - >-
+    A project archive with filters for year, type, and tags that works without JavaScript,
+    driven by one YAML file per project.
+  - >-
+    An issue-first workflow: every change starts as an issue, gets its own branch and pull
+    request, and merges after the build check passes, with each merge deploying to the live
+    site.
+  - Built with Claude Code under those guardrails.
+
+outcome:
+  - >-
+    Live on GitHub Pages, with a full build of the site and its PDFs checked on every pull
+    request.
+  - >-
+    Broken data is caught at build time instead of in production: each rule has been broken
+    on purpose to confirm that it fails with a readable message.
+  - >-
+    In progress: a public Playwright test suite is the next piece. It will check that every
+    resume version renders, every PDF exists, internal links resolve, the deployed site
+    passes a smoke test, and basic accessibility checks pass.
+
+links:
+  repo: https://github.com/srjohnson1986/srjohnson1986.github.io
+  demo: https://srjohnson1986.github.io/

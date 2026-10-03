@@ -1,0 +1,178 @@
+---
+import type { GetStaticPaths } from 'astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getProjects, TYPE_LABELS } from '../../lib/projects';
+import { site } from '../../data/site';
+
+export const getStaticPaths = (async () => {
+  const projects = await getProjects();
+  return projects.map((project) => ({ params: { project: project.id }, props: { project } }));
+}) satisfies GetStaticPaths;
+
+const { project } = Astro.props;
+const { title, summary, year, type, stack, problem, built, outcome, facts, links } = project.data;
+---
+
+<BaseLayout title={`${title} | Development | ${site.name}`} description={summary}>
+  <p class="back"><a href="/development/">&larr; All projects</a></p>
+
+  <header>
+    <h1>{title}</h1>
+    <p class="meta">{year} &middot; {TYPE_LABELS[type]}</p>
+    <p class="summary">{summary}</p>
+  </header>
+
+  {
+    facts && (
+      <ul class="facts" aria-label="Headline facts">
+        {facts.map((fact) => (
+          <li>
+            <strong>{fact.value}</strong>
+            <span>{fact.label}</span>
+          </li>
+        ))}
+      </ul>
+    )
+  }
+
+  <section aria-labelledby="problem">
+    <h2 id="problem">Problem</h2>
+    <p>{problem}</p>
+  </section>
+
+  <section aria-labelledby="built">
+    <h2 id="built">What I built</h2>
+    <ul>
+      {built.map((item) => <li>{item}</li>)}
+    </ul>
+  </section>
+
+  <section aria-labelledby="stack">
+    <h2 id="stack">Stack</h2>
+    <ul class="chips">
+      {stack.map((item) => <li class="chip">{item}</li>)}
+    </ul>
+  </section>
+
+  <section aria-labelledby="outcome">
+    <h2 id="outcome">Outcome</h2>
+    <ul>
+      {outcome.map((item) => <li>{item}</li>)}
+    </ul>
+  </section>
+
+  <section aria-labelledby="links">
+    <h2 id="links">Links</h2>
+    <ul class="links">
+      {
+        links.repo && (
+          <li>
+            <a class="button" href={links.repo} rel="noopener">Code on GitHub</a>
+          </li>
+        )
+      }
+      {
+        links.demo && (
+          <li>
+            <a class="button secondary" href={links.demo} rel="noopener">Live demo</a>
+          </li>
+        )
+      }
+    </ul>
+  </section>
+</BaseLayout>
+
+<style>
+  .back {
+    margin: 0 0 1rem;
+    font-size: 0.95rem;
+  }
+
+  h1 {
+    margin: 0 0 0.25rem;
+    font-size: 2rem;
+  }
+
+  .meta {
+    margin: 0 0 0.75rem;
+    color: var(--muted);
+    font-size: 0.95rem;
+  }
+
+  .summary {
+    margin: 0 0 1.5rem;
+    font-size: 1.1rem;
+  }
+
+  .facts {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(8.5rem, 1fr));
+    gap: 0.75rem;
+    margin: 0 0 1rem;
+    padding: 0;
+    list-style: none;
+  }
+
+  .facts li {
+    padding: 0.75rem 0.9rem;
+    border: 1px solid var(--rule);
+    border-radius: 0.6rem;
+    background: var(--card);
+  }
+
+  .facts strong {
+    display: block;
+    color: var(--accent);
+    font-size: 1.3rem;
+    line-height: 1.2;
+  }
+
+  .facts span {
+    display: block;
+    margin-top: 0.15rem;
+    color: var(--muted);
+    font-size: 0.85rem;
+  }
+
+  section {
+    margin-top: 1.75rem;
+  }
+
+  h2 {
+    margin: 0 0 0.6rem;
+    padding-bottom: 0.25rem;
+    border-bottom: 1px solid var(--rule);
+    color: var(--muted);
+    font-size: 0.85rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  section > p {
+    margin: 0;
+  }
+
+  section > ul:not(.chips):not(.links) {
+    margin: 0;
+    padding-left: 1.2rem;
+  }
+
+  section > ul:not(.chips):not(.links) li {
+    margin-bottom: 0.45rem;
+  }
+
+  .links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .button.secondary {
+    border: 1px solid var(--accent);
+    background: transparent;
+    color: var(--accent);
+  }
+</style>

@@ -1,0 +1,109 @@
+title: Care Communication Board
+summary: >-
+  A cross-platform communication board for Android and the web: tap a tile to play a
+  recorded voice clip or speak text aloud. Built for my mom, with Claude Code.
+year: 2026
+type: app
+featured: true
+tags:
+  - android
+  - web
+  - kotlin
+  - kotlin-multiplatform
+  - ai-assisted
+  - accessibility
+  - test-automation
+  - ci-cd
+  - pwa
+stack:
+  - Kotlin
+  - Kotlin Multiplatform
+  - Jetpack Compose
+  - Compose Multiplatform
+  - WebAssembly
+  - Claude Code
+  - ElevenLabs
+  - GitHub Actions
+  - JUnit
+  - Robolectric
+  - Roborazzi
+  - Puppeteer
+  - Kover
+
+problem: >-
+  I built this for my mom and her caregivers. The commercial communication apps I evaluated
+  were mostly ad-supported novelty software, unsuitable for care use. What was needed was
+  something focused: tap a tile to play a recorded voice clip or speak text aloud, with no
+  ads, no data collection, nothing to set up, and full function offline.
+
+built:
+  - >-
+    A cross-platform app for Android and the web, designed, built, and shipped while
+    directing an AI coding agent (Claude Code) and owning every architecture and review
+    decision.
+  - >-
+    Zero-setup preset boards, voice banking with an adjustable text-to-speech fallback
+    (voice, speed, and pitch), and critical phrases pinned on every screen for one-tap
+    access.
+  - >-
+    A web version that installs like an app and works offline, so caregivers can use it on
+    any device, plus a stable download link that always serves the latest Android release.
+  - >-
+    Legibility and accessibility work: automatically sized labels, fonts designed for low
+    vision, and screen-reader support.
+  - >-
+    Features shaped by real care situations: a large-text Show mode that flips upside down
+    for someone sitting across from the user, a hold-to-unlock caregiver lock that prevents
+    accidental edits, and warnings when a tap would make no sound.
+  - >-
+    A 4-phase migration to Kotlin Multiplatform and Compose Multiplatform, sharing about 80%
+    of the code between Android and the web (WebAssembly) with no change in behavior on
+    Android.
+  - >-
+    Data-integrity safeguards: older saved boards keep loading after format changes, tiles
+    with missing audio reset themselves instead of failing silently, and cleanup never
+    deletes audio a saved board still uses.
+  - >-
+    A 407-test suite that runs on the JVM, in headless Chrome, and on an Android emulator,
+    backed by a 90% coverage gate, screenshot regression tests, and branch protection on
+    every merge.
+
+outcome:
+  - >-
+    Idea to first release in 4 days, and v1.0 on Android and the web in 13 days, across 127
+    issues, 133 pull requests, 161 commits, and 6 releases.
+  - >-
+    About 15,000 lines of code and tests, with a CI coverage gate that fails the build if
+    core code drops below 90% line coverage (currently 91-99.5%).
+  - >-
+    Found that half the UI test suite was failing unnoticed because CI never ran it,
+    repaired it, and added emulator-based UI testing to CI so a green build now covers the
+    UI.
+  - >-
+    Diagnosed and fixed a race condition that could silently save stale data, and proved the
+    fix with a regression test that fails reliably without it.
+  - >-
+    Shelved a feature on evidence: after a real speakerphone test, investigated routing app
+    audio into phone calls, then dropped it after weighing feasibility, misuse risk, and
+    texting as a simpler existing alternative.
+  - >-
+    Refactored a 2,900-line file into 8 focused modules in a planned pass with no change in
+    behavior, keeping AI-generated code maintainable.
+
+facts:
+  - value: 4 days
+    label: idea to first release
+  - value: 13 days
+    label: to v1.0 on Android and the web
+  - value: "407"
+    label: automated tests
+  - value: 90%
+    label: line coverage gate
+  - value: About 15,000
+    label: lines of code and tests
+  - value: "133"
+    label: pull requests
+
+links:
+  repo: https://github.com/srjohnson1986/soundboard
+  demo: https://srjohnson1986.github.io/soundboard/

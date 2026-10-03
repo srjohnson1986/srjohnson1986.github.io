@@ -1,0 +1,81 @@
+title: Thermal Process Development Excel add-in
+summary: >-
+  An open-source VBA add-in that turns Smartsheet exports into branded equipment lists,
+  project schedules, and vendor quote packages.
+year: 2026
+type: tool
+tags:
+  - excel
+  - vba
+  - automation
+  - open-source
+  - test-automation
+  - ci-cd
+  - documentation
+  - ai-assisted
+stack:
+  - VBA
+  - Excel
+  - Smartsheet exports
+  - PowerShell
+  - GitHub Actions
+  - Rubberduck
+  - Claude Code
+
+problem: >-
+  Building a customer equipment list, a project schedule, and vendor quote packages from a
+  Smartsheet export was a manual process that took 4+ hours and several hundred clicks.
+
+built:
+  - >-
+    An open-source VBA Excel add-in that turns Smartsheet exports into branded customer
+    equipment lists, project schedules, and vendor quote packages.
+  - >-
+    Eight ribbon tools: custom and one-click versions of equipment list, schedule, and
+    split-sheet generation, plus sheet export and a settings tool that sets the one-click
+    defaults.
+  - >-
+    A settings system that saves each user's choices across Excel sessions, so the one-click
+    tools run from saved defaults with no setup dialog.
+  - >-
+    A source-controlled project with a scripted headless PowerShell build, replacing an
+    unversioned single file.
+  - >-
+    Business logic split out of Excel-dependent code, with 20 Rubberduck unit tests for the
+    column-selection, numbering, and settings-fallback logic.
+  - >-
+    A GitHub Actions workflow that checks every change for broken ribbon callbacks and
+    missing coding-standard declarations before merge, plus a pre-release check that the
+    source matches what ships inside the built add-in.
+  - >-
+    A user guide and wiki, a developer architecture guide, a changelog, and a release
+    process, so the add-in can be handed off and supported.
+  - >-
+    Built with AI coding agents (Claude Code) to speed up development, while keeping
+    ownership of design, review, testing, and releases.
+
+outcome:
+  - Cut a 4+ hour, several-hundred-click manual build to 4 clicks and about 10 seconds.
+  - >-
+    Versioned releases driven by feedback from the project team, with every change tracked
+    through GitHub issues and reviewed pull requests.
+  - >-
+    Refactored in small, reviewable changes: removed duplicated code across five dialogs,
+    fixed silent failures, and surfaced errors to the user.
+  - Published as a public open-source repository with contributor documentation.
+  - It has 2 users today.
+
+facts:
+  - value: 4+ hours
+    label: manual build before
+  - value: About 10 seconds
+    label: build now, in 4 clicks
+  - value: "8"
+    label: ribbon tools
+  - value: "20"
+    label: unit tests
+  - value: "2"
+    label: users today
+
+links:
+  repo: https://github.com/srjohnson1986/TPD-Addin-XLAM
