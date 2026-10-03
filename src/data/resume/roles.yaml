@@ -1,0 +1,67 @@
+# Roles: employers, projects, volunteer work. File order is the tie-break when two
+# roles share a start year. `org` is the real name; `neutral_org` is used by variants
+# with org_labels: neutral. Location is intentionally absent: the public site only
+# ever says "Atlanta area", and only on the Contact page.
+
+- id: tpd
+  title: Digital Transformation Consultant / Project Manager (Contract)
+  org: Thermal Process Development
+  kind: job
+  start: 2026
+  end: present
+
+- id: care-board
+  title: Solo Developer / Product Owner
+  org: Care Communication Board
+  kind: project
+  start: 2026
+  end: 2026
+  note: Personal project
+
+# One employer entry with two positions, because the bank is not split by era.
+- id: verizon
+  title: Quality Assurance Lead
+  org: Verizon Wireless
+  kind: job
+  start: 2012
+  end: 2024
+  positions:
+    - title: Quality Assurance Lead
+      start: 2017
+      end: 2024
+      note: Concurrent Jira Governance Program Owner
+    - title: Quality Assurance Engineer
+      start: 2012
+      end: 2017
+
+- id: kingdom-hell
+  title: Owner / Producer / Audio Engineer
+  org: Kingdom Hell
+  neutral_org: Independent Recording Studio
+  kind: self-employed
+  start: 2016
+  end: present
+  note: Home studio
+
+- id: jabroni
+  title: Event Coordinator / Project Manager
+  org: Jabroni Productions
+  neutral_org: Community Music Events
+  kind: volunteer
+  start: 2013
+  end: present
+  note: Volunteer
+
+- id: nucor
+  title: Business Analyst / Developer, Intern
+  org: Nucor Steel Tuscaloosa
+  kind: internship
+  start: 2011
+  end: 2012
+
+- id: pg
+  title: "Information & Decision Solutions Business Analyst, Intern"
+  org: Procter & Gamble
+  kind: internship
+  start: 2011
+  end: 2011

@@ -1,0 +1,26 @@
+# DRAFT summaries for each resume variant. Written from the bullet bank; every number
+# below appears in the bank or the project brief. Edit freely.
+
+- id: summary-qa
+  text: >-
+    QA lead with 10+ years of experience at Verizon testing high-traffic eCommerce and
+    launch-critical releases, including a site serving 70M monthly visitors. Experienced in
+    leading onshore and offshore teams, investigating defects through log evidence, and
+    validating APIs and databases with Postman and SQL. Recent personal projects add hands-on
+    test automation and CI, including a 407-test suite behind a 90% coverage gate.
+
+- id: summary-consulting
+  text: >-
+    Digital transformation consultant and project manager with a QA and process background.
+    Currently building automation tools and project schedules for capital projects at Thermal
+    Process Development, including an open-source Excel add-in that cut a 4+ hour manual build
+    to about 10 seconds. Previously owned Jira governance for 10,000+ users at Verizon and
+    wrote the guides and training that got new testers productive in about a week.
+
+- id: summary-creative
+  text: >-
+    Producer, engineer, and event organizer with a QA and process background. Produced and
+    engineered dozens of publicly released recordings from a home studio, and spent 11 years
+    organizing a charity music festival that raised about $2,000 a year for Y'all Rock Camps.
+    Also builds software, including a cross-platform app shipped to Android and the web in 13
+    days.

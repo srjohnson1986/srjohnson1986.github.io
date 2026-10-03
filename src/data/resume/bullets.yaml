@@ -1,0 +1,883 @@
+# Resume bullets. Each bullet: stable id, role (see roles.yaml), theme, tags, public flag, text.
+# Only bullets with public: true are rendered on the site. Text starts with a past-tense verb
+# and uses single hyphens only (both enforced by the schema in src/content.config.ts).
+- id: tpd-built-maintained-open-source-vba
+  role: tpd
+  theme: automation-and-tooling
+  tags: [project-management, development, consulting]
+  public: true
+  text: >-
+    Built and maintained an open-source VBA Excel add-in that turns Smartsheet exports into
+    branded customer equipment lists, project schedules, and vendor quote packages, cutting
+    a 4+ hour, several-hundred-click manual build to 4 clicks and about 10 seconds.
+
+- id: tpd-designed-eight-excel-ribbon
+  role: tpd
+  theme: automation-and-tooling
+  tags: [project-management, development, consulting]
+  public: true
+  text: >-
+    Designed eight Excel ribbon tools: custom and one-click versions of equipment list,
+    schedule, and split-sheet generation, plus sheet export and a settings tool that sets
+    the one-click defaults.
+
+- id: tpd-implemented-settings-system-saves
+  role: tpd
+  theme: automation-and-tooling
+  tags: [development, consulting]
+  public: true
+  text: >-
+    Implemented a settings system that saves each user's choices across Excel sessions, so
+    the one-click tools run from saved defaults with no setup dialog.
+
+- id: tpd-moved-add-in-unversioned-single
+  role: tpd
+  theme: engineering-process-and-quality
+  tags: [consulting]
+  public: true
+  text: >-
+    Moved the add-in from an unversioned single file to a source-controlled project with a
+    scripted headless PowerShell build.
+
+- id: tpd-added-github-actions-workflow
+  role: tpd
+  theme: engineering-process-and-quality
+  tags: [ci-cd, consulting]
+  public: true
+  text: >-
+    Added a GitHub Actions workflow that checks every change for broken ribbon callbacks and
+    missing coding-standard declarations before merge.
+
+- id: tpd-created-pre-release-source-drift-check
+  role: tpd
+  theme: engineering-process-and-quality
+  tags: [consulting]
+  public: true
+  text: >-
+    Created a pre-release source-drift check that confirms the source code matches what
+    ships inside the built add-in.
+
+- id: tpd-split-business-logic-out
+  role: tpd
+  theme: engineering-process-and-quality
+  tags: [test-automation, development, consulting]
+  public: true
+  text: >-
+    Split business logic out of Excel-dependent code and added 20 Rubberduck unit tests for
+    the column-selection, numbering, and settings-fallback logic.
+
+- id: tpd-delivered-versioned-releases-driven
+  role: tpd
+  theme: engineering-process-and-quality
+  tags: [consulting]
+  public: true
+  text: >-
+    Delivered versioned releases driven by feedback from the project team, with every change
+    tracked through GitHub issues and reviewed pull requests.
+
+- id: tpd-refactored-codebase-small-reviewable
+  role: tpd
+  theme: engineering-process-and-quality
+  tags: [consulting]
+  public: true
+  text: >-
+    Refactored the codebase in small, reviewable changes: removed duplicated code across
+    five dialogs, fixed silent failures, and surfaced errors to the user.
+
+- id: tpd-established-first-standardized-naming
+  role: tpd
+  theme: engineering-process-and-quality
+  tags: [consulting]
+  public: true
+  text: >-
+    Established the first standardized naming and markup conventions for equipment cut
+    sheets, replacing inconsistent ad hoc formatting across teams.
+
+- id: tpd-wrote-user-guide-wiki
+  role: tpd
+  theme: documentation-and-enablement
+  tags: [documentation-training, consulting]
+  public: true
+  text: >-
+    Wrote the user guide and wiki, plus a developer architecture guide, changelog, and
+    release process, so the add-in can be handed off and supported.
+
+- id: tpd-published-add-in-public-open-source
+  role: tpd
+  theme: documentation-and-enablement
+  tags: [documentation-training, consulting]
+  public: true
+  text: >-
+    Published the add-in as a public open-source GitHub repository with contributor
+    documentation.
+
+- id: tpd-leveraged-ai-coding-agents
+  role: tpd
+  theme: ai-assisted-development
+  tags: [ai-assisted, consulting]
+  public: true
+  text: >-
+    Leveraged AI coding agents (Claude Code) to speed up development while keeping ownership
+    of design, review, testing, and releases.
+
+- id: tpd-developed-dual-baseline-smartsheet-schedule
+  role: tpd
+  theme: project-controls-and-scheduling
+  tags: [project-management, consulting]
+  public: true
+  text: >-
+    Developed a dual-baseline Smartsheet schedule template through stakeholder interviews,
+    giving project teams a repeatable way to track planned versus actual timelines.
+
+- id: tpd-coordinated-cross-functional-delivery-capital
+  role: tpd
+  theme: project-controls-and-scheduling
+  tags: [project-management, consulting]
+  public: true
+  text: >-
+    Coordinated cross-functional delivery on capital projects of roughly $1M and 6+ months,
+    involving 5 or more outside companies across vendors, engineering, electrical, sales,
+    and general contracting.
+
+- id: tpd-supported-product-selection-cost
+  role: tpd
+  theme: coordination
+  tags: [consulting]
+  public: true
+  text: >-
+    Supported product selection, cost analysis, and lead-time validation for equipment
+    purchasing.
+
+- id: tpd-maintained-alignment-across-evolving
+  role: tpd
+  theme: coordination
+  tags: [requirements, project-management, consulting]
+  public: true
+  text: >-
+    Maintained alignment across evolving requirements and multiple external stakeholders to
+    ensure on-time delivery.
+
+- id: vz-led-qa-across-project
+  role: verizon
+  theme: leadership-and-delivery
+  tags: [leadership, qa]
+  public: true
+  text: >-
+    Led QA across project teams of up to 20, coordinating onshore and offshore testers
+    through daily handoffs spanning multiple time zones.
+
+- id: vz-streamlined-agile-sdlc-reporting
+  role: verizon
+  theme: leadership-and-delivery
+  tags: [leadership, qa]
+  public: true
+  text: >-
+    Streamlined Agile SDLC reporting, improving story tracking and resource allocation for
+    globally distributed teams.
+
+- id: vz-built-maintained-confluence-repositories
+  role: verizon
+  theme: leadership-and-delivery
+  tags: [confluence, leadership, qa]
+  public: true
+  text: >-
+    Built and maintained Confluence repositories that standardized repeatable testing
+    processes across teams.
+
+- id: vz-owned-end-to-end-testing-site
+  role: verizon
+  theme: scale-and-high-stakes-releases
+  tags: [qa]
+  public: true
+  text: >-
+    Owned end-to-end testing for a site serving 70M monthly visitors plus native iOS and
+    Android apps, across desktop, tablet, and mobile.
+
+- id: vz-served-launch-war-rooms
+  role: verizon
+  theme: scale-and-high-stakes-releases
+  tags: [qa]
+  public: true
+  text: >-
+    Served in launch war rooms for device launches and peak retail events, validating live
+    in production during the highest-revenue windows of the year.
+
+- id: vz-led-testing-redesigns-high-traffic
+  role: verizon
+  theme: scale-and-high-stakes-releases
+  tags: [leadership, qa]
+  public: true
+  text: >-
+    Led testing for redesigns of high-traffic eCommerce purchase flows, improving stability
+    and reducing call center volume.
+
+- id: vz-tested-launched-new-products
+  role: verizon
+  theme: scale-and-high-stakes-releases
+  tags: [qa]
+  public: true
+  text: >-
+    Tested and launched new products, plans, features, and promotional discounts supporting
+    customer acquisition and retention.
+
+- id: vz-owned-governance-jira-instance
+  role: verizon
+  theme: governance
+  tags: [jira, process, qa]
+  public: true
+  text: >-
+    Owned governance for a Jira instance with 10,000+ users, establishing request and
+    approval workflows that cut unauthorized feature additions by 90% within three months.
+
+- id: vz-analyzed-confirmed-fraudulent-transactions
+  role: verizon
+  theme: fraud
+  tags: [fraud, qa]
+  public: true
+  text: >-
+    Analyzed confirmed fraudulent transactions to reverse-engineer attack patterns, then
+    built test cases covering those and adjacent vectors so future releases were validated
+    against known exploits.
+
+- id: vz-validated-fraud-related-fixes-across
+  role: verizon
+  theme: fraud
+  tags: [fraud, qa]
+  public: true
+  text: >-
+    Validated fraud-related fixes across staging, production, and regression cycles.
+
+- id: vz-monitored-application-error-logs
+  role: verizon
+  theme: monitoring-and-log-investigation
+  tags: [monitoring, qa]
+  public: true
+  text: >-
+    Monitored application error logs in Kibana from the war room at every device launch and
+    peak retail event, escalating live production issues to development and operations teams
+    while the launch was still underway.
+
+- id: vz-built-kibana-dashboards-saved
+  role: verizon
+  theme: monitoring-and-log-investigation
+  tags: [monitoring, qa]
+  public: true
+  text: >-
+    Built Kibana dashboards and saved searches the team used for error monitoring and defect
+    investigation.
+
+- id: vz-investigated-defects-through-kibana
+  role: verizon
+  theme: monitoring-and-log-investigation
+  tags: [monitoring, qa]
+  public: true
+  text: >-
+    Investigated defects through Kibana error logs and filed them with log evidence, giving
+    developers concrete detail to act on.
+
+- id: vz-spotted-patterns-across-recurring
+  role: verizon
+  theme: monitoring-and-log-investigation
+  tags: [monitoring, qa]
+  public: true
+  text: >-
+    Spotted patterns across recurring errors and used post-deploy log checks to confirm
+    fixes held in production.
+
+- id: vz-validated-about-20-third-party
+  role: verizon
+  theme: data-and-api-validation
+  tags: [api-testing, sql, qa]
+  public: true
+  text: >-
+    Validated about 20 third-party subscription integrations end to end, using Postman to
+    confirm subscription status and service tier against each partner's API, and SQL to
+    verify the matching subscription and customer IDs stored on Verizon's side.
+
+- id: vz-tested-full-subscription-lifecycle
+  role: verizon
+  theme: data-and-api-validation
+  tags: [sql, qa]
+  public: true
+  text: >-
+    Tested the full subscription lifecycle in SQL, including activation, pause,
+    cancellation, and resubscription with existing or new customer details, confirming that
+    new details correctly generated a new third-party customer ID.
+
+- id: vz-coordinated-partner-teams-resolve
+  role: verizon
+  theme: data-and-api-validation
+  tags: [qa]
+  public: true
+  text: >-
+    Coordinated with partner teams to resolve data discrepancies between Verizon and partner
+    test environments, working around partner sync jobs that lagged by minutes or hours or
+    failed outright, and caught major issues before they reached production.
+
+- id: cb-designed-built-shipped-ad-free
+  role: care-board
+  theme: base-entry
+  tags: [ai-assisted, development]
+  public: true
+  text: >-
+    Designed, built and shipped an ad-free communication app for Android and the web for a
+    family member, reaching first release in 4 days and v1.0 in 13 days while directing an
+    AI coding agent and owning all architecture and review decisions.
+
+- id: cb-engineered-407-test-suite-runs
+  role: care-board
+  theme: base-entry
+  tags: [ci-cd, test-automation, development]
+  public: true
+  text: >-
+    Engineered a 407-test suite that runs on the JVM, in headless Chrome and on an Android
+    emulator, backed by a 90% coverage gate and branch protection on every merge.
+
+- id: cb-removed-every-barrier-adoption
+  role: care-board
+  theme: adoption-ux
+  tags: [development]
+  public: true
+  text: >-
+    Removed every barrier to adoption for non-technical caregivers: zero-setup preset
+    boards, voice banking with adjustable text-to-speech fallback (voice, speed, pitch), and
+    critical phrases pinned on every screen for one-tap access in emergencies.
+
+- id: cb-expanded-android-web-version
+  role: care-board
+  theme: adoption-ux
+  tags: [development]
+  public: true
+  text: >-
+    Expanded from Android to a web version that installs like an app and works offline, so
+    caregivers can use it on any device.
+
+- id: cb-improved-legibility-accessibility-automatically
+  role: care-board
+  theme: adoption-ux
+  tags: [accessibility, development]
+  public: true
+  text: >-
+    Improved legibility and accessibility with automatically sized labels, fonts designed
+    for low vision, and screen-reader support.
+
+- id: cb-simplified-distribution-stable-download
+  role: care-board
+  theme: adoption-ux
+  tags: [development]
+  public: true
+  text: >-
+    Simplified distribution with a stable download link that always serves the latest
+    release.
+
+- id: cb-evaluated-commercial-communication-apps
+  role: care-board
+  theme: adoption-ux
+  tags: [development]
+  public: true
+  text: >-
+    Evaluated commercial communication apps, found mostly ad-supported novelty software
+    unsuitable for care use, and built a focused alternative that works offline, has no ads
+    and collects no data.
+
+- id: cb-gathered-requirements-caregivers-prioritized
+  role: care-board
+  theme: product-project-management
+  tags: [requirements, development]
+  public: true
+  text: >-
+    Gathered requirements from caregivers and prioritized by urgency, pinning critical
+    phrases on every screen and returning to the home screen automatically after inactivity.
+
+- id: cb-delivered-v1-two-platforms
+  role: care-board
+  theme: product-project-management
+  tags: [development]
+  public: true
+  text: >-
+    Delivered v1.0 on two platforms in 13 days across 127 issues, 133 pull requests and 6
+    releases, turning caregiver feedback into more than 130 shipped changes.
+
+- id: cb-tailored-features-real-care
+  role: care-board
+  theme: product-project-management
+  tags: [development]
+  public: true
+  text: >-
+    Tailored features to real care situations: a large-text Show mode that flips upside down
+    for someone sitting across from the user, a hold-to-unlock caregiver lock that prevents
+    accidental edits, and warnings when a tap would make no sound.
+
+- id: cb-investigated-routing-app-audio
+  role: care-board
+  theme: product-project-management
+  tags: [development]
+  public: true
+  text: >-
+    Investigated routing app audio directly into phone calls after a real speakerphone test
+    showed call audio filtering drowned out the app, then shelved the feature after weighing
+    feasibility, misuse risk, and texting as a simpler existing alternative.
+
+- id: cb-protected-irreplaceable-recordings-weekly
+  role: care-board
+  theme: product-project-management
+  tags: [development]
+  public: true
+  text: >-
+    Protected irreplaceable recordings with a weekly backup reminder that never blocks the
+    board.
+
+- id: cb-implemented-ci-coverage-gate
+  role: care-board
+  theme: qa-testing
+  tags: [ci-cd, qa, development]
+  public: true
+  text: >-
+    Implemented a CI coverage gate that fails the build if core code drops below 90% line
+    coverage (currently 91-99.5%).
+
+- id: cb-wrote-automated-smoke-test
+  role: care-board
+  theme: qa-testing
+  tags: [test-automation, qa, development]
+  public: true
+  text: >-
+    Wrote an automated smoke test for the live website that loads the production build, taps
+    a tile, checks for errors, then stops the server and confirms the app still works
+    offline.
+
+- id: cb-introduced-screenshot-regression-tests
+  role: care-board
+  theme: qa-testing
+  tags: [test-automation, qa, development]
+  public: true
+  text: >-
+    Introduced screenshot regression tests for the board and every dialog in portrait,
+    landscape and dark theme, so visual changes surface in each pull request.
+
+- id: cb-built-upgrade-testing-release
+  role: care-board
+  theme: qa-testing
+  tags: [qa, development]
+  public: true
+  text: >-
+    Built upgrade testing into the release checklist: installed each new version over the
+    previous one and confirmed recordings, boards and settings survived.
+
+- id: cb-uncovered-half-ui-test
+  role: care-board
+  theme: qa-testing
+  tags: [ci-cd, test-automation, qa, development]
+  public: true
+  text: >-
+    Uncovered that half the UI test suite was failing unnoticed because CI never ran it,
+    repaired it, and added emulator-based UI testing to CI.
+
+- id: cb-diagnosed-fixed-race-condition
+  role: care-board
+  theme: qa-testing
+  tags: [test-automation, qa, development]
+  public: true
+  text: >-
+    Diagnosed and fixed a race condition that could silently save stale data, and proved the
+    fix with a regression test that fails reliably without it.
+
+- id: cb-automated-ui-tests-screen
+  role: care-board
+  theme: qa-testing
+  tags: [test-automation, accessibility, qa, development]
+  public: true
+  text: >-
+    Automated UI tests for screen rotation, touch gestures and accessibility font scaling,
+    alongside testing on physical devices and emulators.
+
+- id: cb-configured-github-actions-ci
+  role: care-board
+  theme: qa-testing
+  tags: [ci-cd, qa, development]
+  public: true
+  text: >-
+    Configured GitHub Actions CI with branch protection and parallel Android and web jobs,
+    requiring lint, tests, coverage and the build to pass before any merge.
+
+- id: cb-converted-caregiver-feedback-tracked
+  role: care-board
+  theme: qa-testing
+  tags: [test-automation, qa, development]
+  public: true
+  text: >-
+    Converted caregiver feedback into tracked issues and paired every fixed defect with a
+    regression test.
+
+- id: cb-designed-data-integrity-safeguards-older
+  role: care-board
+  theme: qa-testing
+  tags: [qa, development]
+  public: true
+  text: >-
+    Designed data-integrity safeguards: older saved boards keep loading after format
+    changes, tiles with missing audio reset themselves instead of failing silently, and
+    cleanup never deletes audio a saved board still uses.
+
+- id: cb-directed-claude-code-through
+  role: care-board
+  theme: ai-assisted-development-implementation-consulting
+  tags: [ci-cd, ai-assisted, development]
+  public: true
+  text: >-
+    Directed Claude Code through a governed workflow (issue to feature branch to pull
+    request to CI gate) to ship a cross-platform Kotlin app, about 15,000 lines of code and
+    tests across 161 commits, in 13 days.
+
+- id: cb-led-4-phase-migration-kotlin
+  role: care-board
+  theme: ai-assisted-development-implementation-consulting
+  tags: [leadership, development]
+  public: true
+  text: >-
+    Led a 4-phase migration to Kotlin Multiplatform and Compose Multiplatform, sharing about
+    80% of the code between Android and the web (WebAssembly) with no change in behavior on
+    Android.
+
+- id: cb-owned-architecture-decisions-reviewed
+  role: care-board
+  theme: ai-assisted-development-implementation-consulting
+  tags: [ai-assisted, development]
+  public: true
+  text: >-
+    Owned architecture decisions and reviewed all AI-generated changes, including a single
+    save path for all data, format migrations that keep older boards working, and
+    interface-based designs testable on every platform.
+
+- id: cb-refactored-large-file-into-modules
+  role: care-board
+  theme: ai-assisted-development-implementation-consulting
+  tags: [ai-assisted, development]
+  public: true
+  text: >-
+    Refactored a 2,900-line file into 8 focused modules in a planned pass with no change in
+    behavior, keeping AI-generated code maintainable.
+
+- id: cb-combined-ai-coding-agent
+  role: care-board
+  theme: ai-assisted-development-implementation-consulting
+  tags: [ai-assisted, development]
+  public: true
+  text: >-
+    Combined an AI coding agent, generative voice synthesis (ElevenLabs), and on-device
+    text-to-speech into one product.
+
+- id: cb-delivered-maintainable-handoff-user
+  role: care-board
+  theme: ai-assisted-development-implementation-consulting
+  tags: [ci-cd, documentation-training, development]
+  public: true
+  text: >-
+    Delivered a maintainable handoff: user documentation, architecture docs, automated
+    tests, CI, a repeatable signed-release process, and a wiki a script keeps in sync with
+    the docs on every release.
+
+- id: jp-organized-annual-charity-music
+  role: jabroni
+  theme: project-management-and-delivery
+  tags: [events]
+  public: true
+  text: >-
+    Organized an annual charity music festival for 11 years as one of three volunteer
+    organizers, raising about $2,000 each year for Y'all Rock Camps, an inclusive music camp
+    program.
+
+- id: jp-managed-venue-booking-band
+  role: jabroni
+  theme: project-management-and-delivery
+  tags: [events]
+  public: true
+  text: >-
+    Managed venue booking, band selection and scheduling, sound and gear, and promotion for
+    a 20-band festival with audiences up to 400, plus about 10 smaller shows a year.
+
+- id: jp-structured-planning-festival-establishing
+  role: jabroni
+  theme: project-management-and-delivery
+  tags: [events]
+  public: true
+  text: >-
+    Structured planning for the festival by establishing and refining the booking,
+    scheduling, and promotion processes the event has run on for over a decade.
+
+- id: jp-kept-festival-deliberately-low-cost
+  role: jabroni
+  theme: project-management-and-delivery
+  tags: [events]
+  public: true
+  text: >-
+    Kept the festival deliberately low-cost to maximize exposure for local bands while still
+    returning surplus to charity.
+
+- id: jp-set-clear-upfront-expectations
+  role: jabroni
+  theme: stakeholder-management
+  tags: [events]
+  public: true
+  text: >-
+    Set clear, upfront expectations with performers: paid out-of-town bands fairly, asked
+    local bands to donate their time, and directed all surplus to the charity.
+
+- id: jp-kept-tight-stage-changeovers
+  role: jabroni
+  theme: operations-and-troubleshooting
+  tags: [project-management, events]
+  public: true
+  text: >-
+    Kept tight stage changeovers on schedule by encouraging gear sharing between bands and
+    helping performers load on and off stage.
+
+- id: jp-provided-on-the-spot-technical-support
+  role: jabroni
+  theme: operations-and-troubleshooting
+  tags: [events]
+  public: true
+  text: >-
+    Provided on-the-spot technical support for performers unfamiliar with shared gear,
+    troubleshooting setups under time pressure between sets.
+
+- id: kh-produced-engineered-dozens-recordings
+  role: kingdom-hell
+  theme: production-and-delivery
+  tags: [audio]
+  public: true
+  text: >-
+    Produced and engineered dozens of recordings, mostly for other artists, all released and
+    streamed publicly, from a home studio with a separate live room.
+
+- id: kh-performed-several-releases-addition
+  role: kingdom-hell
+  theme: production-and-delivery
+  tags: [audio]
+  public: true
+  text: >-
+    Performed on several releases in addition to producing and engineering them.
+
+- id: kh-designed-studio-signal-routing
+  role: kingdom-hell
+  theme: systems-and-workflow-design
+  tags: [audio]
+  public: true
+  text: >-
+    Designed studio signal routing through a patchbay, preamps, and audio interface, and
+    moved all processing in the box so every session is fully recallable.
+
+- id: kh-built-session-templates-scaled
+  role: kingdom-hell
+  theme: systems-and-workflow-design
+  tags: [audio]
+  public: true
+  text: >-
+    Built session templates scaled to project scope, and standardized mix prep (effects off,
+    faders at unity, everything panned center) for a consistent, repeatable starting point.
+
+- id: kh-diagnosed-signal-problems-tracing
+  role: kingdom-hell
+  theme: troubleshooting-and-quality
+  tags: [audio]
+  public: true
+  text: >-
+    Diagnosed signal problems by tracing weak or degraded audio through the chain to isolate
+    failing cables and components.
+
+- id: kh-performed-guitar-setups-soldering
+  role: kingdom-hell
+  theme: troubleshooting-and-quality
+  tags: [audio]
+  public: true
+  text: >-
+    Performed guitar setups and soldering repairs to keep instruments and gear in working
+    order.
+
+- id: kh-learned-configured-unfamiliar-effects
+  role: kingdom-hell
+  theme: learning-and-client-support
+  tags: [audio]
+  public: true
+  text: >-
+    Learned and configured unfamiliar effects on request mid-session, researching and
+    experimenting so artists could keep recording without delays.
+
+- id: nu-replaced-paper-based-personnel-change-of-status
+  role: nucor
+  theme: process-modernization
+  tags: [development, analysis]
+  public: true
+  text: >-
+    Replaced a paper-based personnel change-of-status process, which required walking forms
+    around for signatures, with SharePoint digital forms and automated approvals for an HR
+    team serving about 400 employees, cutting turnaround from days to hours.
+
+- id: nu-gathered-feedback-hr-it
+  role: nucor
+  theme: process-modernization
+  tags: [project-management, analysis]
+  public: true
+  text: >-
+    Gathered feedback from HR and IT stakeholders, assessed feasibility, and implemented
+    approved changes, then handed off unfinished features as a documented backlog with the
+    project.
+
+- id: nu-trained-hr-users-developers
+  role: nucor
+  theme: training-and-documentation
+  tags: [documentation-training, analysis]
+  public: true
+  text: >-
+    Trained HR users and developers in person, and wrote both a user guide and a technical
+    guide to support adoption and handoff.
+
+- id: nu-built-local-replica-company
+  role: nucor
+  theme: environment-and-technical-support
+  tags: [development, analysis]
+  public: true
+  text: >-
+    Built a local replica of the company's SharePoint server on Windows Server to deploy and
+    test web parts, restoring it weekly from a saved image to keep the test environment
+    clean.
+
+- id: nu-tracked-down-restored-overwritten
+  role: nucor
+  theme: environment-and-technical-support
+  tags: [analysis]
+  public: true
+  text: >-
+    Tracked down and restored overwritten source files in a project without real version
+    control, protecting the team's work.
+
+- id: nu-served-technical-support-6-person
+  role: nucor
+  theme: environment-and-technical-support
+  tags: [analysis]
+  public: true
+  text: >-
+    Served as technical support for a 6-person project team, diagnosing slow machines and
+    incorrectly installed software.
+
+- id: pg-built-spotfire-dashboard-pulled
+  role: pg
+  theme: analytics-and-tooling
+  tags: [analytics, analysis]
+  public: true
+  text: >-
+    Built a Spotfire dashboard that pulled Nielsen Answers data into interactive visuals for
+    tracking list-price changes across multiple variables, helping teams justify pricing
+    decisions.
+
+- id: pg-designed-tool-input-teams
+  role: pg
+  theme: analytics-and-tooling
+  tags: [analytics, analysis]
+  public: true
+  text: >-
+    Designed the tool with input from teams across North America, South America, and Europe
+    so it could support P&G's global rollout of Nielsen Answers.
+
+- id: pg-migrated-25-legacy-reports
+  role: pg
+  theme: analytics-and-tooling
+  tags: [analysis]
+  public: true
+  text: >-
+    Migrated 25+ legacy reports to a new data source, reducing data mismatches and manual
+    reconciliation.
+
+- id: pg-trained-about-100-users
+  role: pg
+  theme: training-and-enablement
+  tags: [documentation-training, analytics, analysis]
+  public: true
+  text: >-
+    Trained about 100 users across North America, South America, and Europe on Nielsen
+    Answers Builder through live sessions and written guides.
+
+- id: pg-presented-results-leadership-using
+  role: pg
+  theme: communication
+  tags: [analytics, analysis]
+  public: true
+  text: >-
+    Presented results to leadership using Prezi and live Spotfire visualizations of real
+    business data.
+
+- id: vz-created-confluence-guides-recorded
+  role: verizon
+  theme: training-and-documentation-culture
+  tags: [monitoring, confluence, documentation-training, leadership, qa]
+  public: true
+  text: >-
+    Created Confluence guides and recorded training sessions that got new onshore and
+    offshore testers productive in about a week, and walked product owners and PMs through
+    testing workflows across DevTools, Kibana, databases, CRM, and employee-facing systems.
+
+- id: vz-set-team-standard-defects
+  role: verizon
+  theme: training-and-documentation-culture
+  tags: [qa]
+  public: true
+  text: >-
+    Set the team standard for defects and test cases written with minimal assumptions
+    (preconditions, detailed steps, expected and actual results, and visual evidence),
+    reducing rejected and reopened defects.
+
+- id: vz-enforced-requirements-traceability-linking
+  role: verizon
+  theme: training-and-documentation-culture
+  tags: [requirements, qa]
+  public: true
+  text: >-
+    Enforced requirements traceability by linking every defect to its test case and
+    requirement, making it quick to tell whether the defect, test, or requirement was at
+    fault.
+
+- id: vz-educated-product-owners-distinction
+  role: verizon
+  theme: severity-versus-priority
+  tags: [qa]
+  public: true
+  text: >-
+    Educated product owners on the distinction between defect severity and business
+    priority, leading to more accurate defect triage.
+
+- id: vz-consolidated-jira-labels-thousands
+  role: verizon
+  theme: jira-label-standardization
+  tags: [jira, qa]
+  public: true
+  text: >-
+    Consolidated Jira labels from thousands of inconsistent variants to a couple hundred
+    owned labels, so defects reached the teams responsible for fixing them.
+
+- id: vz-restricted-label-editing-small
+  role: verizon
+  theme: jira-label-standardization
+  tags: [confluence, documentation-training, qa]
+  public: true
+  text: >-
+    Restricted label editing to a small group and published a self-service Confluence guide
+    for requesting access and new labels.
+
+- id: vz-built-credit-check-test-coverage
+  role: verizon
+  theme: credit-checks-for-device-installment-plans
+  tags: [qa]
+  public: true
+  text: >-
+    Built credit-check test coverage from scratch in about two weeks for the device
+    installment plan launch, partnering with credit, billing, and data teams to create test
+    customers across credit classes.
+
+- id: vz-applied-risk-based-boundary-testing
+  role: verizon
+  theme: credit-checks-for-device-installment-plans
+  tags: [qa]
+  public: true
+  text: >-
+    Applied risk-based boundary testing and a code walkthrough with developers to give a
+    documented conditional sign-off when there wasn't time to test every combination.
