@@ -38,6 +38,24 @@
     - Google Docs
     - VS Code
     - Eclipse
+    # Backed by the bank (Care Communication Board, TPD add-in, Nucor, P&G).
+    - Git and GitHub
+    - { name: GitHub Actions CI/CD, only: [qa, consulting] }
+    - { name: JUnit, only: [qa] }
+    - { name: Robolectric, only: [qa] }
+    - { name: Roborazzi, only: [qa] }
+    - { name: Puppeteer, only: [qa] }
+    - { name: Kover, only: [qa] }
+    - { name: Rubberduck (VBA unit testing), only: [qa, consulting] }
+    - { name: PowerShell build scripting, only: [qa, consulting] }
+    - { name: Claude Code, only: [qa, consulting] }
+    - ElevenLabs
+    - { name: SharePoint, only: [consulting] }
+    - { name: Windows Server, only: [consulting] }
+    - { name: Spotfire, only: [consulting] }
+    - { name: Nielsen Answers Builder, only: [consulting] }
+    - { name: Prezi, only: [consulting] }
+    # Version-specific tools.
     - { name: Studio One, only: [creative] }
     - { name: Procreate, only: [creative] }
     - { name: Zephyr, only: [consulting] }
@@ -52,6 +70,10 @@
     - Software Documentation
     - Troubleshooting
     - Hardware Diagnostics
+    - { name: Kotlin Multiplatform, only: [qa, consulting] }
+    - { name: Jetpack Compose / Compose Multiplatform, only: [qa, consulting] }
+    - { name: WebAssembly, only: [qa, consulting] }
+    - { name: Progressive web apps (PWA), only: [qa, consulting] }
 
 - id: languages
   order: 4
@@ -65,4 +87,5 @@
     - Python
     - "C#"
     - Visual Basic
+    - { name: Kotlin, only: [qa, consulting] }
     - { name: MIDI, only: [creative] }
