@@ -147,6 +147,26 @@ const education = defineCollection({
   ]),
 });
 
+// A headline number with its label, shown in a strip on project pages and the Events page.
+const fact = z.strictObject({ value: copy, label: copy });
+
+// ---------------------------------------------------------------------------
+// Events (src/data/events.yaml)
+// ---------------------------------------------------------------------------
+
+const events = defineCollection({
+  loader: file('src/data/events.yaml'),
+  schema: z.strictObject({
+    id: z.string(),
+    name: copy,
+    summary: copy,
+    role: copy,
+    facts: z.array(fact).min(1).max(6),
+    howItRuns: z.array(copy).min(1),
+    cause: z.strictObject({ name: copy, description: copy }),
+  }),
+});
+
 // ---------------------------------------------------------------------------
 // Development projects (src/content/projects/<project>.yaml)
 // ---------------------------------------------------------------------------
@@ -174,11 +194,11 @@ const projects = defineCollection({
     built: z.array(copy).min(1),
     outcome: z.array(copy).min(1),
     // Optional headline numbers. Only figures from the source bank or given by the owner.
-    facts: z.array(z.strictObject({ value: copy, label: copy })).max(6).optional(),
+    facts: z.array(fact).max(6).optional(),
     links: z
       .strictObject({ repo: httpsUrl.optional(), demo: httpsUrl.optional() })
       .refine((l) => Boolean(l.repo || l.demo), 'Give at least a repo or a demo link'),
   }),
 });
 
-export const collections = { roles, bullets, summaries, variants, skills, education, projects };
+export const collections = { roles, bullets, summaries, variants, skills, education, events, projects };

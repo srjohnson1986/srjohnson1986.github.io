@@ -1,0 +1,41 @@
+# Event organizations shown on the Events page. Numbers come from the project brief and the
+# source bank only.
+
+- id: jabroni
+  name: Jabroni Productions
+  summary: >-
+    Jabroni Productions puts on an annual charity music festival and about 10 smaller shows a
+    year, run by three volunteers.
+  role: >-
+    I am one of the three volunteer organizers. I own booking, band scheduling, sound and
+    gear, and promotion.
+  facts:
+    - value: 11 years
+      label: running the festival
+    - value: About 20
+      label: bands at the festival
+    - value: Up to 400
+      label: people in the audience
+    - value: About $2,000
+      label: raised each year for Y'all Rock Camps
+    - value: About 10
+      label: smaller shows a year
+  howItRuns:
+    - >-
+      Deliberately low-cost, to give local bands the most exposure while still returning any
+      surplus to charity.
+    - >-
+      Expectations are set upfront: out-of-town bands are paid fairly, local bands are asked
+      to donate their time, and all surplus goes to the charity.
+    - >-
+      Changeovers stay tight because bands share gear and help each other load on and off
+      stage.
+    - >-
+      On-the-spot technical support for performers who are new to the shared gear,
+      troubleshooting setups between sets.
+    - >-
+      The booking, scheduling, and promotion processes have been refined over more than a
+      decade of festivals.
+  cause:
+    name: Y'all Rock Camps
+    description: an inclusive music camp program

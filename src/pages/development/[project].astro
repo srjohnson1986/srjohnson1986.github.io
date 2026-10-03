@@ -1,6 +1,7 @@
 ---
 import type { GetStaticPaths } from 'astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import Facts from '../../components/Facts.astro';
 import { getProjects, TYPE_LABELS } from '../../lib/projects';
 import { site } from '../../data/site';
 
@@ -22,18 +23,7 @@ const { title, summary, year, type, stack, problem, built, outcome, facts, links
     <p class="summary">{summary}</p>
   </header>
 
-  {
-    facts && (
-      <ul class="facts" aria-label="Headline facts">
-        {facts.map((fact) => (
-          <li>
-            <strong>{fact.value}</strong>
-            <span>{fact.label}</span>
-          </li>
-        ))}
-      </ul>
-    )
-  }
+  {facts && <Facts facts={facts} />}
 
   <section aria-labelledby="problem">
     <h2 id="problem">Problem</h2>
@@ -102,36 +92,6 @@ const { title, summary, year, type, stack, problem, built, outcome, facts, links
   .summary {
     margin: 0 0 1.5rem;
     font-size: 1.1rem;
-  }
-
-  .facts {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(8.5rem, 1fr));
-    gap: 0.75rem;
-    margin: 0 0 1rem;
-    padding: 0;
-    list-style: none;
-  }
-
-  .facts li {
-    padding: 0.75rem 0.9rem;
-    border: 1px solid var(--rule);
-    border-radius: 0.6rem;
-    background: var(--card);
-  }
-
-  .facts strong {
-    display: block;
-    color: var(--accent);
-    font-size: 1.3rem;
-    line-height: 1.2;
-  }
-
-  .facts span {
-    display: block;
-    margin-top: 0.15rem;
-    color: var(--muted);
-    font-size: 0.85rem;
   }
 
   section {
