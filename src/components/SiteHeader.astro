@@ -1,14 +1,33 @@
 ---
-import { nav, site } from '../data/site';
+import { nav, site, type NavItem } from '../data/site';
 
 const path = Astro.url.pathname;
 // Home matches only "/"; every other entry also matches its sub-pages (/resume/qa/ is "Resume").
 const isCurrent = (href: string) => (href === '/' ? path === '/' : path.startsWith(href));
+
+// The phone menu keeps ungrouped links where they are and lists items that share a group
+// together, under the group's name, at the position of the group's first item.
+type Entry = { kind: 'link'; item: NavItem } | { kind: 'group'; label: string; items: NavItem[] };
+const entries: Entry[] = [];
+for (const item of nav) {
+  if (!item.group) {
+    entries.push({ kind: 'link', item });
+    continue;
+  }
+  let group = entries.find((e): e is Extract<Entry, { kind: 'group' }> => e.kind === 'group' && e.label === item.group);
+  if (!group) {
+    group = { kind: 'group', label: item.group, items: [] };
+    entries.push(group);
+  }
+  group.items.push(item);
+}
 ---
 
 <header class="site-header no-print">
   <a class="brand" href="/">{site.name}</a>
-  <nav aria-label="Main">
+
+  <!-- Wide screens: every link in one row. -->
+  <nav class="nav-wide" aria-label="Main">
     <ul>
       {
         nav.map((item) => (
@@ -21,10 +40,45 @@ const isCurrent = (href: string) => (href === '/' ? path === '/' : path.startsWi
       }
     </ul>
   </nav>
+
+  <!-- Phones: one Menu button. The native details element gives keyboard and screen reader
+       support with no script. -->
+  <details class="nav-menu">
+    <summary>Menu</summary>
+    <nav aria-label="Main">
+      <ul>
+        {
+          entries.map((entry) =>
+            entry.kind === 'link' ? (
+              <li>
+                <a href={entry.item.href} aria-current={isCurrent(entry.item.href) ? 'page' : undefined}>
+                  {entry.item.label}
+                </a>
+              </li>
+            ) : (
+              <li class="group">
+                <span class="group-label">{entry.label}</span>
+                <ul>
+                  {entry.items.map((item) => (
+                    <li>
+                      <a href={item.href} aria-current={isCurrent(item.href) ? 'page' : undefined}>
+                        {item.label}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </li>
+            ),
+          )
+        }
+      </ul>
+    </nav>
+  </details>
 </header>
 
 <style>
   .site-header {
+    position: relative;
     display: flex;
     flex-wrap: wrap;
     align-items: baseline;
@@ -43,15 +97,18 @@ const isCurrent = (href: string) => (href === '/' ? path === '/' : path.startsWi
   }
 
   ul {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.25rem 1.25rem;
     margin: 0;
     padding: 0;
     list-style: none;
   }
 
-  nav a {
+  .nav-wide ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 1.25rem;
+  }
+
+  a {
     display: inline-block;
     padding: 0.25rem 0;
     color: var(--muted);
@@ -59,13 +116,89 @@ const isCurrent = (href: string) => (href === '/' ? path === '/' : path.startsWi
     border-bottom: 2px solid transparent;
   }
 
-  nav a:hover {
+  a:hover {
     color: var(--fg);
   }
 
-  nav a[aria-current='page'] {
+  a[aria-current='page'] {
     color: var(--accent);
     font-weight: 600;
     border-bottom-color: var(--accent);
+  }
+
+  /* ---- Phone menu ---- */
+  .nav-menu summary {
+    padding: 0.3rem 0.85rem;
+    border: 1px solid var(--rule);
+    border-radius: 0.4rem;
+    background: var(--card);
+    color: var(--fg);
+    font-size: 0.95rem;
+    font-weight: 600;
+    list-style: none;
+    cursor: pointer;
+  }
+
+  .nav-menu summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .nav-menu summary::after {
+    content: ' \25BE';
+    color: var(--muted);
+  }
+
+  .nav-menu[open] summary::after {
+    content: ' \25B4';
+  }
+
+  /* The open menu floats under the header so the page does not jump. */
+  .nav-menu nav {
+    position: absolute;
+    top: calc(100% - 0.4rem);
+    right: 0;
+    z-index: 5;
+    min-width: 13rem;
+    padding: 0.5rem 0.9rem 0.7rem;
+    border: 1px solid var(--rule);
+    border-radius: 0.5rem;
+    background: var(--card);
+    box-shadow: 0 6px 18px rgb(0 0 0 / 0.12);
+  }
+
+  .nav-menu nav > ul > li {
+    margin: 0.15rem 0;
+  }
+
+  .group-label {
+    display: block;
+    margin-top: 0.4rem;
+    color: var(--muted);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .group ul {
+    margin-left: 0.75rem;
+  }
+
+  /* Wide screens use the single row, phones use the menu. The hidden one is removed from the
+     page entirely, so screen readers only meet one navigation. */
+  @media (min-width: 40rem) {
+    .nav-menu {
+      display: none;
+    }
+  }
+
+  @media (max-width: 39.99rem) {
+    .nav-wide {
+      display: none;
+    }
+
+    .site-header {
+      align-items: center;
+    }
   }
 </style>
