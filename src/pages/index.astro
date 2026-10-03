@@ -31,7 +31,9 @@ import { entryCards, site } from '../data/site';
         site.photo ? (
           <img src={site.photo.src} alt={site.photo.alt} width="160" height="160" />
         ) : (
-          <div class="portrait-placeholder" aria-hidden="true">SJ</div>
+          <div class="portrait-placeholder">
+            <span>This will be a picture of Steve</span>
+          </div>
         )
       }
     </div>
@@ -114,11 +116,12 @@ import { entryCards, site } from '../data/site';
     display: grid;
     place-items: center;
     border: 2px dashed var(--rule);
+    padding: 1rem;
     background: var(--card);
     color: var(--muted);
-    font-size: 2.5rem;
-    font-weight: 700;
-    letter-spacing: 0.05em;
+    font-size: 0.95rem;
+    line-height: 1.35;
+    text-align: center;
   }
 
   /* On narrow screens the portrait sits above the text. */
@@ -129,8 +132,13 @@ import { entryCards, site } from '../data/site';
 
     .portrait img,
     .portrait-placeholder {
-      width: 7.5rem;
-      height: 7.5rem;
+      width: 8.5rem;
+      height: 8.5rem;
+    }
+
+    .portrait-placeholder {
+      padding: 0.75rem;
+      font-size: 0.85rem;
     }
 
     h1 {
