@@ -1,9 +1,8 @@
 # Education and certifications. The same block appears on every resume version.
 #
-# ISTQB level: the resumes list this as "ISTQB Certified Tester" with no level, so none is
-# published here. When the exact level is confirmed (for example Foundation), add
-#   level: <text>
-# to the certification below. The schema rejects placeholder text such as TODO.
+# The certification is published as "ISTQB Certified Tester" with no separate level, as on
+# the resumes. If a level is ever added, put it in a `level: <text>` line on that entry. The
+# schema rejects placeholder text such as TODO.
 
 - id: bs-mis
   order: 1
