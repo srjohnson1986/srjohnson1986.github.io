@@ -20,7 +20,23 @@ Read `PROJECT_BRIEF.md` (kept in `private/`) for goals, pages, and privacy rules
 - `npm run dev` - local dev server (use `astro dev --background` when started by Claude; manage with `astro dev stop|status|logs`)
 - `npm run build` - build to `dist/`
 - `npm run preview` - serve the built site locally
+- `npm test` - build, then run the whole Playwright suite against the local build
+- `npm run test:only` - run the suite without rebuilding (build first with `npm run build`)
+- `npm run test:smoke` - run only the smoke checks against the deployed site (`SMOKE_URL` points them elsewhere)
 - Docs: https://docs.astro.build
+
+## Testing
+
+The Playwright suite is a portfolio piece as well as a safety net. It lives in `tests/`, and the data helpers in `tests/helpers/data.ts` read the same YAML files the site is built from, so a test states what a page should contain without a second hand-copied list.
+
+- `resume.spec.ts` - every resume version renders from the real data, shows exactly its skills, and the print routes follow the label mode
+- `pdfs.spec.ts` - one real PDF per version, with a sensible page count
+- `links.spec.ts` - a crawl from the home page that checks every link, anchor, and asset, and that no page is orphaned
+- `filters.spec.ts`, `art.spec.ts`, `audio.spec.ts`, `navigation.spec.ts` - the interactive behavior (Bandcamp is stubbed, so tests never use the network)
+- `accessibility.spec.ts` - axe scans of every page in light, dark, and phone width, plus the changing states and keyboard checks
+- `smoke.spec.ts` - short checks against the live site, run by the Smoke test workflow after every deploy, weekly, and on demand
+
+The CI workflow builds and runs the suite on every pull request, and it must be green before a merge. When adding a feature, add or update the test that covers it, and check that the test can fail by breaking the feature on purpose.
 
 ## Workflow: issue first
 
