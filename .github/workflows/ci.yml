@@ -1,0 +1,32 @@
+name: CI
+
+# Builds the site (including the resume PDFs) on every pull request, without deploying.
+# This catches a broken build before it can reach `main`, where a merge would deploy it.
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v7
+
+      - name: Set up Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Chromium for the PDF step
+        run: npx playwright install --with-deps chromium-headless-shell
+
+      - name: Build the site and the resume PDFs
+        run: npm run build

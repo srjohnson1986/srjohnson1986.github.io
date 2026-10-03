@@ -26,6 +26,10 @@ jobs:
         uses: actions/checkout@v7
       - name: Install, build, and upload the site
         uses: withastro/action@v6
+        with:
+          # `npm run build` also prints the resume PDFs, which needs headless Chromium.
+          # The action installs npm dependencies first, then runs this command in bash.
+          build-cmd: npx playwright install --with-deps chromium-headless-shell && npm run build
 
   deploy:
     needs: build
