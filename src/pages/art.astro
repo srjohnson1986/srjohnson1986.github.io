@@ -1,11 +1,25 @@
 ---
 import { Image } from 'astro:assets';
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { getArtworks, groupByMedium, FORMAT_LABELS } from '../lib/art';
+import { getArtworks, groupByMedium, FORMAT_LABELS, type Artwork } from '../lib/art';
 import { site } from '../data/site';
 
 const pieces = await getArtworks();
 const groups = groupByMedium(pieces);
+
+// "2026.02.13 · Social media", "2025 · Square", or just the shape when there is no date.
+const metaOf = (piece: Artwork) =>
+  [piece.data.date ?? piece.data.year, piece.data.format && FORMAT_LABELS[piece.data.format]]
+    .filter(Boolean)
+    .join(' · ');
+
+// What the expand and collapse control says, depending on what is inside it.
+const detailsLabel = (piece: Artwork) => {
+  const extra = piece.data.more?.length ?? 0;
+  if (piece.data.story && extra) return `The story and ${extra} more image${extra === 1 ? '' : 's'}`;
+  if (extra) return `${extra} more image${extra === 1 ? '' : 's'}`;
+  return 'The story behind this piece';
+};
 ---
 
 <BaseLayout
@@ -34,24 +48,38 @@ const groups = groupByMedium(pieces);
                     src={piece.data.image}
                     alt={piece.data.alt}
                     widths={[320, 480, 640, 960]}
-                    sizes="(max-width: 36rem) 100vw, 14rem"
+                    sizes="(max-width: 36rem) 100vw, 15rem"
                     loading="lazy"
                     decoding="async"
                   />
                   <figcaption>
                     <strong>{piece.data.title}</strong>
-                    <span class="meta">
-                      {piece.data.year}
-                      {piece.data.format && <> &middot; {FORMAT_LABELS[piece.data.format]}</>}
-                    </span>
-                    <span class="caption">{piece.data.caption}</span>
+                    {metaOf(piece) && <span class="meta">{metaOf(piece)}</span>}
+                    {piece.data.caption && <span class="caption">{piece.data.caption}</span>}
                   </figcaption>
-                  {piece.data.story && (
+                  {(piece.data.story || piece.data.more) && (
                     <details>
-                      <summary>The story behind this piece</summary>
-                      {piece.data.story.map((paragraph) => (
-                        <p>{paragraph}</p>
-                      ))}
+                      <summary>{detailsLabel(piece)}</summary>
+                      {piece.data.story?.map((paragraph) => <p>{paragraph}</p>)}
+                      {piece.data.more && (
+                        <ul class="more">
+                          {piece.data.more.map((extra) => (
+                            <li>
+                              <figure>
+                                <Image
+                                  src={extra.image}
+                                  alt={extra.alt}
+                                  widths={[240, 360, 480, 720]}
+                                  sizes="(max-width: 36rem) 50vw, 7rem"
+                                  loading="lazy"
+                                  decoding="async"
+                                />
+                                {extra.caption && <figcaption>{extra.caption}</figcaption>}
+                              </figure>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
                     </details>
                   )}
                 </figure>
@@ -94,7 +122,7 @@ const groups = groupByMedium(pieces);
      piece's story grows only that card and does not stretch its neighbours. */
   .gallery {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(12.5rem, 1fr));
     gap: 1.25rem;
     align-items: start;
     margin: 0;
@@ -145,5 +173,33 @@ const groups = groupByMedium(pieces);
   details p {
     margin: 0.6rem 0 0;
     font-size: 0.95rem;
+  }
+
+  /* Further images in a series: a small grid inside the open details. */
+  .more {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+    margin: 0.75rem 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .more figure {
+    margin: 0;
+  }
+
+  .more :global(img) {
+    display: block;
+    width: 100%;
+    height: auto;
+    border: 1px solid var(--rule);
+    border-radius: 0.35rem;
+  }
+
+  .more figcaption {
+    padding: 0.3rem 0 0;
+    color: var(--muted);
+    font-size: 0.8rem;
   }
 </style>
