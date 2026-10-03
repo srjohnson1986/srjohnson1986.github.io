@@ -1,7 +1,8 @@
 name: CI
 
-# Builds the site (including the resume PDFs) on every pull request, without deploying.
-# This catches a broken build before it can reach `main`, where a merge would deploy it.
+# Builds the site (including the resume PDFs) and runs the Playwright suite against it on every
+# pull request, without deploying. This catches a broken build or a failing check before it can
+# reach `main`, where a merge would deploy it.
 on:
   pull_request:
   workflow_dispatch:
@@ -30,3 +31,14 @@ jobs:
 
       - name: Build the site and the resume PDFs
         run: npm run build
+
+      - name: Run the Playwright test suite
+        run: npx playwright test
+
+      - name: Keep the test report when something fails
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 14

@@ -11,6 +11,8 @@
     "build": "astro build && node scripts/build-pdfs.mjs",
     "build:site": "astro build",
     "preview": "astro preview",
+    "test": "npm run build && playwright test",
+    "test:only": "playwright test",
     "astro": "astro"
   },
   "dependencies": {
@@ -20,6 +22,7 @@
     "esbuild": true
   },
   "devDependencies": {
-    "@playwright/test": "^1.63.0"
+    "@playwright/test": "^1.63.0",
+    "js-yaml": "^4.3.2"
   }
 }
