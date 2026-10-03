@@ -1,5 +1,5 @@
 import { defineCollection, reference } from 'astro:content';
-import { file } from 'astro/loaders';
+import { file, glob } from 'astro/loaders';
 import { z } from 'astro/zod';
 
 // ---------------------------------------------------------------------------
@@ -147,4 +147,38 @@ const education = defineCollection({
   ]),
 });
 
-export const collections = { roles, bullets, summaries, variants, skills, education };
+// ---------------------------------------------------------------------------
+// Development projects (src/content/projects/<project>.yaml)
+// ---------------------------------------------------------------------------
+
+const httpsUrl = z
+  .string()
+  .url()
+  .refine((u) => u.startsWith('https://'), 'Use an https:// link');
+
+const projects = defineCollection({
+  loader: glob({ pattern: '*.yaml', base: './src/content/projects' }),
+  schema: z.strictObject({
+    title: copy,
+    // One sentence, shown on the archive card and as the page description.
+    summary: copy,
+    year,
+    type: z.enum(['app', 'tool', 'website', 'library', 'script']),
+    // Filter tags, lowercase-kebab-case. Reuse existing tags before inventing new ones.
+    tags: z.array(kebab).min(1),
+    stack: z.array(copy).min(1),
+    // Featured projects sort first within their year.
+    featured: z.boolean().optional(),
+    // The three prose sections of the project page. Stack and links have their own fields.
+    problem: copy,
+    built: z.array(copy).min(1),
+    outcome: z.array(copy).min(1),
+    // Optional headline numbers. Only figures from the source bank or given by the owner.
+    facts: z.array(z.strictObject({ value: copy, label: copy })).max(6).optional(),
+    links: z
+      .strictObject({ repo: httpsUrl.optional(), demo: httpsUrl.optional() })
+      .refine((l) => Boolean(l.repo || l.demo), 'Give at least a repo or a demo link'),
+  }),
+});
+
+export const collections = { roles, bullets, summaries, variants, skills, education, projects };

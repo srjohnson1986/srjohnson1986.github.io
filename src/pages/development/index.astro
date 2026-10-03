@@ -1,0 +1,320 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getProjects, getFacets, tagLabel, TYPE_LABELS } from '../../lib/projects';
+import { site } from '../../data/site';
+
+const projects = await getProjects();
+const facets = getFacets(projects);
+---
+
+<BaseLayout
+  title={`Development | ${site.name}`}
+  description="Every software project I have built: apps, tools, and sites, with the problem, the build, the stack, and the outcome."
+>
+  <h1>Development</h1>
+  <p class="lead">
+    Every software project I have built, newest first. Each one has its own page with the
+    problem, what I built, the stack, the outcome, and links to the code.
+  </p>
+
+  <!-- Hidden until the script below runs, so without JavaScript the full list is simply shown. -->
+  <form id="filters" class="filters" aria-label="Filter projects" hidden>
+    <div class="selects">
+      <label>
+        Year
+        <select name="year">
+          <option value="">All years</option>
+          {facets.years.map((year) => <option value={year}>{year}</option>)}
+        </select>
+      </label>
+      <label>
+        Type
+        <select name="type">
+          <option value="">All types</option>
+          {facets.types.map((t) => <option value={t.type}>{t.label} ({t.count})</option>)}
+        </select>
+      </label>
+    </div>
+
+    <fieldset>
+      <legend>Tags (a project must have every tag you pick)</legend>
+      <div class="tag-options">
+        {
+          facets.tags.map((t) => (
+            <label class="tag-option">
+              <input type="checkbox" name="tag" value={t.tag} />
+              <span>{t.label} ({t.count})</span>
+            </label>
+          ))
+        }
+      </div>
+    </fieldset>
+
+    <div class="filter-footer">
+      <p id="filter-status" role="status"></p>
+      <button type="button" id="clear-filters">Clear filters</button>
+    </div>
+  </form>
+
+  <ul class="project-list">
+    {
+      projects.map((project) => (
+        <li
+          class="project"
+          data-project
+          data-year={project.data.year}
+          data-type={project.data.type}
+          data-tags={project.data.tags.join(' ')}
+        >
+          <h2>
+            <a href={`/development/${project.id}/`}>{project.data.title}</a>
+          </h2>
+          <p class="meta">
+            {project.data.year} &middot; {TYPE_LABELS[project.data.type]}
+            {project.data.featured && <span class="featured">Featured</span>}
+          </p>
+          <p>{project.data.summary}</p>
+          <ul class="chips">
+            {project.data.tags.map((tag) => <li class="chip">{tagLabel(tag)}</li>)}
+          </ul>
+        </li>
+      ))
+    }
+  </ul>
+
+  <p id="no-results" hidden>No projects match these filters. Try removing one.</p>
+</BaseLayout>
+
+<script>
+  // Progressive enhancement: reveal the filter form, then show or hide project cards to
+  // match it. The selection lives in the URL (?year=2026&type=app&tag=kotlin) so a filtered
+  // view can be shared, and reloading or going back keeps it.
+  const form = document.getElementById('filters') as HTMLFormElement | null;
+
+  if (form) {
+    const cards = [...document.querySelectorAll<HTMLElement>('[data-project]')];
+    const status = document.getElementById('filter-status') as HTMLElement;
+    const empty = document.getElementById('no-results') as HTMLElement;
+    const yearSelect = form.elements.namedItem('year') as HTMLSelectElement;
+    const typeSelect = form.elements.namedItem('type') as HTMLSelectElement;
+    const tagBoxes = [...form.querySelectorAll<HTMLInputElement>('input[name="tag"]')];
+
+    const selectedTags = () => tagBoxes.filter((box) => box.checked).map((box) => box.value);
+
+    const apply = () => {
+      const year = yearSelect.value;
+      const type = typeSelect.value;
+      const tags = selectedTags();
+      let shown = 0;
+
+      for (const card of cards) {
+        const cardTags = (card.dataset.tags ?? '').split(' ');
+        const match =
+          (!year || card.dataset.year === year) &&
+          (!type || card.dataset.type === type) &&
+          tags.every((tag) => cardTags.includes(tag));
+        card.hidden = !match;
+        if (match) shown++;
+      }
+
+      status.textContent = `Showing ${shown} of ${cards.length} projects`;
+      empty.hidden = shown !== 0;
+
+      const params = new URLSearchParams();
+      if (year) params.set('year', year);
+      if (type) params.set('type', type);
+      for (const tag of tags) params.append('tag', tag);
+      const query = params.toString();
+      history.replaceState(null, '', query ? `?${query}` : location.pathname);
+    };
+
+    // Restore a shared or reloaded selection from the URL.
+    const params = new URLSearchParams(location.search);
+    yearSelect.value = params.get('year') ?? '';
+    typeSelect.value = params.get('type') ?? '';
+    const wanted = new Set(params.getAll('tag'));
+    for (const box of tagBoxes) box.checked = wanted.has(box.value);
+
+    form.addEventListener('change', apply);
+    document.getElementById('clear-filters')?.addEventListener('click', () => {
+      form.reset();
+      apply();
+    });
+
+    form.hidden = false;
+    apply();
+  }
+</script>
+
+<style>
+  h1 {
+    margin: 0 0 0.5rem;
+    font-size: 2rem;
+  }
+
+  .lead {
+    margin: 0 0 1.5rem;
+    color: var(--muted);
+  }
+
+  .filters {
+    margin-bottom: 1.5rem;
+    padding: 1rem 1.1rem;
+    border: 1px solid var(--rule);
+    border-radius: 0.6rem;
+    background: var(--card);
+  }
+
+  .selects {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem 1.25rem;
+    margin-bottom: 0.9rem;
+  }
+
+  .selects label {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+
+  select {
+    min-width: 9rem;
+    padding: 0.4rem 0.5rem;
+    border: 1px solid var(--rule);
+    border-radius: 0.35rem;
+    background: var(--bg);
+    color: var(--fg);
+    font: inherit;
+    font-weight: 400;
+  }
+
+  fieldset {
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+
+  legend {
+    margin-bottom: 0.4rem;
+    padding: 0;
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+
+  .tag-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+
+  .tag-option {
+    cursor: pointer;
+  }
+
+  /* The checkbox stays in the DOM for keyboard and screen reader use, but the label text
+     is drawn as a pill that fills when it is checked. */
+  .tag-option input {
+    position: absolute;
+    opacity: 0;
+  }
+
+  .tag-option span {
+    display: inline-block;
+    padding: 0.2rem 0.7rem;
+    border: 1px solid var(--rule);
+    border-radius: 999px;
+    background: var(--bg);
+    font-size: 0.85rem;
+  }
+
+  .tag-option input:checked + span {
+    border-color: var(--accent);
+    background: var(--accent);
+    color: var(--bg);
+    font-weight: 600;
+  }
+
+  .tag-option input:focus-visible + span {
+    outline: 3px solid var(--focus);
+    outline-offset: 2px;
+  }
+
+  .filter-footer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem 1rem;
+    margin-top: 0.9rem;
+  }
+
+  #filter-status {
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.9rem;
+  }
+
+  #clear-filters {
+    padding: 0.35rem 0.8rem;
+    border: 1px solid var(--rule);
+    border-radius: 0.35rem;
+    background: var(--bg);
+    color: var(--fg);
+    font: inherit;
+    font-size: 0.9rem;
+    cursor: pointer;
+  }
+
+  #clear-filters:hover {
+    border-color: var(--accent);
+  }
+
+  .project-list {
+    display: grid;
+    gap: 1rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .project {
+    padding: 1rem 1.1rem;
+    border: 1px solid var(--rule);
+    border-radius: 0.6rem;
+    background: var(--card);
+  }
+
+  .project h2 {
+    margin: 0 0 0.2rem;
+    font-size: 1.15rem;
+  }
+
+  .project p {
+    margin: 0 0 0.6rem;
+  }
+
+  .project .meta {
+    color: var(--muted);
+    font-size: 0.9rem;
+    margin-bottom: 0.4rem;
+  }
+
+  .featured {
+    margin-left: 0.6rem;
+    padding: 0.05rem 0.5rem;
+    border: 1px solid var(--accent);
+    border-radius: 999px;
+    color: var(--accent);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  #no-results {
+    color: var(--muted);
+  }
+</style>

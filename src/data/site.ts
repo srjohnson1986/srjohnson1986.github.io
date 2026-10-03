@@ -30,21 +30,21 @@ export const site = {
 };
 
 // Main navigation. Add an entry when a page ships; never link a page that is not built.
-// Planned, in order: Development, Audio, Art, Events. When those arrive and the bar gets
+// Planned, in order: Audio, Art, Events. When those arrive and the bar gets
 // crowded on phones, Audio, Art, and Events move under a "Creative" group.
 export const nav: NavItem[] = [
   { label: 'Home', href: '/' },
   { label: 'Resume', href: '/resume/' },
+  { label: 'Development', href: '/development/' },
   { label: 'Contact', href: '/contact/' },
 ];
 
-// The three entry points on the Home page. "Technology and QA" points at the resume for now
-// and moves to the Development archive when that page exists.
+// The three entry points on the Home page. A card without an href shows "Coming soon".
 export const entryCards: EntryCard[] = [
   {
     title: 'Technology and QA',
-    blurb: 'Quality assurance, automation, and project work, plus my resume.',
-    href: '/resume/',
+    blurb: 'Apps, tools, and sites I have built, with the code and live demos.',
+    href: '/development/',
   },
   {
     title: 'Audio',
