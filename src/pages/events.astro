@@ -1,0 +1,85 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Facts from '../components/Facts.astro';
+import { site } from '../data/site';
+
+const organizations = (await getCollection('events')).sort((a, b) => a.id.localeCompare(b.id));
+const description = organizations[0]?.data.summary ?? 'Live music events I help organize.';
+---
+
+<BaseLayout title={`Events | ${site.name}`} description={description}>
+  <h1>Events</h1>
+  <p class="lead">Live music I help put on, run by volunteers.</p>
+
+  {
+    organizations.map((org) => (
+      <section class="org" aria-labelledby={`org-${org.id}`}>
+        <h2 id={`org-${org.id}`}>{org.data.name}</h2>
+        <p class="summary">{org.data.summary}</p>
+
+        <Facts facts={org.data.facts} label={`${org.data.name} in numbers`} />
+
+        <h3>My role</h3>
+        <p>{org.data.role}</p>
+
+        <h3>How it runs</h3>
+        <ul>
+          {org.data.howItRuns.map((item) => (
+            <li>{item}</li>
+          ))}
+        </ul>
+
+        <h3>The cause</h3>
+        <p>
+          The festival raises money for <strong>{org.data.cause.name}</strong>, {org.data.cause.description}.
+        </p>
+      </section>
+    ))
+  }
+</BaseLayout>
+
+<style>
+  h1 {
+    margin: 0 0 0.5rem;
+    font-size: 2rem;
+  }
+
+  .lead {
+    margin: 0 0 1.75rem;
+    color: var(--muted);
+  }
+
+  h2 {
+    margin: 0 0 0.5rem;
+    font-size: 1.4rem;
+  }
+
+  .summary {
+    margin: 0 0 1.25rem;
+    font-size: 1.05rem;
+  }
+
+  h3 {
+    margin: 1.5rem 0 0.5rem;
+    padding-bottom: 0.25rem;
+    border-bottom: 1px solid var(--rule);
+    color: var(--muted);
+    font-size: 0.85rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  p {
+    margin: 0;
+  }
+
+  ul {
+    margin: 0;
+    padding-left: 1.2rem;
+  }
+
+  li {
+    margin-bottom: 0.45rem;
+  }
+</style>
