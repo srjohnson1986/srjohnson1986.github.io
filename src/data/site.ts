@@ -1,10 +1,26 @@
 // Site-wide facts used by layouts and the resume. Public site rules (see CLAUDE.md):
 // no phone number, location is "Atlanta area" only, contact is email plus LinkedIn and GitHub.
 
+export interface NavItem {
+  label: string;
+  href: string;
+}
+
+export interface EntryCard {
+  title: string;
+  blurb: string;
+  /** Leave unset while the destination page is not built yet. The card then shows "Coming soon". */
+  href?: string;
+}
+
 export const site = {
   name: 'Steven Johnson',
   url: 'https://srjohnson1986.github.io',
+  repo: 'https://github.com/srjohnson1986/srjohnson1986.github.io',
   area: 'Atlanta area',
+  // Photo for the Home page. Leave undefined to show a placeholder. To use a real photo, put the
+  // file in public/images/ and set { src: '/images/<file>', alt: '<description of the photo>' }.
+  photo: undefined as { src: string; alt: string } | undefined,
   // Published on the resume page and in the PDFs. Set to undefined to hide it.
   email: 'srjohnson1986@gmail.com' as string | undefined,
   links: {
@@ -12,3 +28,30 @@ export const site = {
     github: { label: 'github.com/srjohnson1986', href: 'https://github.com/srjohnson1986' },
   },
 };
+
+// Main navigation. Add an entry when a page ships; never link a page that is not built.
+// Planned, in order: Development, Audio, Art, Events. When those arrive and the bar gets
+// crowded on phones, Audio, Art, and Events move under a "Creative" group.
+export const nav: NavItem[] = [
+  { label: 'Home', href: '/' },
+  { label: 'Resume', href: '/resume/' },
+  { label: 'Contact', href: '/contact/' },
+];
+
+// The three entry points on the Home page. "Technology and QA" points at the resume for now
+// and moves to the Development archive when that page exists.
+export const entryCards: EntryCard[] = [
+  {
+    title: 'Technology and QA',
+    blurb: 'Quality assurance, automation, and project work, plus my resume.',
+    href: '/resume/',
+  },
+  {
+    title: 'Audio',
+    blurb: 'Kingdom Hell, my home studio: production and engineering for other artists.',
+  },
+  {
+    title: 'Art',
+    blurb: 'Show flyers and other work made in Procreate.',
+  },
+];

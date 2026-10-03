@@ -1,5 +1,7 @@
 ---
 import '../styles/global.css';
+import SiteHeader from '../components/SiteHeader.astro';
+import SiteFooter from '../components/SiteFooter.astro';
 import { site } from '../data/site';
 
 interface Props {
@@ -11,7 +13,7 @@ interface Props {
   theme?: 'auto' | 'light';
   /** Extra class on <body>, for page-specific styling. */
   bodyClass?: string;
-  /** Print routes pass false: no skip link, no page container, nothing but the content. */
+  /** Print routes pass false: no skip link, header, footer, or page container, only the content. */
   chrome?: boolean;
 }
 
@@ -36,9 +38,13 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? site.url);
     {chrome && <a class="skip-link" href="#main">Skip to content</a>}
     {
       chrome ? (
-        <main id="main" class="container">
-          <slot />
-        </main>
+        <div class="site-shell container">
+          <SiteHeader />
+          <main id="main">
+            <slot />
+          </main>
+          <SiteFooter />
+        </div>
       ) : (
         <main id="main">
           <slot />
