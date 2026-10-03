@@ -168,6 +168,31 @@ const events = defineCollection({
 });
 
 // ---------------------------------------------------------------------------
+// Art (src/content/art/<piece>.yaml, images in src/assets/art/)
+// ---------------------------------------------------------------------------
+
+const artworks = defineCollection({
+  loader: glob({ pattern: '*.yaml', base: './src/content/art' }),
+  schema: ({ image }) =>
+    z.strictObject({
+      title: copy,
+      year,
+      // The group the piece appears under on the Art page.
+      medium: z.enum(['show-flyer', 'illustration', 'other']),
+      // Optional shape label. The layout itself follows the image's real proportions.
+      format: z.enum(['poster-11x17', 'square', 'social']).optional(),
+      // Path relative to this file, for example ../../assets/art/my-flyer.jpg
+      image: image(),
+      // Required, and long enough to describe the piece to someone who cannot see it.
+      alt: copy.refine((s) => s.length >= 12, 'Describe the artwork in the alt text (at least 12 characters)'),
+      // One short line shown under the image.
+      caption: copy,
+      // Optional paragraphs. A piece with a story gets an expand and collapse control.
+      story: z.array(copy).min(1).optional(),
+    }),
+});
+
+// ---------------------------------------------------------------------------
 // Development projects (src/content/projects/<project>.yaml)
 // ---------------------------------------------------------------------------
 
@@ -201,4 +226,4 @@ const projects = defineCollection({
   }),
 });
 
-export const collections = { roles, bullets, summaries, variants, skills, education, events, projects };
+export const collections = { roles, bullets, summaries, variants, skills, education, events, artworks, projects };

@@ -30,12 +30,13 @@ export const site = {
 };
 
 // Main navigation. Add an entry when a page ships; never link a page that is not built.
-// Planned, in order: Audio, Art, Events. When those arrive and the bar gets
-// crowded on phones, Audio, Art, and Events move under a "Creative" group.
+// Planned: Audio goes between Development and Art. When the bar gets crowded on phones,
+// Audio, Art, and Events move under a "Creative" group.
 export const nav: NavItem[] = [
   { label: 'Home', href: '/' },
   { label: 'Resume', href: '/resume/' },
   { label: 'Development', href: '/development/' },
+  { label: 'Art', href: '/art/' },
   { label: 'Events', href: '/events/' },
   { label: 'Contact', href: '/contact/' },
 ];
@@ -54,5 +55,6 @@ export const entryCards: EntryCard[] = [
   {
     title: 'Art',
     blurb: 'Show flyers and other work made in Procreate.',
+    href: '/art/',
   },
 ];
