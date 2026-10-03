@@ -53,6 +53,43 @@ export const bulletById = new Map(bullets.map((b) => [b.id, b]));
 export const roleById = new Map(roles.map((r) => [r.id, r]));
 export const summaryById = new Map(summaries.map((s) => [s.id, s]));
 
+const loadDir = <T>(dir: string): (T & { slug: string })[] =>
+  fs
+    .readdirSync(path.join(root, dir))
+    .filter((f) => f.endsWith('.yaml'))
+    .sort()
+    .map((f) => ({ ...load<T>(path.join(dir, f)), slug: f.replace(/\.yaml$/, '') }));
+
+export interface Project {
+  slug: string;
+  title: string;
+  year: number;
+  type: string;
+  tags: string[];
+}
+export interface Release {
+  slug: string;
+  title: string;
+  artist: string;
+  year: number;
+  kind: string;
+  roles?: string[];
+  tags: string[];
+  bandcamp: string;
+  embed: string;
+}
+export interface Artwork {
+  slug: string;
+  title: string;
+  story?: string[];
+  more?: { image: string; alt: string; caption?: string }[];
+  alt: string;
+}
+
+export const projects = loadDir<Project>('src/content/projects');
+export const releases = loadDir<Release>('src/content/releases');
+export const artworks = loadDir<Artwork>('src/content/art');
+
 /** The skills a given resume version should show, group by group, in display order. */
 export function expectedSkills(variantId: string): { group: string; items: string[] }[] {
   return [...skillGroups]
