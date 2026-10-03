@@ -1,4 +1,5 @@
 ---
+import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import ArchiveFilters, { type Facet } from '../components/ArchiveFilters.astro';
 import { getReleases, getFacets, KIND_LABELS, ROLE_LABELS } from '../lib/audio';
@@ -7,6 +8,7 @@ import { site } from '../data/site';
 
 const releases = await getReleases();
 const facets = getFacets(releases);
+const [studio] = await getCollection('studio');
 
 const filterFacets: Facet[] = [
   {
@@ -49,6 +51,14 @@ const filterFacets: Facet[] = [
     artists. The roles shown are the ones credited to me on each release's Bandcamp page, where
     the full credits are.
   </p>
+  {
+    studio && (
+      <p class="studio-link">
+        Looking to record? <a href="#studio">Rates and how to prepare</a> are at the bottom of the
+        page.
+      </p>
+    )
+  }
 
   {
     releases.length === 0 ? (
@@ -100,6 +110,32 @@ const filterFacets: Facet[] = [
       </ArchiveFilters>
     )
   }
+
+  {
+    studio && (
+      <section id="studio" class="studio" aria-labelledby="studio-heading">
+        <h2 id="studio-heading">{studio.data.heading}</h2>
+        <ul class="rates">
+          {studio.data.rates.map((rate) => (
+            <li>
+              <strong>{rate.price}</strong> {rate.description}
+            </li>
+          ))}
+        </ul>
+        <p>{studio.data.included}</p>
+
+        <h3>{studio.data.prep.heading}</h3>
+        <p>{studio.data.prep.intro}</p>
+        <ul class="prep">
+          {studio.data.prep.steps.map((step) => <li>{step}</li>)}
+        </ul>
+
+        <p class="book">
+          To ask about booking, use the <a href="/contact/">contact page</a>.
+        </p>
+      </section>
+    )
+  }
 </BaseLayout>
 
 <script>
@@ -139,6 +175,54 @@ const filterFacets: Facet[] = [
   .empty {
     margin: 0 0 1.5rem;
     color: var(--muted);
+  }
+
+  .studio-link {
+    margin: -0.75rem 0 1.5rem;
+    font-size: 0.95rem;
+  }
+
+  .studio {
+    margin-top: 3rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--rule);
+  }
+
+  .studio h2 {
+    margin: 0 0 0.75rem;
+    font-size: 1.4rem;
+  }
+
+  .studio h3 {
+    margin: 1.5rem 0 0.5rem;
+    font-size: 1.1rem;
+  }
+
+  .studio p {
+    margin: 0.75rem 0 0;
+  }
+
+  .rates,
+  .prep {
+    margin: 0;
+    padding-left: 1.2rem;
+  }
+
+  .rates {
+    list-style: none;
+    padding-left: 0;
+  }
+
+  .rates li {
+    margin-bottom: 0.3rem;
+  }
+
+  .rates strong {
+    color: var(--accent);
+  }
+
+  .prep li {
+    margin-bottom: 0.45rem;
   }
 
   .release-list {

@@ -1,0 +1,29 @@
+# Kingdom Hell studio information shown at the bottom of the Audio page. The wording is the
+# owner's own, from his existing audio page.
+
+- id: kingdom-hell
+  heading: Kingdom Hell rates
+  rates:
+    - price: $300
+      description: for a full, loud day.
+    - price: $200
+      description: for a vocal/DI day.
+    - price: $60 /hour
+      description: for most else.
+  included: >-
+    I can do as much or as little production as you want. At the end, I'll give you a very
+    rough mix of every song, all its stems, and the entire song folder.
+  prep:
+    heading: Before coming in...
+    intro: >-
+      You don't really HAVE to do these, but they will save you time/money/frustration
+    steps:
+      - Practice to a metronome (whether you're using it for a song or not).
+      - >-
+        Demo your parts. Make sure you and your bandmates know what to play, when to play it,
+        how to play it, and that they can actually play it. This includes vocals. Phone
+        recordings will suffice.
+      - >-
+        Make sure drums, drum hardware, guitars, and amps are working properly and are set up
+        for use (action set, intonated...)
+      - Change consumables - drum heads and guitar strings.
