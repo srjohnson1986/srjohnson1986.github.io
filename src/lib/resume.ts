@@ -14,12 +14,25 @@ export interface ResumeSection {
   bullets: { id: string; text: string; theme: string; tags: string[] }[];
 }
 
+export interface ResumeSkillGroup {
+  group: string;
+  items: string[];
+}
+
+export interface ResumeEducation {
+  title: string;
+  detail?: string;
+  dates: string;
+}
+
 export interface ResumeVariant {
   id: string;
   label: string;
   summary: string;
   orgLabels: 'neutral' | 'real';
+  skills: ResumeSkillGroup[];
   sections: ResumeSection[];
+  education: ResumeEducation[];
 }
 
 export function formatRange(start: number, end: number | 'present'): string {
@@ -29,25 +42,83 @@ export function formatRange(start: number, end: number | 'present'): string {
 
 const firstWord = (text: string) => text.match(/^[A-Za-z]+/)?.[0] ?? text;
 
+const escapeRegExp = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
 /**
  * Builds every resume variant from the content collections and enforces the rules that a
  * single-collection schema cannot. Any violation throws, which fails `astro build`.
  *
  * Checked by the schemas in src/content.config.ts: field shapes, copy rules (single hyphens,
  * no phone numbers, past-tense verbs) and that every referenced id exists.
- * Checked here: every bullet used by a variant is `public: true`, and no two bullets in
- * one variant start with the same verb.
+ * Checked here: every bullet used by a variant is `public: true`, no two bullets in
+ * one variant start with the same verb, and no public bullet mentions a `training_only` skill.
  */
 export async function getResumeVariants(options: { labels?: 'real' } = {}): Promise<ResumeVariant[]> {
-  const [roleEntries, bulletEntries, summaryEntries, variantEntries] = await Promise.all([
+  const [roleEntries, bulletEntries, summaryEntries, variantEntries, skillEntries, educationEntries] = await Promise.all([
     getCollection('roles'),
     getCollection('bullets'),
     getCollection('summaries'),
     getCollection('variants'),
+    getCollection('skills'),
+    getCollection('education'),
   ]);
 
   const bulletsById = new Map<string, Bullet>(bulletEntries.map((b) => [b.id, b]));
   const summariesById = new Map(summaryEntries.map((s) => [s.id, s]));
+
+  // Astro only logs a bad reference() and carries on, so the build would still pass and the
+  // affected bullet or skill would silently vanish. Check them here so the build fails instead.
+  const roleIds = new Set(roleEntries.map((r) => r.id));
+  const variantIds = new Set(variantEntries.map((v) => v.id));
+  const dangling: string[] = [];
+  for (const bullet of bulletEntries) {
+    if (!roleIds.has(bullet.data.role.id)) {
+      dangling.push(`bullet "${bullet.id}" uses role "${bullet.data.role.id}", which is not in roles.yaml`);
+    }
+  }
+  for (const group of skillEntries) {
+    for (const item of group.data.items) {
+      if (typeof item === 'string') continue;
+      for (const only of item.only ?? []) {
+        if (!variantIds.has(only.id)) {
+          dangling.push(`skill "${item.name}" is limited to variant "${only.id}", which is not in variants.yaml`);
+        }
+      }
+    }
+  }
+  if (dangling.length) throw new Error(`Broken references in the resume data:\n  - ${dangling.join('\n  - ')}`);
+
+  // Skills flagged training_only in skills.yaml stay in the list, but a public bullet may not
+  // name them, so a mention fails the build.
+  const trainingOnly = skillEntries
+    .flatMap((g) => g.data.items)
+    .flatMap((item) => (typeof item === 'object' && item.training_only ? [item.name] : []));
+  const claims: string[] = [];
+  for (const bullet of bulletEntries) {
+    if (!bullet.data.public) continue;
+    for (const skill of trainingOnly) {
+      if (new RegExp(`\\b${escapeRegExp(skill)}\\b`, 'i').test(bullet.data.text)) {
+        claims.push(`bullet "${bullet.id}" mentions ${skill}, which is marked training_only in skills.yaml`);
+      }
+    }
+  }
+  if (claims.length) {
+    throw new Error(
+      `Training-only skills may not appear in public bullets:\n  - ${claims.join('\n  - ')}\n` +
+        'Remove the mention, or drop training_only once a public project backs the skill.',
+    );
+  }
+
+  const skillGroupsInOrder = [...skillEntries].sort((a, b) => a.data.order - b.data.order);
+  const educationInOrder = [...educationEntries].sort((a, b) => a.data.order - b.data.order);
+  const education: ResumeEducation[] = educationInOrder.map(({ data }) =>
+    'degree' in data
+      ? { title: data.degree, detail: data.school, dates: `${data.year}` }
+      : {
+          title: data.level ? `${data.certification} (${data.level})` : data.certification,
+          dates: formatRange(data.since, 'present'),
+        },
+  );
 
   // Ongoing roles first, then by end year, then start year, then id. Astro does not
   // guarantee collection order, so every tie is broken explicitly to keep builds stable.
@@ -113,12 +184,25 @@ export async function getResumeVariants(options: { labels?: 'real' } = {}): Prom
       });
     }
 
+    // Core Skills for this version: drop items limited to other versions, then drop empty groups.
+    const skills: ResumeSkillGroup[] = skillGroupsInOrder
+      .map(({ data }) => ({
+        group: data.group,
+        items: data.items.flatMap((item) => {
+          if (typeof item === 'string') return [item];
+          return !item.only || item.only.some((v) => v.id === variant.id) ? [item.name] : [];
+        }),
+      }))
+      .filter((g) => g.items.length > 0);
+
     return {
       id: variant.id,
       label: variant.data.label,
       summary: summary!.data.text,
       orgLabels: labelMode,
+      skills,
       sections,
+      education,
     };
   });
 }

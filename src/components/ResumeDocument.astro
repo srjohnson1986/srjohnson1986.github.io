@@ -25,11 +25,28 @@ const { variant } = Astro.props;
     <p>{variant.summary}</p>
   </section>
 
+  <section aria-labelledby="resume-skills">
+    <h2 id="resume-skills">Core Skills</h2>
+    <dl class="skills">
+      {
+        variant.skills.map((group) => (
+          <div class="skill-group">
+            <dt>{group.group}</dt>
+            <dd>{group.items.join(', ')}</dd>
+          </div>
+        ))
+      }
+    </dl>
+  </section>
+
   <section aria-labelledby="resume-experience">
     <h2 id="resume-experience">Experience</h2>
     {
       variant.sections.map((section) => (
-        <section class="role" aria-labelledby={`role-${section.roleId}`}>
+        <section
+          class:list={['role', { 'role-short': section.bullets.length <= 3 }]}
+          aria-labelledby={`role-${section.roleId}`}
+        >
           <div class="role-head">
             <h3 id={`role-${section.roleId}`}>{section.org}</h3>
             <span class="dates">{section.dates}</span>
@@ -58,6 +75,23 @@ const { variant } = Astro.props;
         </section>
       ))
     }
+  </section>
+
+  <section class="education-block" aria-labelledby="resume-education">
+    <h2 id="resume-education">Education and Certifications</h2>
+    <ul class="education">
+      {
+        variant.education.map((item) => (
+          <li>
+            <div class="education-main">
+              <span class="position-title">{item.title}</span>
+              {item.detail && <span class="note">{item.detail}</span>}
+            </div>
+            <span class="dates">{item.dates}</span>
+          </li>
+        ))
+      }
+    </ul>
   </section>
 </article>
 
@@ -94,6 +128,54 @@ const { variant } = Astro.props;
     padding: 0;
     list-style: none;
     color: var(--muted);
+  }
+
+  .skills {
+    margin: 0;
+  }
+
+  /* Label beside its list on wide screens, stacked on narrow ones. */
+  .skill-group {
+    display: grid;
+    grid-template-columns: 9.5rem 1fr;
+    gap: 0.1rem 1rem;
+    margin-bottom: 0.35rem;
+  }
+
+  .skill-group dt {
+    font-weight: 600;
+  }
+
+  .skill-group dd {
+    margin: 0;
+  }
+
+  @media (max-width: 32rem) {
+    .skill-group {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .education {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .education li {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 0 1rem;
+    margin-bottom: 0.3rem;
+  }
+
+  .education-main {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 0.6rem;
+    align-items: baseline;
   }
 
   .role {
