@@ -16,10 +16,18 @@ export const FORMAT_LABELS = {
   social: 'Social media',
 } as const;
 
-/** Newest year first, then alphabetical by title. */
+/**
+ * Newest year first (pieces with no year come last), then by `order`, then alphabetical by
+ * title, so a set of pieces keeps the arrangement it was given.
+ */
 export async function getArtworks(): Promise<Artwork[]> {
   const pieces = await getCollection('artworks');
-  return pieces.sort((a, b) => b.data.year - a.data.year || a.data.title.localeCompare(b.data.title));
+  return pieces.sort(
+    (a, b) =>
+      (b.data.year ?? 0) - (a.data.year ?? 0) ||
+      (a.data.order ?? 0) - (b.data.order ?? 0) ||
+      a.data.title.localeCompare(b.data.title),
+  );
 }
 
 export interface ArtGroup {
