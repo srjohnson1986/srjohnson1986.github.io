@@ -212,6 +212,22 @@ const artworks = defineCollection({
 });
 
 // ---------------------------------------------------------------------------
+// Studio information (src/data/studio.yaml), shown at the bottom of the Audio page
+// ---------------------------------------------------------------------------
+
+const studio = defineCollection({
+  loader: file('src/data/studio.yaml'),
+  schema: z.strictObject({
+    id: z.string(),
+    heading: copy,
+    rates: z.array(z.strictObject({ price: copy, description: copy })).min(1),
+    // What the client is handed at the end.
+    included: copy,
+    prep: z.strictObject({ heading: copy, intro: copy, steps: z.array(copy).min(1) }),
+  }),
+});
+
+// ---------------------------------------------------------------------------
 // Audio releases (src/content/releases/<release>.yaml)
 // ---------------------------------------------------------------------------
 
@@ -277,4 +293,4 @@ const projects = defineCollection({
   }),
 });
 
-export const collections = { roles, bullets, summaries, variants, skills, education, events, artworks, releases, projects };
+export const collections = { roles, bullets, summaries, variants, skills, education, events, artworks, studio, releases, projects };
