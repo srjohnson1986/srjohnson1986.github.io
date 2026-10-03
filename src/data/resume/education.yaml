@@ -1,0 +1,17 @@
+# Education and certifications. The same block appears on every resume version.
+#
+# ISTQB level: the resumes list this as "ISTQB Certified Tester" with no level, so none is
+# published here. When the exact level is confirmed (for example Foundation), add
+#   level: <text>
+# to the certification below. The schema rejects placeholder text such as TODO.
+
+- id: bs-mis
+  order: 1
+  degree: Bachelor of Science, Management Information Systems
+  school: The University of Alabama
+  year: 2012
+
+- id: istqb
+  order: 2
+  certification: ISTQB Certified Tester
+  since: 2012

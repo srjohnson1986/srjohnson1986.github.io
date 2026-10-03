@@ -68,6 +68,12 @@ body.print {
   font-size: 9pt;
 }
 
+/* A role with three bullets or fewer stays in one piece, so it never splits with an orphan.
+   Longer roles may break between bullets. */
+.print-sheet .resume .role-short {
+  break-inside: avoid;
+}
+
 .print-sheet .resume .role-head,
 .print-sheet .resume .positions,
 .print-sheet .resume .role-title {
@@ -77,6 +83,21 @@ body.print {
 .print-sheet .resume .role-title,
 .print-sheet .resume .positions {
   margin: 0 0 0.2rem;
+}
+
+.print-sheet .resume .skill-group {
+  grid-template-columns: 1.45in 1fr;
+  margin-bottom: 0.15rem;
+  break-inside: avoid;
+}
+
+/* Keep Education together so it never splits across the page break. */
+.print-sheet .resume .education-block {
+  break-inside: avoid;
+}
+
+.print-sheet .resume .education li {
+  margin-bottom: 0.15rem;
 }
 
 .print-sheet .resume .bullets {

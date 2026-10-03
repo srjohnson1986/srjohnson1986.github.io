@@ -100,4 +100,51 @@ const variants = defineCollection({
     .refine((v) => new Set(v.bullets.map((b) => b.id)).size === v.bullets.length, 'A bullet is listed twice in this variant'),
 });
 
-export const collections = { roles, bullets, summaries, variants };
+const skills = defineCollection({
+  loader: file('src/data/resume/skills.yaml'),
+  schema: z.strictObject({
+    id: z.string(),
+    // Display order of the group in the Core Skills block (1 is first).
+    order: z.number().int().min(1),
+    group: copy,
+    items: z
+      .array(
+        z.union([
+          copy,
+          z.strictObject({
+            name: copy,
+            // Limit the skill to these resume versions. Omit to show it on every version.
+            only: z.array(reference('variants')).min(1).optional(),
+            // Keep the skill listed, but no public bullet may mention it.
+            training_only: z.boolean().optional(),
+          }),
+        ]),
+      )
+      .min(1),
+  }),
+});
+
+const placeholderLevel = (s: string) => !/\b(todo|tbd|confirm)\b/i.test(s);
+
+const education = defineCollection({
+  loader: file('src/data/resume/education.yaml'),
+  schema: z.union([
+    z.strictObject({
+      id: z.string(),
+      order: z.number().int().min(1),
+      degree: copy,
+      school: copy,
+      year: year,
+    }),
+    z.strictObject({
+      id: z.string(),
+      order: z.number().int().min(1),
+      certification: copy,
+      since: year,
+      // Leave unset until the exact level is confirmed. Placeholder text fails the build.
+      level: copy.refine(placeholderLevel, 'This looks like a placeholder: confirm the level before publishing it').optional(),
+    }),
+  ]),
+});
+
+export const collections = { roles, bullets, summaries, variants, skills, education };

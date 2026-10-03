@@ -1,0 +1,68 @@
+# Core Skills, in the four groups that match the Core Skills block on the resumes.
+# Items are plain strings, or objects with:
+#   only: [variant ids]    show the skill on those resume versions only
+#   training_only: true    keep the skill in the list, but fail the build if any public
+#                          bullet mentions it
+# Reorder items within a group to match what a posting emphasizes.
+
+- id: quality-testing
+  order: 1
+  group: Quality & Testing
+  items:
+    - Automated and Manual Testing
+    - Regression
+    - Test Planning
+    - SDLC
+    - Agile
+    - DevOps
+    - Defect Analysis
+    - Environment Validation
+    - Test Case Management
+    - Requirements Traceability
+
+- id: tools-platforms
+  order: 2
+  group: Tools & Platforms
+  items:
+    - Jira
+    - Confluence
+    - qTest
+    - Chrome DevTools
+    - Postman
+    - Burp Suite
+    - Kibana
+    - Smartsheet
+    - { name: Selenium, training_only: true }
+    - { name: Playwright, training_only: true }
+    - Microsoft Office
+    - Google Docs
+    - VS Code
+    - Eclipse
+    - { name: Studio One, only: [creative] }
+    - { name: Procreate, only: [creative] }
+    - { name: Zephyr, only: [consulting] }
+    - { name: Copilot, only: [qa] }
+    - { name: Claude, only: [qa] }
+
+- id: technical
+  order: 3
+  group: Technical
+  items:
+    - Process & Workflow Optimization & Automation (AI-assisted, VBA/Macro Development)
+    - Software Documentation
+    - Troubleshooting
+    - Hardware Diagnostics
+
+- id: languages
+  order: 4
+  group: Languages
+  items:
+    - SQL
+    - VBA
+    - HTML
+    - CSS
+    - Java
+    - Python
+    - "C#"
+    - Visual Basic
+    - { name: MIDI, only: [creative] }
