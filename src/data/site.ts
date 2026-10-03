@@ -30,12 +30,13 @@ export const site = {
 };
 
 // Main navigation. Add an entry when a page ships; never link a page that is not built.
-// Planned: Audio goes between Development and Art. When the bar gets crowded on phones,
-// Audio, Art, and Events move under a "Creative" group.
+// With seven items the bar wraps on phones. The plan is to move Audio, Art, and Events under a
+// "Creative" group there.
 export const nav: NavItem[] = [
   { label: 'Home', href: '/' },
   { label: 'Resume', href: '/resume/' },
   { label: 'Development', href: '/development/' },
+  { label: 'Audio', href: '/audio/' },
   { label: 'Art', href: '/art/' },
   { label: 'Events', href: '/events/' },
   { label: 'Contact', href: '/contact/' },
@@ -51,6 +52,7 @@ export const entryCards: EntryCard[] = [
   {
     title: 'Audio',
     blurb: 'Kingdom Hell, my home studio: production and engineering for other artists.',
+    href: '/audio/',
   },
   {
     title: 'Art',

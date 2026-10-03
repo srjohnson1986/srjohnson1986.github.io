@@ -1,0 +1,214 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ArchiveFilters, { type Facet } from '../components/ArchiveFilters.astro';
+import { getReleases, getFacets, KIND_LABELS, ROLE_LABELS } from '../lib/audio';
+import { tagLabel } from '../lib/projects';
+import { site } from '../data/site';
+
+const releases = await getReleases();
+const facets = getFacets(releases);
+
+const filterFacets: Facet[] = [
+  {
+    kind: 'select',
+    name: 'year',
+    label: 'Year',
+    allLabel: 'All years',
+    options: facets.years.map((year) => ({ value: String(year), label: String(year) })),
+  },
+  {
+    kind: 'select',
+    name: 'kind',
+    label: 'Kind',
+    allLabel: 'All kinds',
+    options: facets.kinds.map((k) => ({ value: k.kind, label: `${k.label} (${k.count})` })),
+  },
+  {
+    kind: 'select',
+    name: 'role',
+    label: 'My role',
+    allLabel: 'Any role',
+    options: facets.roles.map((r) => ({ value: r.role, label: `${r.label} (${r.count})` })),
+  },
+  {
+    kind: 'tags',
+    name: 'tag',
+    legend: 'Genres (a release must have every tag you pick)',
+    options: facets.tags.map((t) => ({ value: t.tag, label: `${t.label} (${t.count})` })),
+  },
+];
+---
+
+<BaseLayout
+  title={`Audio | ${site.name}`}
+  description="Recordings made at Kingdom Hell, my home studio: production and engineering for other artists, with a player for each release."
+>
+  <h1>Audio</h1>
+  <p class="lead">
+    Recordings made at Kingdom Hell, my home studio, mostly production and engineering for other
+    artists. The roles shown are the ones credited to me on each release's Bandcamp page, where
+    the full credits are.
+  </p>
+
+  {
+    releases.length === 0 ? (
+      <p class="empty">Releases are on the way. Recordings made at Kingdom Hell will appear here.</p>
+    ) : (
+      <ArchiveFilters
+        facets={filterFacets}
+        noun="releases"
+        emptyMessage="No releases match these filters. Try removing one."
+      >
+        <ul class="release-list">
+          {releases.map((release) => (
+            <li
+              class="release"
+              data-item
+              data-year={release.data.year}
+              data-kind={release.data.kind}
+              data-role={(release.data.roles ?? []).join(' ')}
+              data-tag={release.data.tags.join(' ')}
+            >
+              <h2>{release.data.title}</h2>
+              <p class="artist">{release.data.artist}</p>
+              <p class="meta">
+                {release.data.year} &middot; {KIND_LABELS[release.data.kind]}
+                {release.data.roles && (
+                  <>
+                    {' '}
+                    &middot; My role: {release.data.roles.map((role) => ROLE_LABELS[role]).join(', ')}
+                  </>
+                )}
+              </p>
+              <ul class="chips">
+                {release.data.tags.map((tag) => <li class="chip">{tagLabel(tag)}</li>)}
+              </ul>
+              <div
+                class="player"
+                data-player
+                data-embed={release.data.embed}
+                data-height={release.data.embedHeight ?? 120}
+                data-title={`${release.data.title} by ${release.data.artist}`}
+              >
+                <a class="listen" href={release.data.bandcamp} rel="noopener">
+                  Listen on Bandcamp
+                </a>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </ArchiveFilters>
+    )
+  }
+</BaseLayout>
+
+<script>
+  // Players load on request. Until a visitor presses "Load player", nothing is requested from
+  // Bandcamp. Without JavaScript the plain "Listen on Bandcamp" link is all that shows.
+  for (const player of document.querySelectorAll<HTMLElement>('[data-player]')) {
+    const embed = player.dataset.embed;
+    if (!embed) continue;
+    const name = player.dataset.title ?? 'this release';
+
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'load';
+    button.textContent = 'Load player';
+    button.setAttribute('aria-label', `Load player for ${name}`);
+
+    button.addEventListener('click', () => {
+      const frame = document.createElement('iframe');
+      frame.src = embed;
+      frame.title = `Bandcamp player: ${name}`;
+      frame.style.cssText = `border:0;width:100%;height:${player.dataset.height ?? '120'}px`;
+      frame.setAttribute('seamless', '');
+      button.replaceWith(frame);
+    });
+
+    player.prepend(button);
+  }
+</script>
+
+<style>
+  h1 {
+    margin: 0 0 0.5rem;
+    font-size: 2rem;
+  }
+
+  .lead,
+  .empty {
+    margin: 0 0 1.5rem;
+    color: var(--muted);
+  }
+
+  .release-list {
+    display: grid;
+    gap: 1rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .release {
+    padding: 1rem 1.1rem;
+    border: 1px solid var(--rule);
+    border-radius: 0.6rem;
+    background: var(--card);
+  }
+
+  .release h2 {
+    margin: 0;
+    font-size: 1.15rem;
+  }
+
+  .release p {
+    margin: 0;
+  }
+
+  .artist {
+    font-weight: 600;
+  }
+
+  .release .meta {
+    margin: 0.15rem 0 0.6rem;
+    color: var(--muted);
+    font-size: 0.9rem;
+  }
+
+  .release .chips {
+    margin-bottom: 0.8rem;
+  }
+
+  .player {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.6rem 1rem;
+  }
+
+  .listen {
+    font-size: 0.95rem;
+  }
+
+  /* The button is added by the script; the iframe it loads takes the full row. */
+  .player :global(.load) {
+    padding: 0.4rem 0.9rem;
+    border: 1px solid var(--accent);
+    border-radius: 0.4rem;
+    background: transparent;
+    color: var(--accent);
+    font: inherit;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .player :global(.load:hover) {
+    background: var(--accent);
+    color: var(--bg);
+  }
+
+  .player :global(iframe) {
+    flex: 1 1 100%;
+  }
+</style>
