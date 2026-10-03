@@ -1,0 +1,28 @@
+---
+// /resume has no content of its own. It sends visitors straight to the first variant, so a
+// plain "/resume" link works while each variant keeps a single canonical URL. Astro's built-in
+// Astro.redirect() waits 2 seconds before moving on, so this page redirects immediately instead.
+import { getResumeVariants } from '../../lib/resume';
+import { site } from '../../data/site';
+
+const [first] = await getResumeVariants({ labels: 'real' });
+if (!first) throw new Error('No resume variants found in src/data/resume/variants.yaml');
+
+const target = `/resume/${first.id}/`;
+const canonical = new URL(target, Astro.site ?? site.url).href;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Resume | {site.name}</title>
+    <meta http-equiv="refresh" content={`0;url=${target}`} />
+    <meta name="robots" content="noindex" />
+    <link rel="canonical" href={canonical} />
+  </head>
+  <body>
+    <p>Taking you to the <a href={target}>resume</a>.</p>
+  </body>
+</html>

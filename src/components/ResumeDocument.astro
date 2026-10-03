@@ -1,0 +1,154 @@
+---
+import { site } from '../data/site';
+import type { ResumeVariant } from '../lib/resume';
+
+interface Props {
+  variant: ResumeVariant;
+}
+
+const { variant } = Astro.props;
+---
+
+<article class="resume" aria-labelledby="resume-name">
+  <header class="resume-header">
+    <h1 id="resume-name">{site.name}</h1>
+    <ul class="resume-contact">
+      <li>{site.area}</li>
+      {site.email && <li><a href={`mailto:${site.email}`}>{site.email}</a></li>}
+      <li><a href={site.links.linkedin.href}>{site.links.linkedin.label}</a></li>
+      <li><a href={site.links.github.href}>{site.links.github.label}</a></li>
+    </ul>
+  </header>
+
+  <section aria-labelledby="resume-summary">
+    <h2 id="resume-summary">Summary</h2>
+    <p>{variant.summary}</p>
+  </section>
+
+  <section aria-labelledby="resume-experience">
+    <h2 id="resume-experience">Experience</h2>
+    {
+      variant.sections.map((section) => (
+        <section class="role" aria-labelledby={`role-${section.roleId}`}>
+          <div class="role-head">
+            <h3 id={`role-${section.roleId}`}>{section.org}</h3>
+            <span class="dates">{section.dates}</span>
+          </div>
+          {section.positions ? (
+            <ul class="positions">
+              {section.positions.map((position) => (
+                <li>
+                  <span class="position-title">{position.title}</span>
+                  <span class="dates">{position.dates}</span>
+                  {position.note && <span class="note">({position.note})</span>}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p class="role-title">
+              <span class="position-title">{section.title}</span>
+              {section.note && <span class="note">({section.note})</span>}
+            </p>
+          )}
+          <ul class="bullets">
+            {section.bullets.map((bullet) => (
+              <li>{bullet.text}</li>
+            ))}
+          </ul>
+        </section>
+      ))
+    }
+  </section>
+</article>
+
+<style>
+  .resume-header {
+    margin-bottom: 1.25rem;
+  }
+
+  h1 {
+    margin: 0 0 0.25rem;
+    font-size: 1.9rem;
+  }
+
+  h2 {
+    margin: 1.5rem 0 0.5rem;
+    padding-bottom: 0.25rem;
+    border-bottom: 1px solid var(--rule);
+    font-size: 0.85rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  h3 {
+    margin: 0;
+    font-size: 1.05rem;
+  }
+
+  .resume-contact {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 1rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    color: var(--muted);
+  }
+
+  .role {
+    margin-top: 1.1rem;
+  }
+
+  .role-head {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 0 1rem;
+  }
+
+  .dates {
+    color: var(--muted);
+    font-size: 0.9rem;
+    white-space: nowrap;
+  }
+
+  .role-title,
+  .positions {
+    margin: 0.1rem 0 0.35rem;
+    padding: 0;
+    list-style: none;
+  }
+
+  /* Title, dates, and note sit side by side with a gap, since the markup has no spaces between them. */
+  .role-title,
+  .positions li {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 0.6rem;
+    align-items: baseline;
+  }
+
+  .position-title {
+    font-weight: 600;
+  }
+
+  .note {
+    color: var(--muted);
+    font-size: 0.9rem;
+  }
+
+  .bullets {
+    margin: 0.35rem 0 0;
+    padding-left: 1.2rem;
+  }
+
+  .bullets li {
+    margin-bottom: 0.3rem;
+  }
+
+  p {
+    margin: 0;
+  }
+</style>

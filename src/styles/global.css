@@ -1,0 +1,98 @@
+/* Global tokens and base styles. Kept small on purpose: the visual direction for the
+   whole site is set in the Home page step and refined in the polish step. */
+
+:root {
+  color-scheme: light dark;
+
+  --bg: #fbfaf7;
+  --fg: #1b1b1f;
+  --muted: #5b5b66;
+  --accent: #8a4b1f;
+  --rule: #dedbd2;
+  --card: #ffffff;
+  --focus: #1a5fb4;
+
+  --font-body: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --measure: 46rem;
+  --gutter: 1rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --bg: #131316;
+    --fg: #ecebe6;
+    --muted: #a2a2ad;
+    --accent: #e0a070;
+    --rule: #2d2d33;
+    --card: #1b1b20;
+    --focus: #7db3ff;
+  }
+}
+
+/* The print layout always renders on white paper, whatever the viewer's theme. */
+:root[data-theme='light'] {
+  color-scheme: light;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-body);
+  line-height: 1.55;
+}
+
+.container {
+  width: 100%;
+  max-width: var(--measure);
+  margin-inline: auto;
+  padding: 1.5rem var(--gutter) 3rem;
+}
+
+h1,
+h2,
+h3 {
+  line-height: 1.25;
+}
+
+a {
+  color: var(--accent);
+  text-underline-offset: 0.15em;
+}
+
+:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+.skip-link {
+  position: absolute;
+  left: var(--gutter);
+  top: -4rem;
+  padding: 0.5rem 0.75rem;
+  background: var(--card);
+  color: var(--fg);
+  border: 2px solid var(--focus);
+  z-index: 10;
+}
+
+.skip-link:focus {
+  top: var(--gutter);
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+}

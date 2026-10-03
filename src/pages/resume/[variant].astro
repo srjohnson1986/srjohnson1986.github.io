@@ -1,0 +1,89 @@
+---
+import type { GetStaticPaths } from 'astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ResumeDocument from '../../components/ResumeDocument.astro';
+import { getResumeVariants } from '../../lib/resume';
+import { site } from '../../data/site';
+
+export const getStaticPaths = (async () => {
+  // The public site always uses real organization names.
+  const variants = await getResumeVariants({ labels: 'real' });
+  const choices = variants.map(({ id, label }) => ({ id, label }));
+  return variants.map((variant) => ({
+    params: { variant: variant.id },
+    props: { variant, choices },
+  }));
+}) satisfies GetStaticPaths;
+
+const { variant, choices } = Astro.props;
+const firstSentence = variant.summary.split('. ')[0].replace(/\.$/, '') + '.';
+---
+
+<BaseLayout
+  title={`Resume (${variant.label}) | ${site.name}`}
+  description={firstSentence}
+>
+  <nav class="versions no-print" aria-label="Resume versions">
+    <span class="versions-label">Version:</span>
+    <ul>
+      {
+        choices.map((choice) => (
+          <li>
+            <a
+              href={`/resume/${choice.id}/`}
+              aria-current={choice.id === variant.id ? 'page' : undefined}
+            >
+              {choice.label}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </nav>
+
+  <ResumeDocument variant={variant} />
+</BaseLayout>
+
+<style>
+  .versions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .versions-label {
+    color: var(--muted);
+    font-size: 0.9rem;
+  }
+
+  .versions ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .versions a {
+    display: inline-block;
+    padding: 0.35rem 0.8rem;
+    border: 1px solid var(--rule);
+    border-radius: 999px;
+    background: var(--card);
+    color: var(--fg);
+    text-decoration: none;
+  }
+
+  .versions a:hover {
+    border-color: var(--accent);
+  }
+
+  .versions a[aria-current='page'] {
+    border-color: var(--accent);
+    color: var(--accent);
+    font-weight: 600;
+  }
+</style>

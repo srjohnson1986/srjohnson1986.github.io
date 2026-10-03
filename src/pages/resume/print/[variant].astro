@@ -1,0 +1,29 @@
+---
+// Print layout for one variant. Step 2c renders the PDFs from these routes, so they
+// carry no site chrome and use each variant's own org_labels setting (neutral or real).
+import type { GetStaticPaths } from 'astro';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import ResumeDocument from '../../../components/ResumeDocument.astro';
+import { getResumeVariants } from '../../../lib/resume';
+import { site } from '../../../data/site';
+import '../../../styles/print.css';
+
+export const getStaticPaths = (async () => {
+  const variants = await getResumeVariants();
+  return variants.map((variant) => ({ params: { variant: variant.id }, props: { variant } }));
+}) satisfies GetStaticPaths;
+
+const { variant } = Astro.props;
+---
+
+<BaseLayout
+  title={`${site.name} - Resume (${variant.label})`}
+  noindex
+  theme="light"
+  bodyClass="print"
+  chrome={false}
+>
+  <div class="print-sheet">
+    <ResumeDocument variant={variant} />
+  </div>
+</BaseLayout>
