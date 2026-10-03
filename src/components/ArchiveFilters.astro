@@ -1,0 +1,255 @@
+---
+// Filters for an archive page (Development, Audio). Put the list of items in the slot.
+//
+// How it works: every item in the slot carries data-item plus one data-<facet> attribute per
+// facet, holding that item's values separated by spaces (data-year="2026", data-tag="kotlin
+// web"). A select facet shows items whose list includes the chosen value. A tags facet shows
+// items that have every tag that is ticked. The form is hidden in the HTML and revealed by the
+// script, so without JavaScript the full list simply shows.
+
+export interface FilterOption {
+  value: string;
+  label: string;
+}
+
+export type Facet =
+  | { kind: 'select'; name: string; label: string; allLabel: string; options: FilterOption[] }
+  | { kind: 'tags'; name: string; legend: string; options: FilterOption[] };
+
+interface Props {
+  facets: Facet[];
+  /** Plural noun for the count message and the form label, for example "projects". */
+  noun: string;
+  /** Shown when no item matches the current filters. */
+  emptyMessage: string;
+}
+
+const { facets, noun, emptyMessage } = Astro.props;
+const selects = facets.filter((f) => f.kind === 'select');
+const tagGroups = facets.filter((f) => f.kind === 'tags');
+---
+
+<form class="filters" data-archive-filters data-noun={noun} aria-label={`Filter ${noun}`} hidden>
+  {
+    selects.length > 0 && (
+      <div class="selects">
+        {selects.map(
+          (facet) =>
+            facet.kind === 'select' && (
+              <label>
+                {facet.label}
+                <select name={facet.name}>
+                  <option value="">{facet.allLabel}</option>
+                  {facet.options.map((option) => (
+                    <option value={option.value}>{option.label}</option>
+                  ))}
+                </select>
+              </label>
+            ),
+        )}
+      </div>
+    )
+  }
+
+  {
+    tagGroups.map(
+      (facet) =>
+        facet.kind === 'tags' && (
+          <fieldset>
+            <legend>{facet.legend}</legend>
+            <div class="tag-options">
+              {facet.options.map((option) => (
+                <label class="tag-option">
+                  <input type="checkbox" name={facet.name} value={option.value} />
+                  <span>{option.label}</span>
+                </label>
+              ))}
+            </div>
+          </fieldset>
+        ),
+    )
+  }
+
+  <div class="filter-footer">
+    <p class="filter-status" role="status"></p>
+    <button type="button" data-clear>Clear filters</button>
+  </div>
+</form>
+
+<slot />
+
+<p class="no-results" data-no-results hidden>{emptyMessage}</p>
+
+<script>
+  // The selection lives in the URL (?year=2026&tag=kotlin&tag=web), so a filtered view can be
+  // shared, and reloading or going back keeps it.
+  const form = document.querySelector<HTMLFormElement>('[data-archive-filters]');
+
+  if (form) {
+    const items = [...document.querySelectorAll<HTMLElement>('[data-item]')];
+    const status = form.querySelector<HTMLElement>('.filter-status')!;
+    const empty = document.querySelector<HTMLElement>('[data-no-results]')!;
+    const noun = form.dataset.noun ?? 'items';
+
+    const selects = [...form.querySelectorAll<HTMLSelectElement>('select[name]')];
+    const boxes = [...form.querySelectorAll<HTMLInputElement>('input[type="checkbox"][name]')];
+
+    const valuesOf = (item: HTMLElement, name: string) => (item.dataset[name] ?? '').split(' ').filter(Boolean);
+    const checkedFor = (name: string) => boxes.filter((b) => b.name === name && b.checked).map((b) => b.value);
+    const boxNames = [...new Set(boxes.map((b) => b.name))];
+
+    const apply = () => {
+      let shown = 0;
+      for (const item of items) {
+        const matchesSelects = selects.every((s) => !s.value || valuesOf(item, s.name).includes(s.value));
+        const matchesTags = boxNames.every((name) => checkedFor(name).every((v) => valuesOf(item, name).includes(v)));
+        const match = matchesSelects && matchesTags;
+        item.hidden = !match;
+        if (match) shown++;
+      }
+
+      status.textContent = `Showing ${shown} of ${items.length} ${noun}`;
+      empty.hidden = shown !== 0;
+
+      const params = new URLSearchParams();
+      for (const s of selects) if (s.value) params.set(s.name, s.value);
+      for (const b of boxes) if (b.checked) params.append(b.name, b.value);
+      const query = params.toString();
+      history.replaceState(null, '', query ? `?${query}` : location.pathname);
+    };
+
+    // Restore a shared or reloaded selection from the URL.
+    const params = new URLSearchParams(location.search);
+    for (const s of selects) s.value = params.get(s.name) ?? '';
+    for (const b of boxes) b.checked = params.getAll(b.name).includes(b.value);
+
+    form.addEventListener('change', apply);
+    form.querySelector('[data-clear]')?.addEventListener('click', () => {
+      form.reset();
+      apply();
+    });
+
+    form.hidden = false;
+    apply();
+  }
+</script>
+
+<style>
+  .filters {
+    margin-bottom: 1.5rem;
+    padding: 1rem 1.1rem;
+    border: 1px solid var(--rule);
+    border-radius: 0.6rem;
+    background: var(--card);
+  }
+
+  .selects {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem 1.25rem;
+    margin-bottom: 0.9rem;
+  }
+
+  .selects label {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+
+  select {
+    min-width: 9rem;
+    padding: 0.4rem 0.5rem;
+    border: 1px solid var(--rule);
+    border-radius: 0.35rem;
+    background: var(--bg);
+    color: var(--fg);
+    font: inherit;
+    font-weight: 400;
+  }
+
+  fieldset {
+    margin: 0 0 0.9rem;
+    padding: 0;
+    border: 0;
+  }
+
+  legend {
+    margin-bottom: 0.4rem;
+    padding: 0;
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+
+  .tag-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+
+  .tag-option {
+    cursor: pointer;
+  }
+
+  /* The checkbox stays in the DOM for keyboard and screen reader use, but the label text
+     is drawn as a pill that fills when it is checked. */
+  .tag-option input {
+    position: absolute;
+    opacity: 0;
+  }
+
+  .tag-option span {
+    display: inline-block;
+    padding: 0.2rem 0.7rem;
+    border: 1px solid var(--rule);
+    border-radius: 999px;
+    background: var(--bg);
+    font-size: 0.85rem;
+  }
+
+  .tag-option input:checked + span {
+    border-color: var(--accent);
+    background: var(--accent);
+    color: var(--bg);
+    font-weight: 600;
+  }
+
+  .tag-option input:focus-visible + span {
+    outline: 3px solid var(--focus);
+    outline-offset: 2px;
+  }
+
+  .filter-footer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem 1rem;
+  }
+
+  .filter-status {
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.9rem;
+  }
+
+  [data-clear] {
+    padding: 0.35rem 0.8rem;
+    border: 1px solid var(--rule);
+    border-radius: 0.35rem;
+    background: var(--bg);
+    color: var(--fg);
+    font: inherit;
+    font-size: 0.9rem;
+    cursor: pointer;
+  }
+
+  [data-clear]:hover {
+    border-color: var(--accent);
+  }
+
+  .no-results {
+    color: var(--muted);
+  }
+</style>
