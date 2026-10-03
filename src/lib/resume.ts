@@ -38,7 +38,7 @@ const firstWord = (text: string) => text.match(/^[A-Za-z]+/)?.[0] ?? text;
  * Checked here: every bullet used by a variant is `public: true`, and no two bullets in
  * one variant start with the same verb.
  */
-export async function getResumeVariants(): Promise<ResumeVariant[]> {
+export async function getResumeVariants(options: { labels?: 'real' } = {}): Promise<ResumeVariant[]> {
   const [roleEntries, bulletEntries, summaryEntries, variantEntries] = await Promise.all([
     getCollection('roles'),
     getCollection('bullets'),
@@ -84,11 +84,15 @@ export async function getResumeVariants(): Promise<ResumeVariant[]> {
       throw new Error(`Resume variant "${variant.id}" is invalid:\n  - ${problems.join('\n  - ')}`);
     }
 
+    // The public web pages always pass { labels: 'real' } (real names on the site itself).
+    // PDFs and print routes omit it, so each variant's own org_labels setting applies.
+    const labelMode = options.labels ?? variant.data.org_labels;
+
     const sections: ResumeSection[] = [];
     for (const role of rolesNewestFirst) {
       const roleBullets = chosen.filter((b) => b.data.role.id === role.id);
       if (!roleBullets.length) continue;
-      const useNeutral = variant.data.org_labels === 'neutral' && role.data.neutral_org;
+      const useNeutral = labelMode === 'neutral' && role.data.neutral_org;
       sections.push({
         roleId: role.id,
         org: useNeutral ? role.data.neutral_org! : role.data.org,
@@ -113,7 +117,7 @@ export async function getResumeVariants(): Promise<ResumeVariant[]> {
       id: variant.id,
       label: variant.data.label,
       summary: summary!.data.text,
-      orgLabels: variant.data.org_labels,
+      orgLabels: labelMode,
       sections,
     };
   });

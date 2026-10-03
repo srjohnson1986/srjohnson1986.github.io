@@ -1,0 +1,58 @@
+/* Print layout for the resume PDFs. The rules below apply on screen too, so opening a
+   print route in a browser shows roughly what the paper will look like. */
+
+@page {
+  size: letter;
+  margin: 0.55in 0.6in;
+}
+
+body.print {
+  background: #fff;
+  color: #111;
+  font-size: 10.5pt;
+  line-height: 1.38;
+}
+
+.print-sheet {
+  max-width: 7.3in;
+  margin: 0 auto;
+  padding: 0.55in 0.6in;
+}
+
+@media print {
+  .print-sheet {
+    max-width: none;
+    margin: 0;
+    padding: 0;
+  }
+}
+
+/* Paper cannot be clicked, so links read as plain text. */
+.print-sheet a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.print-sheet h1 {
+  font-size: 22pt;
+}
+
+.print-sheet h2 {
+  margin-top: 1rem;
+  break-after: avoid;
+}
+
+.print-sheet .role {
+  margin-top: 0.8rem;
+}
+
+.print-sheet .role-head,
+.print-sheet .positions,
+.print-sheet .role-title {
+  break-after: avoid;
+}
+
+.print-sheet .bullets li {
+  break-inside: avoid;
+  margin-bottom: 0.2rem;
+}

@@ -1,0 +1,49 @@
+---
+import '../styles/global.css';
+import { site } from '../data/site';
+
+interface Props {
+  title: string;
+  description?: string;
+  /** Keeps a page out of search results (used by the print routes). */
+  noindex?: boolean;
+  /** 'light' pins the page to a white background regardless of the viewer's theme. */
+  theme?: 'auto' | 'light';
+  /** Extra class on <body>, for page-specific styling. */
+  bodyClass?: string;
+  /** Print routes pass false: no skip link, no page container, nothing but the content. */
+  chrome?: boolean;
+}
+
+const { title, description, noindex = false, theme = 'auto', bodyClass, chrome = true } = Astro.props;
+const canonical = new URL(Astro.url.pathname, Astro.site ?? site.url);
+---
+
+<!doctype html>
+<html lang="en" data-theme={theme === 'light' ? 'light' : undefined}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+    {description && <meta name="description" content={description} />}
+    {noindex && <meta name="robots" content="noindex" />}
+    <link rel="canonical" href={canonical.href} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" href="/favicon.ico" />
+  </head>
+  <body class={bodyClass}>
+    {chrome && <a class="skip-link" href="#main">Skip to content</a>}
+    {
+      chrome ? (
+        <main id="main" class="container">
+          <slot />
+        </main>
+      ) : (
+        <main id="main">
+          <slot />
+        </main>
+      )
+    }
+  </body>
+</html>
