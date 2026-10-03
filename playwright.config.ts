@@ -1,12 +1,19 @@
 import { defineConfig, devices } from '@playwright/test';
 
-// The suite runs against the built site, served by `astro preview`. Build first (`npm run build`),
-// or use `npm test`, which builds and then runs the suite.
+// Two ways to run the suite:
 //
-// Set BASE_URL to point the suite at an already running site instead, for example the deployed one.
+//   npm test              builds the site, serves it with `astro preview`, and runs every check in
+//                         the "site" project against that local copy.
+//   npm run test:smoke    runs only the short "smoke" checks against the deployed site. It never
+//                         starts a local server. Set SMOKE_URL to check somewhere other than the
+//                         live site.
+//
+// Set BASE_URL to run the "site" project against an already running copy instead of a local build.
 const PORT = 4173;
+const smokeOnly = Boolean(process.env.SMOKE_ONLY);
 const baseURL = process.env.BASE_URL ?? `http://127.0.0.1:${PORT}`;
-const usingLocalServer = !process.env.BASE_URL;
+const smokeURL = process.env.SMOKE_URL ?? 'https://srjohnson1986.github.io';
+const usingLocalServer = !smokeOnly && !process.env.BASE_URL;
 
 export default defineConfig({
   testDir: './tests',
@@ -18,7 +25,19 @@ export default defineConfig({
     baseURL,
     trace: 'on-first-retry',
   },
-  projects: [{ name: 'site', use: { ...devices['Desktop Chrome'] } }],
+  // Only one project is active per run, so the normal suite never touches the live site and the
+  // smoke run never needs a build.
+  projects: smokeOnly
+    ? [
+        {
+          name: 'smoke',
+          testMatch: /smoke\.spec\.ts/,
+          // A fresh deployment can take a moment to reach everyone, so a check gets a few tries.
+          retries: 2,
+          use: { ...devices['Desktop Chrome'], baseURL: smokeURL },
+        },
+      ]
+    : [{ name: 'site', testIgnore: /smoke\.spec\.ts/, use: { ...devices['Desktop Chrome'] } }],
   webServer: usingLocalServer
     ? {
         command: `npm run preview -- --host 127.0.0.1 --port ${PORT}`,

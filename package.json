@@ -13,6 +13,7 @@
     "preview": "astro preview",
     "test": "npm run build && playwright test",
     "test:only": "playwright test",
+    "test:smoke": "node scripts/run-smoke.mjs",
     "astro": "astro"
   },
   "dependencies": {

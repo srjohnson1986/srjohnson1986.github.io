@@ -1,0 +1,63 @@
+name: Smoke test
+
+# Checks that the deployed site is alive and serving what it should. Kept separate from the deploy
+# workflow on purpose: a smoke test failure must never break or block a deployment.
+on:
+  # After every deployment, once it has finished.
+  workflow_run:
+    workflows: ['Deploy to GitHub Pages']
+    types: [completed]
+  # By hand from the Actions tab.
+  workflow_dispatch:
+  # Once a week, to catch problems that appear without a deployment (for example a hosting issue).
+  schedule:
+    - cron: '17 13 * * 1'
+  # A pull request that changes this file runs it too, so the workflow itself is tested before merge.
+  pull_request:
+    paths:
+      - '.github/workflows/smoke.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    # After a deployment, only run when it succeeded. Every other trigger always runs.
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    env:
+      SMOKE_ONLY: '1'
+    steps:
+      - name: Check out the code that was deployed
+        uses: actions/checkout@v7
+        with:
+          # The checks read the data files, so use the same commit that was deployed.
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+
+      - name: Set up Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium-headless-shell
+
+      # A fresh deployment can take a moment to reach every visitor. The checks also retry.
+      - name: Give a fresh deployment a moment to settle
+        if: github.event_name == 'workflow_run'
+        run: sleep 30
+
+      - name: Run the smoke checks against the live site
+        run: npx playwright test
+
+      - name: Keep the test report when something fails
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: smoke-report
+          path: playwright-report/
+          retention-days: 14
