@@ -25,6 +25,12 @@ const copy = z
   .refine(noDashes, 'Use single hyphens only: no em dashes, en dashes, or double hyphens')
   .refine(noPhone, 'Do not publish phone numbers');
 
+// A web link, which must be https. Used by projects (repo, demo) and releases (Bandcamp page).
+const httpsUrl = z
+  .string()
+  .url()
+  .refine((u) => u.startsWith('https://'), 'Use an https:// link');
+
 // Resume bullets start with a past-tense verb ("Built", "Led"...). Regular verbs end in
 // "ed"; the short list below covers the irregular ones. Add to it if a valid verb is rejected.
 const IRREGULAR_PAST = new Set([
@@ -206,13 +212,45 @@ const artworks = defineCollection({
 });
 
 // ---------------------------------------------------------------------------
-// Development projects (src/content/projects/<project>.yaml)
+// Audio releases (src/content/releases/<release>.yaml)
 // ---------------------------------------------------------------------------
 
-const httpsUrl = z
+// The player address from Bandcamp's Share / Embed dialog. Only genuine Bandcamp player
+// addresses are accepted, so a release can never be made to embed anything else.
+const bandcampPlayer = z
   .string()
   .url()
-  .refine((u) => u.startsWith('https://'), 'Use an https:// link');
+  .refine((value) => {
+    try {
+      const url = new URL(value);
+      return url.protocol === 'https:' && url.hostname === 'bandcamp.com' && url.pathname.startsWith('/EmbeddedPlayer/');
+    } catch {
+      return false;
+    }
+  }, 'Use the player address from the Bandcamp Share / Embed dialog (https://bandcamp.com/EmbeddedPlayer/...)');
+
+const releases = defineCollection({
+  loader: glob({ pattern: '*.yaml', base: './src/content/releases' }),
+  schema: z.strictObject({
+    title: copy,
+    artist: copy,
+    year,
+    kind: z.enum(['album', 'ep', 'single', 'split']),
+    // The owner's credited roles on this release. Leave out when the release lists none.
+    roles: z.array(z.enum(['produced', 'engineered', 'mixed', 'mastered', 'performed'])).min(1).optional(),
+    tags: z.array(kebab).min(1),
+    // The release page on Bandcamp, always shown as a plain link.
+    bandcamp: httpsUrl,
+    // The player, loaded only when a visitor asks for it.
+    embed: bandcampPlayer,
+    // Height of the player in pixels, as given in the Bandcamp embed code. Defaults to 120.
+    embedHeight: z.number().int().min(40).max(700).optional(),
+  }),
+});
+
+// ---------------------------------------------------------------------------
+// Development projects (src/content/projects/<project>.yaml)
+// ---------------------------------------------------------------------------
 
 const projects = defineCollection({
   loader: glob({ pattern: '*.yaml', base: './src/content/projects' }),
@@ -239,4 +277,4 @@ const projects = defineCollection({
   }),
 });
 
-export const collections = { roles, bullets, summaries, variants, skills, education, events, artworks, projects };
+export const collections = { roles, bullets, summaries, variants, skills, education, events, artworks, releases, projects };
