@@ -69,8 +69,13 @@ const detailsLabel = (piece: Artwork) => {
       </p>
     ) : (
       groups.map((group) => (
-        <section class="group" aria-labelledby={`group-${group.medium}`}>
-          <h2 id={`group-${group.medium}`}>{group.label}</h2>
+        <section
+          class="group"
+          aria-label={groups.length > 1 ? undefined : group.label}
+          aria-labelledby={groups.length > 1 ? `group-${group.medium}` : undefined}
+        >
+          {/* With a single group a heading adds nothing, so it is only shown when there are several. */}
+          {groups.length > 1 && <h2 id={`group-${group.medium}`}>{group.label}</h2>}
           <ul class="gallery">
             {group.pieces.map((piece) => (
               <li>

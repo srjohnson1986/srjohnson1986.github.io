@@ -79,6 +79,13 @@ test.describe('Art page', () => {
     }
   });
 
+  test('with a single group there is no group heading, but the gallery is still a named region', async ({ page }) => {
+    await page.goto('/art/');
+    await expect(page.getByRole('heading', { level: 2 })).toHaveCount(0);
+    await expect(page.getByText('Show flyers', { exact: true })).toHaveCount(0);
+    await expect(page.getByRole('region', { name: 'Show flyers' })).toHaveCount(1);
+  });
+
   test('a piece with a story opens and closes from the keyboard', async ({ page }) => {
     const art = withStory.find((a) => a.story)!;
     await page.goto('/art/');
