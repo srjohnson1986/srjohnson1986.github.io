@@ -41,6 +41,8 @@ const archives: Archive[] = [
   },
 ];
 
+// The filters sit in a panel that starts closed.
+const openFilters = (page: Page) => page.locator('[data-filter-panel] > summary').click();
 const visibleTitles = (page: Page) => page.locator('[data-item]:not([hidden]) h2').allTextContents();
 const sorted = (xs: string[]) => [...xs].sort();
 const titlesWhere = (items: Item[], predicate: (i: Item) => boolean) => sorted(items.filter(predicate).map((i) => i.title));
@@ -67,16 +69,46 @@ for (const archive of archives) {
       await context.close();
     });
 
-    test('with scripts on, the form appears and counts every item', async ({ page }) => {
+    test('with scripts on, the Filters panel starts closed and opens with a click to show the form', async ({ page }) => {
       await page.goto(archive.path);
+      const panel = page.locator('[data-filter-panel]');
+      await expect(panel.locator('summary')).toBeVisible();
+      await expect(panel).not.toHaveAttribute('open', '');
+      await expect(page.getByRole('form', { name: `Filter ${archive.noun}` })).toBeHidden();
+      expect(sorted(await visibleTitles(page))).toEqual(sorted(items.map((i) => i.title))); // every item shows while closed
+
+      await openFilters(page);
+      await expect(panel).toHaveAttribute('open', '');
       await expect(page.getByRole('form', { name: `Filter ${archive.noun}` })).toBeVisible();
       await expect(status(page)).toHaveText(`Showing ${items.length} of ${items.length} ${archive.noun}`);
-      expect(sorted(await visibleTitles(page))).toEqual(sorted(items.map((i) => i.title)));
+
+      await openFilters(page); // a second click closes it again
+      await expect(page.getByRole('form', { name: `Filter ${archive.noun}` })).toBeHidden();
+    });
+
+    test('the closed panel says how many filters are in use, even after a reload or a shared link', async ({ page }) => {
+      await page.goto(archive.path);
+      const note = page.locator('[data-filter-count]');
+      await expect(note).toHaveText('');
+      await openFilters(page);
+      const tags = distinct(items, archive.tagFacet);
+      await pickTag(page, tags[0]);
+      await expect(note).toHaveText(' · 1 selected');
+
+      await page.reload(); // reloads closed, with the filter still applied and still announced
+      await expect(page.locator('[data-filter-panel]')).not.toHaveAttribute('open', '');
+      await expect(note).toHaveText(' · 1 selected');
+      expect(sorted(await visibleTitles(page))).toEqual(titlesWhere(items, (i) => i.facets[archive.tagFacet].includes(tags[0])));
+
+      await openFilters(page);
+      await page.getByRole('button', { name: 'Clear filters' }).click();
+      await expect(note).toHaveText('');
     });
 
     for (const facet of archive.selects) {
       test(`each ${facet} value shows exactly the matching items`, async ({ page }) => {
         await page.goto(archive.path);
+      await openFilters(page);
         const select = page.locator(`select[name="${facet}"]`);
         for (const value of distinct(items, facet)) {
           await select.selectOption(value);
@@ -89,6 +121,7 @@ for (const archive of archives) {
 
     test('picking tags requires every tag, and an empty result says so', async ({ page }) => {
       await page.goto(archive.path);
+      await openFilters(page);
       const tags = distinct(items, archive.tagFacet);
 
       // One tag: everything that has it.
@@ -111,6 +144,7 @@ for (const archive of archives) {
 
     test('Clear filters restores the full list and the plain URL', async ({ page }) => {
       await page.goto(archive.path);
+      await openFilters(page);
       // Narrow by a drop-down when the page has one, otherwise by a tag.
       if (archive.selects.length) {
         await page.locator(`select[name="${archive.selects[0]}"]`).selectOption(distinct(items, archive.selects[0])[0]);
@@ -125,6 +159,7 @@ for (const archive of archives) {
 
     test('the selection lives in the URL and survives a reload', async ({ page }) => {
       await page.goto(archive.path);
+      await openFilters(page);
       const tags = distinct(items, archive.tagFacet);
       const facet = archive.selects[0]; // undefined on a page with tag buttons only
       const value = facet ? distinct(items, facet)[0] : undefined;
