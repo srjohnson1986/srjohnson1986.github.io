@@ -211,8 +211,15 @@ const artworks = defineCollection({
       // Path relative to this file, for example ../../assets/art/my-flyer.jpg
       image: image(),
       alt,
-      // Optional short text shown under the image.
+      // Optional short text, shown under "Read more".
       caption: copy.optional(),
+      // Optional labels for finding pieces later (a filter can be built on them). Not shown on the
+      // site yet. Lowercase-kebab-case, for example: five-hundred-bucks, the-earl, collage.
+      tags: z
+        .array(kebab)
+        .min(1)
+        .refine((tags) => new Set(tags).size === tags.length, 'A tag is listed twice')
+        .optional(),
       // Optional paragraphs. A piece with a story gets an expand and collapse control.
       story: z.array(copy).min(1).optional(),
       // Optional further images for a series. They open inside the expand and collapse control.

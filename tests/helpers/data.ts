@@ -100,6 +100,7 @@ export interface Artwork {
   title: string;
   story?: string[];
   caption?: string;
+  tags?: string[];
   more?: { image: string; alt: string; caption?: string }[];
   alt: string;
 }
