@@ -44,14 +44,23 @@ const firstWord = (text: string) => text.match(/^[A-Za-z]+/)?.[0] ?? text;
 
 const escapeRegExp = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
+// Pages are built one at a time, so remember what was already reported to warn once per message.
+const warned = new Set<string>();
+const warnOnce = (message: string) => {
+  if (warned.has(message)) return;
+  warned.add(message);
+  console.warn(message);
+};
+
 /**
  * Builds every resume variant from the content collections and enforces the rules that a
  * single-collection schema cannot. Any violation throws, which fails `astro build`.
  *
  * Checked by the schemas in src/content.config.ts: field shapes, copy rules (single hyphens,
  * no phone numbers, past-tense verbs) and that every referenced id exists.
- * Checked here: every bullet used by a variant is `public: true`, no two bullets in
- * one variant start with the same verb, and no public bullet mentions a `training_only` skill.
+ * Checked here: every bullet used by a variant is `public: true`, and no public bullet mentions a
+ * `training_only` skill. Two bullets in one variant that start with the same verb only produce a
+ * warning: varied verbs are the goal, but the owner does not want uniqueness forced.
  */
 export async function getResumeVariants(options: { labels?: 'real' } = {}): Promise<ResumeVariant[]> {
   const [roleEntries, bulletEntries, summaryEntries, variantEntries, skillEntries, educationEntries] = await Promise.all([
@@ -145,7 +154,7 @@ export async function getResumeVariants(options: { labels?: 'real' } = {}): Prom
       byVerb.set(verb, [...(byVerb.get(verb) ?? []), b.id]);
     }
     for (const [verb, ids] of byVerb) {
-      if (ids.length > 1) problems.push(`"${verb}" starts more than one bullet (${ids.join(', ')}); vary the verbs`);
+      if (ids.length > 1) warnOnce(`Resume variant "${variant.id}": "${verb}" starts more than one bullet (${ids.join(', ')}). Consider varying the verbs.`);
     }
 
     const summary = summariesById.get(variant.data.summary_id.id);

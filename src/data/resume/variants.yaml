@@ -1,8 +1,7 @@
 # A variant is a list of bullet ids plus a summary and a label mode. The web Resume page and
 # every PDF render from this file, so they cannot drift apart. Within a variant, bullets are
 # grouped under their role; list order here is the display order inside each role. The build
-# fails if a bullet is missing, not public, or starts with the same verb as another bullet in
-# the same variant.
+# fails if a bullet is missing or not public. A repeated opening verb only prints a warning.
 
 - id: qa
   order: 1

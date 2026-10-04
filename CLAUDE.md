@@ -7,7 +7,7 @@ Read `PROJECT_BRIEF.md` (kept in `private/`) for goals, pages, and privacy rules
 ## Standing conventions
 
 - Use only single hyphens in any text you write for me. No em dashes, no en dashes, and no double hyphens in prose or copy.
-- Resume and LinkedIn bullets start with a strong, past-tense, action-oriented verb, with varied verbs across bullets.
+- Resume and LinkedIn bullets start with a strong, past-tense, action-oriented verb, with generally varied verbs across bullets (a goal, not enforced: the build warns about repeats and never fails on them).
 - Keep changes small and reviewable. Prefer one concern per pull request.
 - Don't add dependencies without telling me why.
 - Never commit anything from `private/`.
