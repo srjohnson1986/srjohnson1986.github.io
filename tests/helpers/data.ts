@@ -99,6 +99,7 @@ export interface Artwork {
   slug: string;
   title: string;
   story?: string[];
+  caption?: string;
   more?: { image: string; alt: string; caption?: string }[];
   alt: string;
 }
