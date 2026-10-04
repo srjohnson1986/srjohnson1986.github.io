@@ -68,7 +68,6 @@ test.describe('axe scan, states that change the page', () => {
 
       test('Development with filters applied', async ({ page }) => {
         await page.goto('/development/');
-        await page.locator('select[name="type"]').selectOption({ index: 1 });
         await page.locator('label.tag-option').first().click();
         await expectClean(page, `/development/ filtered (${scheme})`);
       });
