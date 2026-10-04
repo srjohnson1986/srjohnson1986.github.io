@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from './helpers/test';
 import { nav } from '../src/data/site';
 
 // An address the site does not have must answer with a real 404 status and show the site's own

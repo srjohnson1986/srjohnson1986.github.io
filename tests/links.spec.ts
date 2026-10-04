@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from './helpers/test';
 import { builtPages } from './helpers/data';
 
 // Print routes exist only so the PDFs can be printed from them. Nothing links to them.

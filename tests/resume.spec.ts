@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from './helpers/test';
 import { bulletById, bulletGroups, roleById, summaryById, variants, variantBulletIds, expectedSkills } from './helpers/data';
 
 test.describe('resume data', () => {

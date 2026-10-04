@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from './helpers/test';
 import { artworks } from './helpers/data';
 
 const withStory = artworks.filter((a) => a.story || a.more);
