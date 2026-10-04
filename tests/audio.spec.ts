@@ -1,5 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
-import { releases } from './helpers/data';
+import { releases, studio } from './helpers/data';
 
 // Bandcamp is never contacted for real: any request to it is answered with a stub page, and the
 // tests record whether a request was made at all.
@@ -51,6 +51,15 @@ test.describe('Audio players', () => {
     await expect(page.locator('iframe')).toHaveCount(releases.length);
     await expect(page.getByRole('link', { name: 'Listen on Bandcamp' })).toHaveCount(releases.length);
     await context.close();
+  });
+
+  test('the studio story is shown near the top, above the releases', async ({ page }) => {
+    await page.goto('/audio/');
+    const story = page.getByRole('region', { name: 'About the studio' });
+    for (const paragraph of studio.story) await expect(story).toContainText(paragraph.replace(/\s+/g, ' ').trim());
+    const storyBox = await story.boundingBox();
+    const firstRelease = await page.locator('.release').first().boundingBox();
+    expect(storyBox!.y).toBeLessThan(firstRelease!.y);
   });
 
   test('the studio rates section is linked from the top and reachable', async ({ page }) => {

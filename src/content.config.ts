@@ -233,6 +233,8 @@ const studio = defineCollection({
   schema: z.strictObject({
     id: z.string(),
     heading: copy,
+    // The studio's story, shown near the top of the Audio page. One paragraph per entry.
+    story: z.array(copy).min(1),
     rates: z.array(z.strictObject({ price: copy, description: copy })).min(1),
     // What the client is handed at the end.
     included: copy,

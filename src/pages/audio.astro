@@ -53,6 +53,14 @@ const filterFacets: Facet[] = [
   </p>
   {
     studio && (
+      <section class="story" aria-label="About the studio">
+        {studio.data.story.map((paragraph) => <p>{paragraph}</p>)}
+      </section>
+    )
+  }
+
+  {
+    studio && (
       <p class="studio-link">
         Looking to record? <a href="#studio">Rates and how to prepare</a> are at the bottom of the
         page.
@@ -152,6 +160,15 @@ const filterFacets: Facet[] = [
   .empty {
     margin: 0 0 1.5rem;
     color: var(--muted);
+  }
+
+  .story {
+    max-width: 42rem;
+    margin: 0 0 1.5rem;
+  }
+
+  .story p {
+    margin: 0 0 0.8rem;
   }
 
   .studio-link {
