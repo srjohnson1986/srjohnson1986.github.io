@@ -24,7 +24,7 @@ export const site = {
   // file in public/images/ and set { src: '/images/<file>', alt: '<description of the photo>' }.
   photo: {
     src: '/images/steve.jpg',
-    alt: 'Steve smiling and waving hello, wearing a navy blazer over a checked shirt.',
+    alt: 'A smiling, handsome man dressed appreciably nice says hello. Did I mention how handsome he was?',
   } as { src: string; alt: string } | undefined,
   // Published on the resume page and in the PDFs. Set to undefined to hide it.
   email: 'srjohnson1986@gmail.com' as string | undefined,
