@@ -1,0 +1,49 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { nav, site } from '../data/site';
+
+// GitHub Pages serves this file, with a 404 status, for any address the site does not have.
+const sections = nav.filter((item) => item.href !== '/');
+---
+
+<BaseLayout
+  title={`Page not found | ${site.name}`}
+  description="That address is not part of this site."
+  noindex
+>
+  <h1>Page not found</h1>
+  <p class="lead">
+    That address is not part of this site. It may have been mistyped, or the page may have moved.
+  </p>
+
+  <p>
+    <a class="button" href="/">Go to the home page</a>
+  </p>
+
+  <h2>Or try one of these</h2>
+  <ul class="sections">
+    {sections.map((item) => <li><a href={item.href}>{item.label}</a></li>)}
+  </ul>
+</BaseLayout>
+
+<style>
+  h1 {
+    margin: 0 0 0.5rem;
+    font-size: 2rem;
+  }
+
+  .lead {
+    margin: 0 0 1.5rem;
+    color: var(--muted);
+  }
+
+  h2 {
+    margin: 2rem 0 0.5rem;
+    font-size: 1.2rem;
+  }
+
+  .sections {
+    margin: 0;
+    padding-left: 1.2rem;
+  }
+</style>

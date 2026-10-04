@@ -75,6 +75,7 @@ The Playwright suite runs against the built site and is public on purpose. It re
 
 - **Resume and PDFs:** every version renders with exactly its own bullets and skills, print routes carry no site chrome, and each PDF is a real PDF with a sensible page count.
 - **Links:** a crawl from the home page checks every link, in-page anchor, and image, requires that no page is orphaned, and checks that each page has a title, one heading, a main landmark, and no console errors.
+- **Unknown addresses:** a mistyped address returns a real 404 status and shows the site's own page, with the navigation and links back into the site.
 - **Interactive behavior:** the filters, the art stories and series, the audio players (Bandcamp is stubbed, so the tests never use the network), and the wide and phone navigation.
 - **Accessibility:** axe-core scans of every page in light, dark, and phone width, plus the pages' changing states and keyboard checks for the skip link and focus.
 - **Smoke test:** a handful of checks against the deployed site.
