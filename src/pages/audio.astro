@@ -6,6 +6,7 @@ import { getReleases, getFacets, embedFor, TYPE_LABELS, ROLE_LABELS } from '../l
 import { tagLabel } from '../lib/projects';
 import { bandsOf, bandSlug } from '../lib/band';
 import { site } from '../data/site';
+import { fill, linkParts } from '../lib/copy';
 
 const releases = await getReleases();
 const facets = getFacets(releases);
@@ -44,8 +45,8 @@ const filterFacets: Facet[] = [
 ---
 
 <BaseLayout
-  title={`Audio | ${site.name}`}
-  description="Recordings made at Kingdom Hell, my home studio: production and engineering for other artists, with a player for each release."
+  title={fill(intro.title)}
+  description={fill(intro.description)}
 >
   <h1>Audio</h1>
   <p class="lead">{intro.lead}</p>
@@ -60,20 +61,19 @@ const filterFacets: Facet[] = [
   {
     studio && (
       <p class="studio-link">
-        Looking to record? <a href="#studio">Rates and how to prepare</a> are at the bottom of the
-        page.
+        {linkParts(intro.studio_link!).map((part) => (part.href ? <a href={part.href}>{part.text}</a> : part.text))}
       </p>
     )
   }
 
   {
     releases.length === 0 ? (
-      <p class="empty">Releases are on the way. Recordings made at Kingdom Hell will appear here.</p>
+      <p class="empty">{intro.empty}</p>
     ) : (
       <ArchiveFilters
         facets={filterFacets}
         noun="releases"
-        emptyMessage="No releases match these filters. Try removing one."
+        emptyMessage={intro.no_match!}
       >
         <ul class="release-list">
           {releases.map((release) => (

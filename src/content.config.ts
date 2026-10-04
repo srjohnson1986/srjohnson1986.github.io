@@ -258,13 +258,24 @@ const intros = defineCollection({
   schema: z
     .strictObject({
       // Which page the text is for.
-      id: z.enum(['home', 'art', 'audio', 'contact', 'not-found']),
+      id: z.enum(['home', 'art', 'audio', 'contact', 'events', 'development', 'not-found']),
+      // The page's title in the browser tab and in link previews, and its description.
+      title: copy,
+      description: copy,
       // The line under the page's heading.
       lead: copy,
       // One paragraph per entry, in order (Home and Art).
       paragraphs: z.array(copy).min(1).optional(),
       // Shown before the lead, only when an email address is published (Contact).
       email_note: copy.optional(),
+      // The closing line under the contact details, which links to the resume (Contact).
+      closing: copy.optional(),
+      // The line pointing down to the studio rates (Audio).
+      studio_link: copy.optional(),
+      // Shown instead of the gallery or list when there is nothing to show (Art, Audio).
+      empty: copy.optional(),
+      // Shown when the filters match nothing (Audio, Development).
+      no_match: copy.optional(),
       // The 404 page's heading, its button to the home page, and the heading above its list of sections.
       heading: copy.optional(),
       button: copy.optional(),
@@ -275,11 +286,38 @@ const intros = defineCollection({
         if (entry[field] === undefined) ctx.addIssue({ code: 'custom', message: `The ${entry.id} entry needs "${field}"`, path: [field] });
       };
       if (entry.id === 'home' || entry.id === 'art') need('paragraphs');
-      if (entry.id === 'contact') need('email_note');
+      if (entry.id === 'art') need('empty');
+      if (entry.id === 'audio') {
+        need('studio_link');
+        need('empty');
+        need('no_match');
+      }
+      if (entry.id === 'development') need('no_match');
+      if (entry.id === 'contact') {
+        need('email_note');
+        need('closing');
+      }
       if (entry.id === 'not-found') {
         need('heading');
         need('button');
         need('links_heading');
+      }
+
+      // Only {name} and {area} may be written in braces, and a [words](link) may only point to a page
+      // or section of this site.
+      for (const [field, value] of Object.entries(entry)) {
+        const texts = typeof value === 'string' ? [value] : Array.isArray(value) ? value : [];
+        for (const text of texts) {
+          if (typeof text !== 'string') continue;
+          for (const m of text.matchAll(/\{([^}]*)\}/g)) {
+            if (m[1] !== 'name' && m[1] !== 'area') ctx.addIssue({ code: 'custom', message: `Unknown placeholder {${m[1]}}. Use {name} or {area}`, path: [field] });
+          }
+          for (const m of text.matchAll(/\]\(([^)]*)\)/g)) {
+            if (!/^(\/[a-z0-9-]*(\/[a-z0-9-]+)*\/?|#[a-z0-9-]+)$/.test(m[1])) {
+              ctx.addIssue({ code: 'custom', message: `A link may only point to a page or section of this site, not "${m[1]}"`, path: [field] });
+            }
+          }
+        }
       }
     }),
 });

@@ -1,9 +1,17 @@
-# The words at the top of the Home, Art, Audio, and Contact pages, and the text of the 404 page. The
-# wording is the owner's own. Each entry has a lead line, and some have paragraphs (shown in this
-# order) or a few other fields, noted below. The build checks the same copy rules as everywhere
-# else (single hyphens only, no phone numbers).
+# The words on the Home, Art, Audio, Contact, Events, Development, and 404 pages: each page's
+# browser title and description, its lead line, and the other small pieces of text noted below. The
+# wording is the owner's own. The build checks the same copy rules as everywhere else (single hyphens
+# only, no phone numbers).
+#
+# Two things you can write in the text:
+#   {name} and {area}  are filled in from src/data/site.ts, the one place they are written.
+#   [words](/page/)    makes a link, to a page on this site (/resume/) or a section (#studio) only.
 
 - id: home
+  title: "{name} | QA and process professional"
+  description: >-
+    {name}: QA and process professional and digital transformation consultant in the {area}.
+    Resume, projects, audio, and art.
   # The line under the name.
   lead: I find what breaks before your customers do, and I build tools so it breaks less.
   paragraphs:
@@ -17,6 +25,10 @@
       finished thing feels to the person on the other end.
 
 - id: art
+  title: "Art | {name}"
+  description: Show flyers and other art made in Procreate, with the story behind each piece.
+  # Shown instead of the gallery when there are no pieces.
+  empty: Artwork is on the way. Show flyers and other Procreate work will appear here.
   # The line under the Art heading.
   lead: >-
     Show flyers and other work made in Procreate. Open a piece to read more about it.
@@ -38,6 +50,16 @@
       fonted in a unique way.
 
 - id: audio
+  title: "Audio | {name}"
+  description: >-
+    Recordings made at Kingdom Hell, my home studio: production and engineering for other artists,
+    with a player for each release.
+  # The line pointing down to the studio rates.
+  studio_link: Looking to record? [Rates and how to prepare](#studio) are at the bottom of the page.
+  # Shown instead of the list when there are no releases.
+  empty: Releases are on the way. Recordings made at Kingdom Hell will appear here.
+  # Shown when the filters match no release.
+  no_match: No releases match these filters. Try removing one.
   # The line under the Audio heading.
   lead: >-
     Recordings made at Kingdom Hell, my home studio, mostly production and engineering for other
@@ -45,6 +67,10 @@
     full credits are.
 
 - id: contact
+  title: "Contact | {name}"
+  description: How to reach {name}.
+  # The closing line under the contact details.
+  closing: Looking for my background? See the [resume](/resume/), with a PDF download for each version.
   # Shown first, and only when an email address is published (see src/data/site.ts).
   email_note: Email is the best way to reach me.
   # The line under the Contact heading. {area} is replaced with the area set in src/data/site.ts,
@@ -52,6 +78,8 @@
   lead: I am based in the {area}.
 
 - id: not-found
+  title: "Page not found | {name}"
+  description: That address is not part of this site.
   # The 404 page, shown for an address the site does not have.
   heading: Page not found
   lead: >-
@@ -60,3 +88,20 @@
   button: Go to the home page
   # The heading above the list of main sections.
   links_heading: Or try one of these
+
+- id: events
+  title: "Events | {name}"
+  # Used when the events data has no summary of its own to show.
+  description: Live music events I help organize.
+  lead: Live music I help put on, run by volunteers.
+
+- id: development
+  title: "Development | {name}"
+  description: >-
+    Every software project I have built: apps, tools, and sites, with the problem, the build, the
+    stack, and the outcome.
+  lead: >-
+    Every software project I have built, newest first. Each one has its own page with the problem,
+    what I built, the stack, the outcome, and links to the code.
+  # Shown when the filters match no project.
+  no_match: No projects match these filters. Try removing one.

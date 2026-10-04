@@ -2,8 +2,11 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import ArchiveFilters, { type Facet } from '../../components/ArchiveFilters.astro';
 import { getProjects, getFacets, tagLabel, TYPE_LABELS } from '../../lib/projects';
+import { getEntry } from 'astro:content';
 import { site } from '../../data/site';
+import { fill } from '../../lib/copy';
 
+const intro = (await getEntry('intros', 'development'))!.data;
 const projects = await getProjects();
 const facets = getFacets(projects);
 
@@ -18,19 +21,16 @@ const filterFacets: Facet[] = [
 ---
 
 <BaseLayout
-  title={`Development | ${site.name}`}
-  description="Every software project I have built: apps, tools, and sites, with the problem, the build, the stack, and the outcome."
+  title={fill(intro.title)}
+  description={fill(intro.description)}
 >
   <h1>Development</h1>
-  <p class="lead">
-    Every software project I have built, newest first. Each one has its own page with the
-    problem, what I built, the stack, the outcome, and links to the code.
-  </p>
+  <p class="lead">{intro.lead}</p>
 
   <ArchiveFilters
     facets={filterFacets}
     noun="projects"
-    emptyMessage="No projects match these filters. Try removing one."
+    emptyMessage={intro.no_match!}
   >
     <ul class="project-list">
       {

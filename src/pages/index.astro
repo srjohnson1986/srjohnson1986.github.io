@@ -2,13 +2,14 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { getCollection, getEntry } from 'astro:content';
 import { site } from '../data/site';
+import { fill } from '../lib/copy';
 const intro = (await getEntry('intros', 'home'))!.data;
 const cards = (await getCollection('homeCards')).map((card) => card.data).sort((a, b) => a.order - b.order);
 ---
 
 <BaseLayout
-  title={`${site.name} | QA and process professional`}
-  description={`${site.name}: QA and process professional and digital transformation consultant in the ${site.area}. Resume, projects, audio, and art.`}
+  title={fill(intro.title)}
+  description={fill(intro.description)}
 >
   <section class="intro" aria-labelledby="home-title">
     <div class="intro-text">
