@@ -1,4 +1,4 @@
-import { test, expect, type Page } from '@playwright/test';
+import { test, expect, type Page } from './helpers/test';
 import { projects, releases } from './helpers/data';
 
 // The Development and Audio archives share one filter component, so both are tested the same way.

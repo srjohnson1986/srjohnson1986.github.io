@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from './helpers/test';
 import { nav, entryCards } from '../src/data/site';
 
 const grouped = nav.filter((item) => item.group);

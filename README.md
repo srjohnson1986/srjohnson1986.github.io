@@ -75,6 +75,7 @@ The Playwright suite runs against the built site and is public on purpose. It re
 
 - **Resume and PDFs:** every version renders with exactly its own bullets and skills, print routes carry no site chrome, and each PDF is a real PDF with a sensible page count.
 - **Links:** a crawl from the home page checks every link, in-page anchor, and image, requires that no page is orphaned, and checks that each page has a title, one heading, a main landmark, and no console errors.
+- **Link previews and the sitemap:** every public page carries Open Graph tags that match its title, description, and address, the preview image exists at 1200 by 630, `robots.txt` points to the sitemap, and the sitemap lists every public page and none of the print routes. There are no Twitter or X tags.
 - **Unknown addresses:** a mistyped address returns a real 404 status and shows the site's own page, with the navigation and links back into the site.
 - **Interactive behavior:** the filters, the art stories and series, the audio players (Bandcamp is stubbed, so the tests never use the network), and the wide and phone navigation.
 - **Accessibility:** axe-core scans of every page in light, dark, and phone width, plus the pages' changing states and keyboard checks for the skip link and focus.
@@ -106,6 +107,8 @@ Run `npm run build` after any change. If an entry breaks a rule, the build stops
 This site was built with an AI coding agent (Claude Code) working inside that workflow, with its changes going through pull requests and the checks above.
 
 ## Dependencies
+
+The site depends only on Astro and its official sitemap integration (`@astrojs/sitemap`), which writes `sitemap-index.xml` at build time. The link-preview image `public/images/social-preview.jpg` is generated from the Home photo by `node scripts/make-social-image.mjs`; run it again if the photo, the name, or the colors change.
 
 [Dependabot](.github/dependabot.yml) opens a pull request each week for npm and GitHub Actions updates, so the CI check vets every update before it can merge.
 

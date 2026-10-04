@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { test, expect } from '@playwright/test';
+import { test, expect } from './helpers/test';
 import { dist, variants } from './helpers/data';
 
 const MIN_BYTES = 5_000;
