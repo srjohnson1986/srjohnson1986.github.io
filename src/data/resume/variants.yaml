@@ -70,3 +70,25 @@
     - tpd-built-maintained-open-source-vba
     - cb-combined-ai-coding-agent
     - cb-delivered-v1-two-platforms
+
+- id: adoption
+  order: 4
+  label: Digital Adoption / Training
+  summary_id: summary-adoption
+  org_labels: neutral
+  bullets:
+    - vz-published-user-guides-tens-thousands-views
+    - vz-created-confluence-guides-recorded
+    - vz-educated-product-owners-distinction
+    - vz-restricted-label-editing-small
+    - pg-trained-about-100-users
+    - pg-designed-tool-input-teams
+    - pg-presented-results-leadership-using
+    - nu-trained-hr-users-developers
+    - nu-replaced-paper-based-personnel-change-of-status
+    - tpd-wrote-user-guide-wiki
+    - cb-removed-every-barrier-adoption
+    - cb-improved-legibility-accessibility-automatically
+    - cb-tailored-features-real-care
+    - cb-gathered-requirements-caregivers-prioritized
+    - jp-provided-on-the-spot-technical-support
