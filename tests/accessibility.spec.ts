@@ -5,8 +5,15 @@ import { builtPages } from './helpers/data';
 // WCAG 2.0 and 2.1, levels A and AA, plus axe's own best-practice rules (heading order, landmarks).
 const RULE_SETS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'best-practice'];
 
+// The Bandcamp players on the Audio page are third-party content that this site cannot fix, so the
+// scans leave the iframes out. The player frame itself still needs a title, which the audio tests
+// check, and Bandcamp is stubbed below so a scan never uses the network.
+test.beforeEach(async ({ page }) => {
+  await page.route('https://bandcamp.com/**', (route) => route.fulfill({ contentType: 'text/html', body: '<p>stub player</p>' }));
+});
+
 async function violations(page: Page): Promise<string[]> {
-  const results = await new AxeBuilder({ page }).withTags(RULE_SETS).analyze();
+  const results = await new AxeBuilder({ page }).withTags(RULE_SETS).exclude('iframe').analyze();
   return results.violations.map((v) => {
     const nodes = v.nodes
       .slice(0, 3)
@@ -65,12 +72,10 @@ test.describe('axe scan, states that change the page', () => {
         await expectClean(page, `/development/ filtered (${scheme})`);
       });
 
-      test('Audio with a filter applied and a player loaded', async ({ page }) => {
-        await page.route('https://bandcamp.com/**', (route) => route.fulfill({ contentType: 'text/html', body: '<p>stub</p>' }));
+      test('Audio with a filter applied and the players in place', async ({ page }) => {
         await page.goto('/audio/');
         await page.locator('select[name="year"]').selectOption({ index: 1 });
-        await page.getByRole('button', { name: /^Load player for / }).first().click({ trial: false });
-        await expectClean(page, `/audio/ filtered with a player (${scheme})`);
+        await expectClean(page, `/audio/ filtered with players (${scheme})`);
       });
 
       test('the phone menu, open', async ({ page }) => {

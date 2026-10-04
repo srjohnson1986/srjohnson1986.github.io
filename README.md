@@ -16,14 +16,14 @@ The repository is public on purpose. It is also a portfolio piece: the way the s
 | Home | A short introduction and entry points to the rest |
 | Resume | Web versions of the resume, with a PDF download for each |
 | Development | A filterable archive of software projects, each with its own page: problem, what I built, stack, outcome, links |
-| Audio | Recordings from my home studio, with a Bandcamp player for each release that loads only when asked, plus studio rates |
+| Audio | Recordings from my home studio, with a Bandcamp player for each release, plus studio rates |
 | Art | Show flyers, with the story behind each piece one click away |
 | Events | The charity music festival and shows I help organize |
 | Contact | Email, LinkedIn, and GitHub, with no form |
 
 ## How it is built
 
-- **Astro, static output, almost no client-side JavaScript.** Only two pages ship any: Development (the archive filters) and Audio (the filters and the on-request players). Every other page, including Art, ships none. Without JavaScript the filters hide themselves and every item is simply listed, and each release keeps a plain link to Bandcamp.
+- **Astro, static output, almost no client-side JavaScript.** Only two pages ship any: Development (the archive filters) and Audio (the filters). Every other page, including Art, ships none. Without JavaScript the filters hide themselves and every item is simply listed, and each release keeps a plain link to Bandcamp.
 - **The data is the source of truth.** Everything lives in YAML files read through Astro content collections with strict schemas, so a bad entry fails the build instead of reaching the live site. The schemas enforce the site's own rules: copy uses single hyphens only, no phone numbers, resume bullets start with a past-tense verb, references must resolve, and a bullet must be marked public before it can appear.
 - **One resume data set renders everything.** The web pages, a print layout, and every PDF come from the same roles, bullets, skills, and versions, so they cannot drift apart. Each version is a list of bullet references plus a summary and a mode for organization names (real or alternate).
 - **PDFs are made in the build.** After the site is built, a script prints each print route to a PDF with headless Chromium through Playwright, and fails the build if a PDF is missing, broken, or runs past two pages.

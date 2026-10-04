@@ -93,13 +93,17 @@ const filterFacets: Facet[] = [
               <ul class="chips">
                 {release.data.tags.map((tag) => <li class="chip">{tagLabel(tag)}</li>)}
               </ul>
-              <div
-                class="player"
-                data-player
-                data-embed={release.data.embed}
-                data-height={release.data.embedHeight ?? 120}
-                data-title={`${release.data.title} by ${release.data.artist}`}
-              >
+              <div class="player">
+                {
+                  release.data.embed && (
+                    <iframe
+                      src={release.data.embed}
+                      title={`Bandcamp player: ${release.data.title} by ${release.data.artist}`}
+                      loading="lazy"
+                      height={release.data.embedHeight ?? 120}
+                    />
+                  )
+                }
                 <a class="listen" href={release.data.bandcamp} rel="noopener">
                   Listen on Bandcamp
                 </a>
@@ -137,33 +141,6 @@ const filterFacets: Facet[] = [
     )
   }
 </BaseLayout>
-
-<script>
-  // Players load on request. Until a visitor presses "Load player", nothing is requested from
-  // Bandcamp. Without JavaScript the plain "Listen on Bandcamp" link is all that shows.
-  for (const player of document.querySelectorAll<HTMLElement>('[data-player]')) {
-    const embed = player.dataset.embed;
-    if (!embed) continue;
-    const name = player.dataset.title ?? 'this release';
-
-    const button = document.createElement('button');
-    button.type = 'button';
-    button.className = 'load';
-    button.textContent = 'Load player';
-    button.setAttribute('aria-label', `Load player for ${name}`);
-
-    button.addEventListener('click', () => {
-      const frame = document.createElement('iframe');
-      frame.src = embed;
-      frame.title = `Bandcamp player: ${name}`;
-      frame.style.cssText = `border:0;width:100%;height:${player.dataset.height ?? '120'}px`;
-      frame.setAttribute('seamless', '');
-      button.replaceWith(frame);
-    });
-
-    player.prepend(button);
-  }
-</script>
 
 <style>
   h1 {
@@ -274,25 +251,10 @@ const filterFacets: Facet[] = [
     font-size: 0.95rem;
   }
 
-  /* The button is added by the script; the iframe it loads takes the full row. */
-  .player :global(.load) {
-    padding: 0.4rem 0.9rem;
-    border: 1px solid var(--accent);
-    border-radius: 0.4rem;
-    background: transparent;
-    color: var(--accent);
-    font: inherit;
-    font-size: 0.95rem;
-    font-weight: 600;
-    cursor: pointer;
-  }
-
-  .player :global(.load:hover) {
-    background: var(--accent);
-    color: var(--bg);
-  }
-
-  .player :global(iframe) {
+  /* The player takes the full row; the plain Bandcamp link sits under it. */
+  .player iframe {
     flex: 1 1 100%;
+    width: 100%;
+    border: 0;
   }
 </style>
