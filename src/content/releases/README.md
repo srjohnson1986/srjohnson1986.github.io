@@ -6,7 +6,7 @@ Each release is one data file here, for example `src/content/releases/my-album-a
 title: "Album Title"
 artist: "Artist Name"
 year: 2026
-kind: album               # album, ep, single, or split
+type: album               # album, ep, single, or split
 roles: [engineered]       # optional: produced, engineered, mixed, mastered, wrote, performed
 tags: [punk, pop-punk]    # genres, lowercase with hyphens
 bandcamp: https://artist.bandcamp.com/album/album-title
