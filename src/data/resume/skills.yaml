@@ -50,11 +50,11 @@
     - { name: PowerShell build scripting, only: [qa, consulting] }
     - { name: Claude Code, only: [qa, consulting] }
     - ElevenLabs
-    - { name: SharePoint, only: [consulting] }
-    - { name: Windows Server, only: [consulting] }
-    - { name: Spotfire, only: [consulting] }
-    - { name: Nielsen Answers Builder, only: [consulting] }
-    - { name: Prezi, only: [consulting] }
+    - { name: SharePoint, only: [consulting, adoption] }
+    - { name: Windows Server, only: [consulting, adoption] }
+    - { name: Spotfire, only: [consulting, adoption] }
+    - { name: Nielsen Answers Builder, only: [consulting, adoption] }
+    - { name: Prezi, only: [consulting, adoption] }
     # Version-specific tools.
     - { name: Studio One, only: [creative] }
     - { name: Procreate, only: [creative] }
