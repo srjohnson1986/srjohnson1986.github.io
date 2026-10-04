@@ -89,6 +89,66 @@ test.describe('Audio players', () => {
     await context.close();
   });
 
+  test.describe('one player at a time', () => {
+    test.use({ colorScheme: 'light' });
+
+    // Each load of a stubbed player shows a new number, so a reloaded player can be told apart.
+    async function numberedPlayers(page: Page) {
+      let loads = 0;
+      await page.route('https://bandcamp.com/**', (route) =>
+        route.fulfill({ contentType: 'text/html', body: `<button id="play">play</button><p id="n">${++loads}</p>` }),
+      );
+    }
+    const shown = (page: Page, i: number) => page.locator('iframe.embed-light').nth(i);
+    const number = async (page: Page, i: number) => (await shown(page, i).contentFrame().locator('#n').textContent()) ?? '';
+
+    test('clicking into a second player resets the first, and leaves a player nobody touched alone', async ({ page }) => {
+      await numberedPlayers(page);
+      await page.goto('/audio/');
+      const [a, b, c] = [await number(page, 0), await number(page, 1), await number(page, 2)];
+
+      await shown(page, 0).contentFrame().locator('#play').click();
+      expect(await number(page, 0)).toBe(a); // the first one on its own is not reset
+
+      await shown(page, 1).contentFrame().locator('#play').click();
+      await expect.poll(() => number(page, 0)).not.toBe(a); // the first was reset
+      expect(await number(page, 1)).toBe(b); // the one just used is not
+      expect(await number(page, 2)).toBe(c); // one nobody touched is not
+    });
+
+    test('clicking in the same player again does not reset it', async ({ page }) => {
+      await numberedPlayers(page);
+      await page.goto('/audio/');
+      const a = await number(page, 0);
+      await shown(page, 0).contentFrame().locator('#play').click();
+      await shown(page, 0).contentFrame().locator('#play').click();
+      await page.waitForTimeout(300);
+      expect(await number(page, 0)).toBe(a);
+    });
+
+    test('switching theme after using a player removes the hidden copy, so it cannot keep playing', async ({ page }) => {
+      await numberedPlayers(page);
+      await page.goto('/audio/');
+      // Remember the exact iframe elements of the first release, one used and one never touched.
+      await page.evaluate(() => {
+        const w = window as unknown as { __used: Element; __untouched: Element };
+        w.__used = document.querySelectorAll('iframe.embed-light')[0];
+        w.__untouched = document.querySelectorAll('iframe.embed-light')[1];
+      });
+      await shown(page, 0).contentFrame().locator('#play').click();
+      await expect(shown(page, 0).contentFrame().locator('#n')).toHaveCount(1);
+
+      await page.getByRole('button', { name: 'Switch to dark theme' }).click();
+      await expect(page.locator('iframe.embed-dark:visible').first()).toBeVisible();
+
+      await expect
+        .poll(() => page.evaluate(() => (window as unknown as { __used: Element }).__used.isConnected))
+        .toBe(false); // the light player that was used is gone, so its sound stops
+      expect(await page.evaluate(() => (window as unknown as { __untouched: Element }).__untouched.isConnected)).toBe(true);
+      await expect(page.locator('iframe.embed-light')).toHaveCount(releases.length); // replaced by a copy, not lost
+    });
+  });
+
   test('each card shows its release type, and there is no Kind dropdown', async ({ page }) => {
     await page.goto('/audio/');
     const labels: Record<string, string> = { album: 'Album', ep: 'EP', single: 'Single', split: 'Split' };
