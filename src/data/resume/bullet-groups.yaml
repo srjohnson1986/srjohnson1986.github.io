@@ -1,0 +1,12 @@
+# Named lists of bullets that several resume versions share. A version pulls a group in with
+# `include` in variants.yaml, so a bullet that belongs in more than one version is listed once.
+# Bullets in a group still follow the usual rules: each must exist and be public: true.
+
+- id: qa-consulting-shared
+  label: Work that reads the same in the QA and Consulting versions
+  bullets:
+    - vz-validated-about-20-third-party
+    - vz-authored-requirements-test-data-retrieval-tool
+    - vz-verified-discounting-launches-separating-defects
+    - ps-built-public-playwright-suite
+    - ps-configured-github-actions-suite-smoke

@@ -29,6 +29,13 @@ export interface Variant {
   label: string;
   summary_id: string;
   org_labels: 'neutral' | 'real';
+  include?: string[];
+  /** The variant's own bullets, after its included groups. Use `variantBulletIds` for the full list. */
+  bullets?: string[];
+}
+export interface BulletGroup {
+  id: string;
+  label: string;
   bullets: string[];
 }
 export interface Summary {
@@ -47,7 +54,15 @@ export const roles = load<Role[]>('src/data/resume/roles.yaml');
 export const bullets = load<Bullet[]>('src/data/resume/bullets.yaml');
 export const summaries = load<Summary[]>('src/data/resume/summaries.yaml');
 export const skillGroups = load<SkillGroup[]>('src/data/resume/skills.yaml');
+export const bulletGroups = load<BulletGroup[]>('src/data/resume/bullet-groups.yaml');
 export const variants = load<Variant[]>('src/data/resume/variants.yaml').sort((a, b) => a.order - b.order);
+
+// The full bullet list of a version: each included group in order, then its own bullets. This
+// mirrors how the site expands groups, so the tests state what a version should show.
+export const variantBulletIds = (v: Variant): string[] => [
+  ...(v.include ?? []).flatMap((g) => bulletGroups.find((x) => x.id === g)?.bullets ?? []),
+  ...(v.bullets ?? []),
+];
 
 export const bulletById = new Map(bullets.map((b) => [b.id, b]));
 export const roleById = new Map(roles.map((r) => [r.id, r]));

@@ -1,11 +1,11 @@
 import { test, expect } from '@playwright/test';
-import { bulletById, roleById, summaryById, variants, expectedSkills } from './helpers/data';
+import { bulletById, bulletGroups, roleById, summaryById, variants, variantBulletIds, expectedSkills } from './helpers/data';
 
 test.describe('resume data', () => {
   test('every bullet a version lists exists, is public, and has a known role', () => {
     const problems: string[] = [];
     for (const variant of variants) {
-      for (const id of variant.bullets) {
+      for (const id of variantBulletIds(variant)) {
         const bullet = bulletById.get(id);
         if (!bullet) problems.push(`${variant.id}: bullet "${id}" does not exist`);
         else {
@@ -18,11 +18,46 @@ test.describe('resume data', () => {
     expect(problems, problems.join('\n')).toEqual([]);
   });
 
+  test('every bullet group names existing public bullets, and every included group exists', () => {
+    const problems: string[] = [];
+    for (const group of bulletGroups) {
+      for (const id of group.bullets) {
+        const bullet = bulletById.get(id);
+        if (!bullet) problems.push(`group ${group.id}: bullet "${id}" does not exist`);
+        else if (!bullet.public) problems.push(`group ${group.id}: bullet "${id}" is not public`);
+      }
+    }
+    const groupIds = new Set(bulletGroups.map((g) => g.id));
+    for (const variant of variants) {
+      for (const g of variant.include ?? []) {
+        if (!groupIds.has(g)) problems.push(`${variant.id}: includes group "${g}", which does not exist`);
+      }
+    }
+    expect(problems, problems.join('\n')).toEqual([]);
+  });
+
+  test('no version lists a bullet twice, even across its groups', () => {
+    for (const variant of variants) {
+      const ids = variantBulletIds(variant);
+      const repeated = ids.filter((id, i) => ids.indexOf(id) !== i);
+      expect(repeated, `${variant.id} lists twice: ${repeated.join(', ')}`).toEqual([]);
+    }
+  });
+
+  test('a bullet in a group shows up in every version that includes the group', () => {
+    for (const group of bulletGroups) {
+      for (const variant of variants.filter((v) => v.include?.includes(group.id))) {
+        const ids = variantBulletIds(variant);
+        for (const id of group.bullets) expect(ids, `${variant.id} should list ${id}`).toContain(id);
+      }
+    }
+  });
+
   // Varied opening verbs are the goal, but uniqueness is not forced: a repeat is reported in the
   // test results as an annotation and never fails the suite.
   test('repeated opening verbs are reported, not forced', () => {
     for (const variant of variants) {
-      const verbs = variant.bullets.map((id) => bulletById.get(id)!.text.match(/^[A-Za-z]+/)![0].toLowerCase());
+      const verbs = variantBulletIds(variant).map((id) => bulletById.get(id)!.text.match(/^[A-Za-z]+/)![0].toLowerCase());
       const repeated = [...new Set(verbs.filter((v, i) => verbs.indexOf(v) !== i))];
       if (repeated.length) {
         test.info().annotations.push({ type: 'note', description: `${variant.id} repeats: ${repeated.join(', ')}` });
@@ -32,7 +67,7 @@ test.describe('resume data', () => {
 });
 
 for (const variant of variants) {
-  const listed = variant.bullets.map((id) => bulletById.get(id)!);
+  const listed = variantBulletIds(variant).map((id) => bulletById.get(id)!);
   const summary = summaryById.get(variant.summary_id)!.text;
 
   test.describe(`resume version "${variant.id}" (${variant.label})`, () => {
@@ -107,7 +142,7 @@ const switchingCases = variants
   .filter((v) => v.org_labels === 'neutral')
   .map((v) => ({
     variant: v,
-    swapped: [...new Set(v.bullets.map((id) => roleById.get(bulletById.get(id)!.role)!))].filter((r) => r.neutral_org),
+    swapped: [...new Set(variantBulletIds(v).map((id) => roleById.get(bulletById.get(id)!.role)!))].filter((r) => r.neutral_org),
   }))
   .filter((c) => c.swapped.length > 0);
 

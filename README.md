@@ -86,6 +86,7 @@ A passing suite only means something if it can fail, so each area was checked by
 | To add | Where |
 | --- | --- |
 | A resume bullet, role, skill, or version | The YAML files in `src/data/resume/` |
+| A bullet shared by several versions | Add it to a group in `src/data/resume/bullet-groups.yaml`; a version pulls the group in with `include` |
 | A software project | A new YAML file in `src/content/projects/`, following the existing ones |
 | A piece of art | See [src/content/art/README.md](src/content/art/README.md) |
 | An audio release | See [src/content/releases/README.md](src/content/releases/README.md) |

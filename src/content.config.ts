@@ -90,6 +90,17 @@ const summaries = defineCollection({
   schema: z.strictObject({ id: z.string(), text: copy }),
 });
 
+// A named list of bullets that several variants share. A variant pulls one in with `include`.
+const bulletGroups = defineCollection({
+  loader: file('src/data/resume/bullet-groups.yaml'),
+  schema: z.strictObject({
+    id: z.string(),
+    // A short note on what the group is for. Not shown on the site.
+    label: copy,
+    bullets: z.array(reference('bullets')).min(1),
+  }),
+});
+
 const variants = defineCollection({
   loader: file('src/data/resume/variants.yaml'),
   schema: z
@@ -101,9 +112,11 @@ const variants = defineCollection({
       summary_id: reference('summaries'),
       // neutral: use each role's neutral_org where one exists. real: use real names.
       org_labels: z.enum(['neutral', 'real']),
-      bullets: z.array(reference('bullets')).min(1),
+      // Shared groups come first, in this order, then the variant's own bullets.
+      include: z.array(reference('bulletGroups')).optional(),
+      bullets: z.array(reference('bullets')).optional(),
     })
-    .refine((v) => new Set(v.bullets.map((b) => b.id)).size === v.bullets.length, 'A bullet is listed twice in this variant'),
+    .refine((v) => (v.include?.length ?? 0) + (v.bullets?.length ?? 0) > 0, 'A variant needs at least one bullet group or bullet'),
 });
 
 const skills = defineCollection({
@@ -293,4 +306,4 @@ const projects = defineCollection({
   }),
 });
 
-export const collections = { roles, bullets, summaries, variants, skills, education, events, artworks, studio, releases, projects };
+export const collections = { roles, bullets, bulletGroups, summaries, variants, skills, education, events, artworks, studio, releases, projects };
