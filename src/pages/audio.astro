@@ -4,6 +4,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import ArchiveFilters, { type Facet } from '../components/ArchiveFilters.astro';
 import { getReleases, getFacets, embedFor, TYPE_LABELS, ROLE_LABELS } from '../lib/audio';
 import { tagLabel } from '../lib/projects';
+import { bandsOf, bandSlug } from '../lib/band';
 import { site } from '../data/site';
 
 const releases = await getReleases();
@@ -20,6 +21,13 @@ const filterFacets: Facet[] = [
   },
   {
     kind: 'select',
+    name: 'band',
+    label: 'Band',
+    allLabel: 'All bands',
+    options: facets.bands.map((b) => ({ value: b.slug, label: b.band })),
+  },
+  {
+    kind: 'select',
     name: 'role',
     label: 'My role',
     allLabel: 'Any role',
@@ -28,7 +36,7 @@ const filterFacets: Facet[] = [
   {
     kind: 'tags',
     name: 'tag',
-    legend: 'Genres (a release must have every tag you pick)',
+    legend: 'Genre',
     options: facets.tags.map((t) => ({ value: t.tag, label: `${t.label} (${t.count})` })),
   },
 ];
@@ -76,6 +84,7 @@ const filterFacets: Facet[] = [
               class="release"
               data-item
               data-year={release.data.year}
+              data-band={bandsOf(release.data).map(bandSlug).join(' ')}
               data-role={(release.data.roles ?? []).join(' ')}
               data-tag={release.data.tags.join(' ')}
             >
