@@ -94,6 +94,7 @@ const detailsLabel = (piece: Artwork) => {
                     <strong>{piece.data.title}</strong>
                     {metaOf(piece) && <span class="meta">{metaOf(piece)}</span>}
                   </figcaption>
+                  {!(piece.data.story || piece.data.more || piece.data.caption) && <div class="read-more-space" aria-hidden="true" />}
                   {(piece.data.story || piece.data.more || piece.data.caption) && (
                     <details>
                       <summary>{detailsLabel(piece)}</summary>
@@ -137,6 +138,42 @@ const detailsLabel = (piece: Artwork) => {
     )
   }
 </BaseLayout>
+
+<script>
+  // Cards in a row end at the same place. The title and date under each image can wrap to a different
+  // number of lines, so this measures every card in a row and gives them all the height of the
+  // tallest. It measures the real text, so it works for any font or window width. Without JavaScript
+  // the cards are simply not equalized. Opening Read more still grows only its own card.
+  const captions = [...document.querySelectorAll<HTMLElement>('.gallery .piece > figcaption')];
+
+  const equalize = () => {
+    for (const caption of captions) caption.style.minHeight = '';
+    const rows = new Map<number, HTMLElement[]>();
+    for (const caption of captions) {
+      const top = Math.round(caption.closest('.piece')!.getBoundingClientRect().top + window.scrollY);
+      rows.set(top, [...(rows.get(top) ?? []), caption]);
+    }
+    for (const row of rows.values()) {
+      if (row.length < 2) continue;
+      const tallest = Math.max(...row.map((caption) => caption.getBoundingClientRect().height));
+      for (const caption of row) caption.style.minHeight = `${tallest}px`;
+    }
+  };
+
+  if (captions.length) {
+    equalize();
+    window.addEventListener('resize', equalize);
+    // The text can change size once the page's fonts have loaded.
+    document.fonts?.ready.then(equalize);
+    // A change in the gallery's width (a new column count) changes which cards share a row.
+    let width = 0;
+    new ResizeObserver(([entry]) => {
+      if (Math.round(entry.contentRect.width) === width) return;
+      width = Math.round(entry.contentRect.width);
+      equalize();
+    }).observe(document.querySelector('.gallery')!);
+  }
+</script>
 
 <script>
   // Click an image to see a larger version filling the page, with an X to close it. Without
@@ -268,6 +305,22 @@ const detailsLabel = (piece: Artwork) => {
     cursor: zoom-in;
   }
 
+  /* Every flyer sits whole in the same 4:5 frame on a soft mat, so the squares and the posters line
+     up in rows. Nothing is cropped: object-fit: contain shows the whole flyer inside the frame. */
+  .piece > .zoom {
+    position: relative;
+    aspect-ratio: 4 / 5;
+    background: color-mix(in srgb, var(--fg) 6%, var(--card));
+  }
+
+  .piece > .zoom :global(img) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
   .zoom:focus-visible {
     outline: 3px solid var(--focus);
     outline-offset: -3px;
@@ -328,6 +381,19 @@ const detailsLabel = (piece: Artwork) => {
     display: grid;
     gap: 0.2rem;
     padding: 0.75rem 0.9rem;
+  }
+
+  /* The title and date block is made the same height across a row by the script below, which
+     measures the real text rather than guessing how many lines a title needs in any given font. */
+  .piece > figcaption .meta {
+    min-height: 1.55em;
+  }
+
+  /* A card without a Read more keeps the space one would take, so it is as tall as its neighbours.
+     An opened Read more still grows only its own card. */
+  .read-more-space,
+  .piece > details {
+    min-height: 2.25rem;
   }
 
   .meta {

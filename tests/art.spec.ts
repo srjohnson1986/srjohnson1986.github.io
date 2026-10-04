@@ -257,3 +257,84 @@ test.describe('Larger view of an image', () => {
     await context.close();
   });
 });
+
+test.describe('Gallery alignment', () => {
+  for (const [name, width] of [
+    ['phone, small', 320],
+    ['phone', 375],
+    ['large phone', 430],
+    ['two columns', 500],
+    ['two columns, wide', 620],
+    ['tablet', 700],
+    ['tablet, wide', 780],
+    ['laptop', 1100],
+    ['desktop', 1600],
+  ] as const) {
+    test(`every flyer sits whole in the same frame (${name})`, async ({ page }) => {
+      await page.setViewportSize({ width, height: 900 });
+      await page.goto('/art/');
+      const frames = await page.locator('.piece > .zoom').evaluateAll((els) =>
+        els.map((el) => {
+          const r = el.getBoundingClientRect();
+          const card = el.closest('.piece')!.getBoundingClientRect();
+          return { ratio: r.width / r.height, widthGap: Math.abs(card.width - r.width) - 2, fit: getComputedStyle(el.querySelector('img')!).objectFit };
+        }),
+      );
+      expect(frames.length).toBeGreaterThan(0);
+      for (const f of frames) {
+        expect(f.ratio).toBeCloseTo(0.8, 2); // 4:5, the same for squares and posters
+        expect(f.fit).toBe('contain'); // the whole flyer shows; nothing is cropped
+      }
+    });
+
+    test(`cards in the same row end at the same place (${name})`, async ({ page }) => {
+      await page.setViewportSize({ width, height: 900 });
+      await page.goto('/art/');
+      const cards = await page.locator('.piece').evaluateAll((els) =>
+        els.map((el) => {
+          const r = el.getBoundingClientRect();
+          return { top: Math.round(r.top + window.scrollY), bottom: r.bottom + window.scrollY, title: el.querySelector('strong')?.textContent ?? '' };
+        }),
+      );
+      const rows = new Map<number, typeof cards>();
+      for (const c of cards) rows.set(c.top, [...(rows.get(c.top) ?? []), c]);
+      for (const [top, row] of rows) {
+        const bottoms = row.map((c) => c.bottom);
+        const spread = Math.max(...bottoms) - Math.min(...bottoms);
+        expect(spread, `row at ${top}: ${row.map((c) => c.title).join(' | ')}`).toBeLessThanOrEqual(2);
+      }
+      if (width >= 500) expect([...rows.values()].some((row) => row.length > 1)).toBe(true); // there are real rows to compare
+    });
+  }
+
+  test('rows still line up when the text is wider, whatever the font', async ({ page }) => {
+    await page.setViewportSize({ width: 1100, height: 900 });
+    await page.goto('/art/');
+    // A much wider font makes titles wrap to more lines, as on a machine with different fonts.
+    await page.addStyleTag({ content: 'body, body * { font-family: "DejaVu Sans Mono", monospace !important; font-size-adjust: none; }' });
+    await page.evaluate(() => window.dispatchEvent(new Event('resize')));
+    await page.waitForTimeout(200);
+    const cards = await page.locator('.piece').evaluateAll((els) =>
+      els.map((el) => {
+        const r = el.getBoundingClientRect();
+        return { top: Math.round(r.top + window.scrollY), bottom: r.bottom + window.scrollY };
+      }),
+    );
+    const rows = new Map<number, number[]>();
+    for (const c of cards) rows.set(c.top, [...(rows.get(c.top) ?? []), c.bottom]);
+    for (const [top, bottoms] of rows) {
+      expect(Math.max(...bottoms) - Math.min(...bottoms), `row at ${top}`).toBeLessThanOrEqual(2);
+    }
+  });
+
+  test('opening Read more still grows only that card', async ({ page }) => {
+    await page.setViewportSize({ width: 1100, height: 900 });
+    await page.goto('/art/');
+    const first = page.locator('.piece').first();
+    const second = page.locator('.piece').nth(1);
+    const before = { first: (await first.boundingBox())!.height, second: (await second.boundingBox())!.height };
+    await first.locator('summary').click();
+    expect((await first.boundingBox())!.height).toBeGreaterThan(before.first);
+    expect((await second.boundingBox())!.height).toBeCloseTo(before.second, 0);
+  });
+});
