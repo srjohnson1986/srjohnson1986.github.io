@@ -23,7 +23,7 @@ The repository is public on purpose. It is also a portfolio piece: the way the s
 
 ## How it is built
 
-- **Astro, static output, almost no client-side JavaScript.** Only two pages ship any: Development (the archive filters) and Audio (the filters). Every other page, including Art, ships none. Without JavaScript the filters hide themselves and every item is simply listed, and each release keeps a plain link to Bandcamp.
+- **Astro, static output, almost no client-side JavaScript.** Only two pages ship any: Development (the archive filters) and Audio (the filters). Every other page, including Art, ships none. Without JavaScript the filters hide themselves and every item is simply listed, and the Audio players still show.
 - **The data is the source of truth.** Everything lives in YAML files read through Astro content collections with strict schemas, so a bad entry fails the build instead of reaching the live site. The schemas enforce the site's own rules: copy uses single hyphens only, no phone numbers, resume bullets start with a past-tense verb, references must resolve, and a bullet must be marked public before it can appear.
 - **One resume data set renders everything.** The web pages, a print layout, and every PDF come from the same roles, bullets, skills, and versions, so they cannot drift apart. Each version is a list of bullet references plus a summary and a mode for organization names (real or alternate).
 - **PDFs are made in the build.** After the site is built, a script prints each print route to a PDF with headless Chromium through Playwright, and fails the build if a PDF is missing, broken, or runs past two pages.

@@ -61,3 +61,13 @@ export function getFacets(releases: Release[]): ReleaseFacets {
       .sort((a, b) => b.count - a.count || a.label.localeCompare(b.label)),
   };
 }
+
+/**
+ * The address of a release's Bandcamp player in the light or the dark colors. Bandcamp draws the
+ * player from the colors in its address, so the dark version uses the site's dark card and accent
+ * colors (src/styles/global.css) and the light version is the address exactly as it is in the data.
+ */
+export function embedFor(embed: string, scheme: 'light' | 'dark'): string {
+  if (scheme === 'light') return embed;
+  return embed.replace(/\/bgcol=[0-9a-f]+/i, '/bgcol=1b1b20').replace(/\/linkcol=[0-9a-f]+/i, '/linkcol=e0a070');
+}
