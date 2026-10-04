@@ -20,7 +20,7 @@ test.describe('Art page', () => {
   test('pieces keep their own aspect ratio (no stretched or cropped images)', async ({ page }) => {
     await page.goto('/art/');
     const boxes = await page
-      .locator('.piece > img')
+      .locator('.piece > .zoom > img')
       .evaluateAll((imgs) => imgs.map((img) => ({ w: img.getAttribute('width'), h: img.getAttribute('height'), css: getComputedStyle(img).objectFit })));
     for (const box of boxes) {
       expect(Number(box.w)).toBeGreaterThan(0);
@@ -93,5 +93,120 @@ test.describe('Art page', () => {
         if (extra.caption) await expect(piece).toContainText(extra.caption);
       }
     }
+  });
+});
+
+test.describe('Larger view of an image', () => {
+  // The first piece with a series, for the extra-image case.
+  const seriesPiece = (page: import('@playwright/test').Page) =>
+    page.locator('.piece', { has: page.getByText(series[0].title, { exact: true }) });
+
+  test('every image is a link to a larger version, which is served as an image', async ({ page, request }) => {
+    await page.goto('/art/');
+    const expected = artworks.reduce((n, a) => n + 1 + (a.more?.length ?? 0), 0);
+    const links = page.locator('a[data-lightbox]');
+    await expect(links).toHaveCount(expected);
+    const hrefs = await links.evaluateAll((as) => as.map((a) => (a as HTMLAnchorElement).href));
+    expect(new Set(hrefs).size).toBe(expected); // each image has its own larger version
+    for (const href of hrefs.slice(0, 4)) {
+      const response = await request.get(href);
+      expect(response.status(), href).toBe(200);
+      expect(response.headers()['content-type'], href).toContain('image/');
+    }
+    // Every link has a name that says what it does.
+    const names = await links.evaluateAll((as) => as.map((a) => a.getAttribute('aria-label') ?? ''));
+    expect(names.filter((n) => !n.startsWith('View larger')), 'links without a clear name').toEqual([]);
+  });
+
+  test('nothing is added to the page until an image is clicked', async ({ page }) => {
+    await page.goto('/art/');
+    await expect(page.locator('dialog')).toHaveCount(0);
+  });
+
+  test('clicking an image fills the page with a larger version, and the X closes it', async ({ page }) => {
+    await page.setViewportSize({ width: 1000, height: 700 });
+    await page.goto('/art/');
+    const link = page.locator('a[data-lightbox]').first();
+    const thumb = link.locator('img');
+    const alt = await thumb.getAttribute('alt');
+    const thumbWidth = (await thumb.boundingBox())!.width;
+
+    await link.click();
+    const dialog = page.locator('dialog.lightbox');
+    await expect(dialog).toBeVisible();
+    const big = dialog.locator('img');
+    await expect(big).toHaveAttribute('alt', alt!);
+    await expect(big).toHaveJSProperty('src', await link.evaluate((a) => (a as HTMLAnchorElement).href));
+
+    // It fills the window, the picture is much bigger than the thumbnail, and it is a real picture.
+    const box = (await dialog.boundingBox())!;
+    expect(box.width).toBe(1000);
+    expect(box.height).toBe(700);
+    const shown = (await big.boundingBox())!;
+    expect(shown.height).toBeGreaterThan(thumbWidth * 1.5);
+    await expect.poll(() => big.evaluate((img) => (img as HTMLImageElement).naturalWidth)).toBeGreaterThan(640);
+
+    const close = page.getByRole('button', { name: 'Close larger view' });
+    await expect(close).toBeVisible();
+    await close.click();
+    await expect(dialog).toBeHidden();
+    await expect(link).toBeFocused(); // back where the visitor was
+  });
+
+  test('Escape and a click on the dark area close it too', async ({ page }) => {
+    await page.setViewportSize({ width: 1000, height: 700 });
+    await page.goto('/art/');
+    const link = page.locator('a[data-lightbox]').first();
+    const dialog = page.locator('dialog.lightbox');
+
+    await link.click();
+    await expect(dialog).toBeVisible();
+    await page.keyboard.press('Escape');
+    await expect(dialog).toBeHidden();
+
+    await link.click();
+    await expect(dialog).toBeVisible();
+    // Wait for the picture to load, so its edges are known, then click the dark margin beside it.
+    await expect.poll(() => dialog.locator('img').evaluate((img) => (img as HTMLImageElement).naturalWidth)).toBeGreaterThan(0);
+    await page.mouse.click(5, 350);
+    await expect(dialog).toBeHidden();
+  });
+
+  test('opens from the keyboard, and shows the right picture for each image', async ({ page }) => {
+    await page.goto('/art/');
+    const second = page.locator('a[data-lightbox]').nth(1);
+    await second.focus();
+    await page.keyboard.press('Enter');
+    const dialog = page.locator('dialog.lightbox');
+    await expect(dialog).toBeVisible();
+    await expect(dialog.locator('img')).toHaveJSProperty('src', await second.evaluate((a) => (a as HTMLAnchorElement).href));
+    await expect(page.getByRole('button', { name: 'Close larger view' })).toBeFocused();
+    await page.keyboard.press('Escape');
+    await expect(second).toBeFocused();
+  });
+
+  test('the extra images in a series open full page too', async ({ page }) => {
+    test.skip(series.length === 0, 'no piece has extra images');
+    await page.goto('/art/');
+    const piece = seriesPiece(page);
+    await piece.locator('summary').click();
+    const extra = piece.locator('.more a[data-lightbox]').first();
+    const alt = await extra.locator('img').getAttribute('alt');
+    await extra.click();
+    const dialog = page.locator('dialog.lightbox');
+    await expect(dialog).toBeVisible();
+    await expect(dialog.locator('img')).toHaveAttribute('alt', alt!);
+    await expect(dialog.locator('img')).toHaveJSProperty('src', await extra.evaluate((a) => (a as HTMLAnchorElement).href));
+  });
+
+  test('with scripts off, an image is a plain link to the larger version', async ({ browser }) => {
+    const context = await browser.newContext({ javaScriptEnabled: false });
+    const page = await context.newPage();
+    await page.goto('/art/');
+    const href = await page.locator('a[data-lightbox]').first().getAttribute('href');
+    const response = await page.request.get(new URL(href!, page.url()).href);
+    expect(response.status()).toBe(200);
+    await expect(page.locator('dialog')).toHaveCount(0);
+    await context.close();
   });
 });

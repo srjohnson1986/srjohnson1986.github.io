@@ -1,5 +1,5 @@
 ---
-import { Image } from 'astro:assets';
+import { Image, getImage } from 'astro:assets';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { getArtworks, groupByMedium, FORMAT_LABELS, type Artwork } from '../lib/art';
 import { site } from '../data/site';
@@ -12,6 +12,17 @@ const metaOf = (piece: Artwork) =>
   [piece.data.date ?? piece.data.year, piece.data.format && FORMAT_LABELS[piece.data.format]]
     .filter(Boolean)
     .join(' · ');
+
+// The larger version shown when an image is clicked: up to 2400 px wide, never bigger than the
+// original (so a small original is not blown up), as WebP to keep the big PNGs light.
+const largeOf = async (image: ImageMetadata) =>
+  (await getImage({ src: image, width: Math.min(image.width, 2400), format: 'webp', quality: 85 })).src;
+
+const large = new Map<string, string>();
+for (const piece of pieces) {
+  large.set(piece.id, await largeOf(piece.data.image));
+  for (const [i, extra] of (piece.data.more ?? []).entries()) large.set(`${piece.id}#${i}`, await largeOf(extra.image));
+}
 
 // What the expand and collapse control says, depending on what is inside it.
 const detailsLabel = (piece: Artwork) => {
@@ -63,14 +74,16 @@ const detailsLabel = (piece: Artwork) => {
             {group.pieces.map((piece) => (
               <li>
                 <figure class="piece">
-                  <Image
-                    src={piece.data.image}
-                    alt={piece.data.alt}
-                    widths={[320, 480, 640, 960]}
-                    sizes="(max-width: 36rem) 100vw, 15rem"
-                    loading="lazy"
-                    decoding="async"
-                  />
+                  <a class="zoom" href={large.get(piece.id)} data-lightbox data-title={piece.data.title} aria-label={`View larger: ${piece.data.title}`}>
+                    <Image
+                      src={piece.data.image}
+                      alt={piece.data.alt}
+                      widths={[320, 480, 640, 960]}
+                      sizes="(max-width: 36rem) 100vw, 15rem"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  </a>
                   <figcaption>
                     <strong>{piece.data.title}</strong>
                     {metaOf(piece) && <span class="meta">{metaOf(piece)}</span>}
@@ -82,17 +95,25 @@ const detailsLabel = (piece: Artwork) => {
                       {piece.data.story?.map((paragraph) => <p>{paragraph}</p>)}
                       {piece.data.more && (
                         <ul class="more">
-                          {piece.data.more.map((extra) => (
+                          {piece.data.more.map((extra, i) => (
                             <li>
                               <figure>
-                                <Image
-                                  src={extra.image}
-                                  alt={extra.alt}
-                                  widths={[240, 360, 480, 720]}
-                                  sizes="(max-width: 36rem) 50vw, 7rem"
-                                  loading="lazy"
-                                  decoding="async"
-                                />
+                                <a
+                                  class="zoom"
+                                  href={large.get(`${piece.id}#${i}`)}
+                                  data-lightbox
+                                  data-title={piece.data.title}
+                                  aria-label={`View larger: ${piece.data.title}, image ${i + 2}`}
+                                >
+                                  <Image
+                                    src={extra.image}
+                                    alt={extra.alt}
+                                    widths={[240, 360, 480, 720]}
+                                    sizes="(max-width: 36rem) 50vw, 7rem"
+                                    loading="lazy"
+                                    decoding="async"
+                                  />
+                                </a>
                                 {extra.caption && <figcaption>{extra.caption}</figcaption>}
                               </figure>
                             </li>
@@ -110,6 +131,67 @@ const detailsLabel = (piece: Artwork) => {
     )
   }
 </BaseLayout>
+
+<script>
+  // Click an image to see a larger version filling the page, with an X to close it. Without
+  // JavaScript each image is a plain link to the larger version. The dialog is built on first use
+  // so the page carries no empty image until a visitor asks for one. It is a native modal dialog,
+  // which brings the Escape key, focus handling, and a backdrop with it.
+  let dialog: HTMLDialogElement | null = null;
+  let picture: HTMLImageElement | null = null;
+
+  const build = () => {
+    dialog = document.createElement('dialog');
+    dialog.className = 'lightbox';
+
+    const close = document.createElement('button');
+    close.type = 'button';
+    close.className = 'lightbox-close';
+    close.setAttribute('aria-label', 'Close larger view');
+    close.innerHTML =
+      '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false"><path d="M5 5l14 14M19 5L5 19" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>';
+    close.addEventListener('click', () => dialog!.close());
+
+    picture = document.createElement('img');
+    picture.decoding = 'async';
+
+    dialog.append(close, picture);
+    // A click on the dark area around the picture (the dialog itself) also closes it.
+    // The picture element fills the window, but the picture inside it is letterboxed, so a click
+    // on the empty margin of the element counts as a click outside the picture.
+    dialog.addEventListener('click', (event) => {
+      if (event.target === dialog) return dialog!.close();
+      if (event.target !== picture || !picture!.naturalWidth) return;
+      const box = picture!.getBoundingClientRect();
+      const scale = Math.min(box.width / picture!.naturalWidth, box.height / picture!.naturalHeight);
+      const w = picture!.naturalWidth * scale;
+      const h = picture!.naturalHeight * scale;
+      const left = box.left + (box.width - w) / 2;
+      const top = box.top + (box.height - h) / 2;
+      const inside = event.clientX >= left && event.clientX <= left + w && event.clientY >= top && event.clientY <= top + h;
+      if (!inside) dialog!.close();
+    });
+    dialog.addEventListener('close', () => {
+      document.documentElement.style.overflow = '';
+      picture!.removeAttribute('src');
+    });
+    document.body.append(dialog);
+  };
+
+  for (const link of document.querySelectorAll<HTMLAnchorElement>('a[data-lightbox]')) {
+    link.addEventListener('click', (event) => {
+      // Let a modified click (new tab, new window) behave as a normal link.
+      if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) return;
+      event.preventDefault();
+      if (!dialog || !picture) build();
+      picture!.alt = link.querySelector('img')?.alt ?? '';
+      picture!.src = link.href;
+      dialog!.setAttribute('aria-label', `Larger view: ${link.dataset.title ?? 'artwork'}`);
+      document.documentElement.style.overflow = 'hidden';
+      dialog!.showModal();
+    });
+  }
+</script>
 
 <style>
   h1 {
@@ -170,6 +252,70 @@ const detailsLabel = (piece: Artwork) => {
     display: block;
     width: 100%;
     height: auto;
+  }
+
+  /* An image is a link to its larger version. */
+  .zoom {
+    display: block;
+    line-height: 0;
+    border: 0;
+    cursor: zoom-in;
+  }
+
+  .zoom:focus-visible {
+    outline: 3px solid var(--focus);
+    outline-offset: -3px;
+  }
+
+  /* The larger view is added by the script, so its styles are global. */
+  :global(dialog.lightbox) {
+    width: 100vw;
+    height: 100vh;
+    max-width: none;
+    max-height: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    overflow: hidden;
+  }
+
+  :global(dialog.lightbox)::backdrop {
+    background: rgb(0 0 0 / 0.92);
+  }
+
+  :global(dialog.lightbox img) {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  :global(.lightbox-close) {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    z-index: 1;
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    padding: 0;
+    border: 1px solid rgb(255 255 255 / 0.55);
+    border-radius: 50%;
+    background: rgb(0 0 0 / 0.65);
+    color: #fff;
+    cursor: pointer;
+  }
+
+  :global(.lightbox-close:hover) {
+    background: rgb(0 0 0 / 0.9);
+    border-color: #fff;
+  }
+
+  :global(.lightbox-close:focus-visible) {
+    outline: 3px solid #fff;
+    outline-offset: 2px;
   }
 
   figcaption {
