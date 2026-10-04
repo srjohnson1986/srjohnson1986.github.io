@@ -1,12 +1,15 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import { getEntry } from 'astro:content';
 import { site } from '../data/site';
+
+const intro = (await getEntry('intros', 'contact'))!.data;
 ---
 
 <BaseLayout title={`Contact | ${site.name}`} description={`How to reach ${site.name}.`}>
   <h1>Contact</h1>
   <p class="lead">
-    {site.email ? 'Email is the best way to reach me. ' : ''}I am based in the {site.area}.
+    {site.email ? `${intro.email_note} ` : ''}{intro.lead.replaceAll('{area}', site.area)}
   </p>
 
   <dl class="contact">

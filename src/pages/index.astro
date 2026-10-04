@@ -1,8 +1,9 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { getEntry } from 'astro:content';
-import { entryCards, site } from '../data/site';
+import { getCollection, getEntry } from 'astro:content';
+import { site } from '../data/site';
 const intro = (await getEntry('intros', 'home'))!.data;
+const cards = (await getCollection('homeCards')).map((card) => card.data).sort((a, b) => a.order - b.order);
 ---
 
 <BaseLayout
@@ -13,7 +14,7 @@ const intro = (await getEntry('intros', 'home'))!.data;
     <div class="intro-text">
       <h1 id="home-title">{site.name}</h1>
       <p class="tagline">{intro.lead}</p>
-      {intro.paragraphs.map((paragraph) => <p>{paragraph}</p>)}
+      {intro.paragraphs!.map((paragraph) => <p>{paragraph}</p>)}
       <p class="actions">
         <a class="button" href="/resume/">View my resume</a>
         <a href="/contact/">Get in touch</a>
@@ -37,7 +38,7 @@ const intro = (await getEntry('intros', 'home'))!.data;
     <h2 id="explore-title">Explore</h2>
     <ul class="cards">
       {
-        entryCards.map((card) => (
+        cards.map((card) => (
           <li>
             {card.href ? (
               <a class="card" href={card.href}>

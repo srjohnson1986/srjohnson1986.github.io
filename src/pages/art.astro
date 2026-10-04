@@ -44,7 +44,7 @@ const detailsLabel = (piece: Artwork) => {
   <p class="lead">{intro.lead}</p>
 
   <section class="statement" aria-label="About my flyers">
-    {intro.paragraphs.map((paragraph) => <p>{paragraph}</p>)}
+    {intro.paragraphs!.map((paragraph) => <p>{paragraph}</p>)}
   </section>
 
   {

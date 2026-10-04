@@ -1,0 +1,21 @@
+# The cards under "Explore" on the Home page, shown by `order` (1 is first). Each has a title, a short
+# blurb, and the page it opens. Leave out `href` while the page is not built yet, and the card shows
+# "Coming soon". The build checks the same copy rules as everywhere else (single hyphens only).
+
+- id: development
+  order: 1
+  title: Technology and QA
+  blurb: Apps, tools, and sites I have built, with the code and live demos.
+  href: /development/
+
+- id: audio
+  order: 2
+  title: Audio
+  blurb: "Kingdom Hell, my home studio: production and engineering for other artists."
+  href: /audio/
+
+- id: art
+  order: 3
+  title: Art
+  blurb: Show flyers and other work made in Procreate.
+  href: /art/
