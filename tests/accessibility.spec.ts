@@ -30,7 +30,8 @@ const expectClean = async (page: Page, where: string) => {
 
 // /resume/ is a one-line page that redirects at once to the first version, so the browser
 // navigates away while a scan is running. The page it leads to is scanned like any other.
-const pages = builtPages().filter((p) => p !== '/resume/');
+// The friendly 404 page is built as /404.html, which the page list (index.html files) does not include.
+const pages = [...builtPages().filter((p) => p !== '/resume/'), '/404.html'];
 
 for (const scheme of ['light', 'dark'] as const) {
   test.describe(`axe scan, ${scheme} theme`, () => {
