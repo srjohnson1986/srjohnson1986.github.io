@@ -307,6 +307,26 @@ test.describe('Gallery alignment', () => {
     });
   }
 
+  test('rows still line up when the text is wider, whatever the font', async ({ page }) => {
+    await page.setViewportSize({ width: 1100, height: 900 });
+    await page.goto('/art/');
+    // A much wider font makes titles wrap to more lines, as on a machine with different fonts.
+    await page.addStyleTag({ content: 'body, body * { font-family: "DejaVu Sans Mono", monospace !important; font-size-adjust: none; }' });
+    await page.evaluate(() => window.dispatchEvent(new Event('resize')));
+    await page.waitForTimeout(200);
+    const cards = await page.locator('.piece').evaluateAll((els) =>
+      els.map((el) => {
+        const r = el.getBoundingClientRect();
+        return { top: Math.round(r.top + window.scrollY), bottom: r.bottom + window.scrollY };
+      }),
+    );
+    const rows = new Map<number, number[]>();
+    for (const c of cards) rows.set(c.top, [...(rows.get(c.top) ?? []), c.bottom]);
+    for (const [top, bottoms] of rows) {
+      expect(Math.max(...bottoms) - Math.min(...bottoms), `row at ${top}`).toBeLessThanOrEqual(2);
+    }
+  });
+
   test('opening Read more still grows only that card', async ({ page }) => {
     await page.setViewportSize({ width: 1100, height: 900 });
     await page.goto('/art/');
