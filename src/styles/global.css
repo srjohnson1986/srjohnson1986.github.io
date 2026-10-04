@@ -17,8 +17,11 @@
   --gutter: 1rem;
 }
 
+/* Dark colors. With no choice made (no data-theme), they follow the visitor's system setting. The
+   header's theme button sets data-theme to 'light' or 'dark', which wins over the system setting.
+   The same values appear twice, once for each way of getting into dark. */
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme='light']) {
+  :root:not([data-theme]) {
     --bg: #131316;
     --fg: #ecebe6;
     --muted: #a2a2ad;
@@ -29,7 +32,19 @@
   }
 }
 
-/* The print layout always renders on white paper, whatever the viewer's theme. */
+:root[data-theme='dark'] {
+  color-scheme: dark;
+
+  --bg: #131316;
+  --fg: #ecebe6;
+  --muted: #a2a2ad;
+  --accent: #e0a070;
+  --rule: #2d2d33;
+  --card: #1b1b20;
+  --focus: #7db3ff;
+}
+
+/* 'light' is also what the print layout pins, so the PDFs always render on white paper. */
 :root[data-theme='light'] {
   color-scheme: light;
 }

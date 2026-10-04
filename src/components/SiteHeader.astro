@@ -74,7 +74,46 @@ for (const item of nav) {
       </ul>
     </nav>
   </details>
+
+  <!-- Needs JavaScript, so it stays hidden until the script below shows it. Without JavaScript the
+       page follows the visitor's system theme. -->
+  <button class="theme-toggle" type="button" hidden></button>
 </header>
+
+<script>
+  // The theme button switches between light and dark and remembers the choice. Until it is used,
+  // the page follows the system setting.
+  const button = document.querySelector<HTMLButtonElement>('.theme-toggle');
+  if (button) {
+    const root = document.documentElement;
+    const system = window.matchMedia('(prefers-color-scheme: dark)');
+    const current = () => root.dataset.theme ?? (system.matches ? 'dark' : 'light');
+    const other = () => (current() === 'dark' ? 'light' : 'dark');
+
+    const render = () => {
+      const next = other();
+      button.textContent = next === 'dark' ? 'Dark' : 'Light';
+      button.setAttribute('aria-label', `Switch to ${next} theme`);
+    };
+
+    button.hidden = false;
+    render();
+
+    button.addEventListener('click', () => {
+      const next = other();
+      root.dataset.theme = next;
+      try {
+        localStorage.setItem('theme', next);
+      } catch {
+        // Storage can be blocked. The choice then lasts until the page is closed.
+      }
+      render();
+    });
+
+    // While no choice has been made, the label follows a change in the system setting.
+    system.addEventListener('change', render);
+  }
+</script>
 
 <style>
   .site-header {
@@ -124,6 +163,21 @@ for (const item of nav) {
     color: var(--accent);
     font-weight: 600;
     border-bottom-color: var(--accent);
+  }
+
+  .theme-toggle {
+    padding: 0.2rem 0.7rem;
+    border: 1px solid var(--rule);
+    border-radius: 0.4rem;
+    background: var(--card);
+    color: var(--muted);
+    font: inherit;
+    font-size: 0.9rem;
+    cursor: pointer;
+  }
+
+  .theme-toggle:hover {
+    color: var(--fg);
   }
 
   /* ---- Phone menu ---- */
