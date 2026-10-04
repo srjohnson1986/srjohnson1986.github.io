@@ -1,5 +1,6 @@
 import { test, expect } from './helpers/test';
 import { nav, entryCards } from '../src/data/site';
+import { intros } from './helpers/data';
 
 const grouped = nav.filter((item) => item.group);
 const groupName = grouped[0]?.group;
@@ -94,4 +95,22 @@ test.describe('Home page entry cards', () => {
       }
     });
   }
+});
+
+test.describe('page introductions come from src/data/intros.yaml', () => {
+  const words = (text: string) => text.replace(/\s+/g, ' ').trim();
+
+  test('the Home page shows the tagline and paragraphs from the file, in order', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.locator('.tagline')).toHaveText(words(intros.home.lead));
+    const shown = await page.locator('.intro-text > p:not(.tagline):not(.actions)').allTextContents();
+    expect(shown.map(words)).toEqual(intros.home.paragraphs.map(words));
+  });
+
+  test('the Art page shows the lead and the statement from the file, in order', async ({ page }) => {
+    await page.goto('/art/');
+    await expect(page.locator('p.lead')).toHaveText(words(intros.art.lead));
+    const shown = await page.locator('.statement > p').allTextContents();
+    expect(shown.map(words)).toEqual(intros.art.paragraphs.map(words));
+  });
 });
