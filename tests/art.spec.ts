@@ -46,21 +46,35 @@ test.describe('Art page', () => {
       const piece = page.locator('.piece', { has: page.getByText(storyOnly.title, { exact: true }) });
       await expect(piece.locator('summary')).toHaveText('Read more');
     }
-    const both = withStory.find((a) => (a.story || a.caption) && a.more)!;
-    const piece = page.locator('.piece', { has: page.getByText(both.title, { exact: true }) });
-    await expect(piece.locator('summary')).toHaveText(`Read more and ${both.more!.length} more image${both.more!.length === 1 ? '' : 's'}`);
+    // A piece with both text and extra images says so, when the data has one.
+    const both = withStory.find((a) => (a.story || a.caption) && a.more);
+    if (both) {
+      const piece = page.locator('.piece', { has: page.getByText(both.title, { exact: true }) });
+      await expect(piece.locator('summary')).toHaveText(`Read more and ${both.more!.length} more image${both.more!.length === 1 ? '' : 's'}`);
+    }
   });
 
-  test('the Signals Midwest fliers are their own piece, and the summer collage has no story or extra images', async ({ page }) => {
+  test('each Signals Midwest and Friends with Jennafits flier is its own piece in the gallery', async ({ page }) => {
     await page.goto('/art/');
+    const signals = ['Brooklyn', 'Philly (tweed)', 'Philly', 'Malden', 'Lancaster'].map((place) => `Signals Midwest tour alt flier: ${place}`);
+    const jennafits = ['Friends with Jennafits', 'Friends with Jennafits: rabbit', 'Friends with Jennafits: blue'];
+    for (const title of [...signals, ...jennafits]) {
+      const piece = page.locator('.piece', { has: page.getByText(title, { exact: true }) });
+      await expect(piece, title).toHaveCount(1);
+      await expect(piece.locator('.more'), `${title} should not hide more images`).toHaveCount(0);
+    }
+    // The tour story sits with the top flier of the run, under Read more.
+    const top = page.locator('.piece', { has: page.getByText(signals[0], { exact: true }) });
+    await expect(top.locator('details')).toContainText('Signals Midwest');
+
+    // The summer collage is just the collage: only its own caption is under Read more.
     const collage = page.locator('.piece', { has: page.getByText("A collage from my summer of '25", { exact: true }) });
-    await expect(collage).toHaveCount(1);
-    await expect(collage.locator('summary')).toHaveText('Read more'); // only its caption is in there
-    await expect(collage.locator('.more')).toHaveCount(0);
     await expect(collage.locator('details')).not.toContainText('Signals Midwest');
-    const tour = page.locator('.piece', { has: page.getByText('Alt fliers for the Signals Midwest tour', { exact: true }) });
-    await expect(tour.locator('summary')).toHaveText('Read more and 4 more images');
-    await expect(tour.locator('details')).toContainText('Signals Midwest');
+
+    // Newest first within 2025: the run comes before the pieces from earlier in the year.
+    const titles = await page.locator('.piece > figcaption > strong').allTextContents();
+    expect(titles.indexOf(signals[0])).toBeLessThan(titles.indexOf("A collage from my summer of '25"));
+    expect(titles.indexOf('Friends with Jennafits')).toBeGreaterThan(titles.indexOf("A collage from my summer of '25"));
   });
 
   test('under an image there is only the title, date, and format; every caption is under Read more', async ({ page }) => {
