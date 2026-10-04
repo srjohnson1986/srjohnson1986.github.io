@@ -64,6 +64,9 @@ export const variantBulletIds = (v: Variant): string[] => [
   ...(v.bullets ?? []),
 ];
 
+export const intros = Object.fromEntries(
+  load<{ id: string; lead: string; paragraphs: string[] }[]>('src/data/intros.yaml').map((i) => [i.id, i]),
+);
 export const studio = load<{ id: string; heading: string; story: string[] }[]>('src/data/studio.yaml')[0];
 export const bulletById = new Map(bullets.map((b) => [b.id, b]));
 export const roleById = new Map(roles.map((r) => [r.id, r]));

@@ -1,9 +1,11 @@
 ---
 import { Image, getImage } from 'astro:assets';
+import { getEntry } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { getArtworks, groupByMedium, FORMAT_LABELS, type Artwork } from '../lib/art';
 import { site } from '../data/site';
 
+const intro = (await getEntry('intros', 'art'))!.data;
 const pieces = await getArtworks();
 const groups = groupByMedium(pieces);
 
@@ -39,27 +41,10 @@ const detailsLabel = (piece: Artwork) => {
   description="Show flyers and other art made in Procreate, with the story behind each piece."
 >
   <h1>Art</h1>
-  <p class="lead">
-    Show flyers and other work made in Procreate. Open a piece to read more about it.
-  </p>
+  <p class="lead">{intro.lead}</p>
 
   <section class="statement" aria-label="About my flyers">
-    <p>
-      I love the look of imperfect copy-collaged/vandalized zines and old boxing fliers so I try
-      to emulate those. I also like poking fun at bad or low-effort fliers. Bands, venues, and
-      promoters like knowing they're being paid attention to, but keeping them humble is of
-      utmost importance.
-    </p>
-    <p>
-      To me, fliers need to have bands, location, and date. It's common knowledge punk shows start
-      around 7, and if you want to get specifics, you can do some googling after knowing you like
-      the bands, have the means, and want to make the show a priority that evening. Preferentially,
-      I like seeing the year, but I'll concede that if it makes things busier than I want.
-    </p>
-    <p>
-      I HATE boring looking band names/logos. I try to make sure they're angled, traced, and/or
-      fonted in a unique way.
-    </p>
+    {intro.paragraphs.map((paragraph) => <p>{paragraph}</p>)}
   </section>
 
   {

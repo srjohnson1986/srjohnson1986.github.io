@@ -250,6 +250,22 @@ const studio = defineCollection({
 });
 
 // ---------------------------------------------------------------------------
+// Page introductions (src/data/intros.yaml), the words at the top of the Home and Art pages
+// ---------------------------------------------------------------------------
+
+const intros = defineCollection({
+  loader: file('src/data/intros.yaml'),
+  schema: z.strictObject({
+    // Which page the text is for: home or art.
+    id: z.enum(['home', 'art']),
+    // The line under the page's heading.
+    lead: copy,
+    // One paragraph per entry, in order.
+    paragraphs: z.array(copy).min(1),
+  }),
+});
+
+// ---------------------------------------------------------------------------
 // Audio releases (src/content/releases/<release>.yaml)
 // ---------------------------------------------------------------------------
 
@@ -318,4 +334,4 @@ const projects = defineCollection({
   }),
 });
 
-export const collections = { roles, bullets, bulletGroups, summaries, variants, skills, education, events, artworks, studio, releases, projects };
+export const collections = { roles, bullets, bulletGroups, summaries, variants, skills, education, events, artworks, studio, intros, releases, projects };

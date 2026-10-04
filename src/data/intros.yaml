@@ -1,0 +1,37 @@
+# Introductions at the top of the Home and Art pages. The wording is the owner's own. Each entry has a
+# short lead line and one paragraph per list item; the pages show them in this order. The build checks
+# the same copy rules as everywhere else (single hyphens only, no phone numbers).
+
+- id: home
+  # The line under the name.
+  lead: I find what breaks before your customers do, and I build tools so it breaks less.
+  paragraphs:
+    - >-
+      I started in quality assurance and spent over ten years at Verizon making sure big launches
+      went out clean. These days I'm a digital transformation consultant and project manager,
+      turning slow manual processes into automation that people actually use.
+    - >-
+      I'm also a music and art person. I run a home recording studio, help organize a charity
+      music festival, and make show flyers in Procreate. It all comes down to caring how the
+      finished thing feels to the person on the other end.
+
+- id: art
+  # The line under the Art heading.
+  lead: >-
+    Show flyers and other work made in Procreate. Open a piece to read more about it.
+  # The owner's note on how he makes flyers, shown under the lead.
+  paragraphs:
+    - >-
+      I love the look of imperfect copy-collaged/vandalized zines and old boxing fliers so I try
+      to emulate those. I also like poking fun at bad or low-effort fliers. Bands, venues, and
+      promoters like knowing they're being paid attention to, but keeping them humble is of utmost
+      importance.
+    - >-
+      To me, fliers need to have bands, location, and date. It's common knowledge punk shows start
+      around 7, and if you want to get specifics, you can do some googling after knowing you like
+      the bands, have the means, and want to make the show a priority that evening.
+      Preferentially, I like seeing the year, but I'll concede that if it makes things busier than
+      I want.
+    - >-
+      I HATE boring looking band names/logos. I try to make sure they're angled, traced, and/or
+      fonted in a unique way.

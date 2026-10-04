@@ -1,6 +1,8 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import { getEntry } from 'astro:content';
 import { entryCards, site } from '../data/site';
+const intro = (await getEntry('intros', 'home'))!.data;
 ---
 
 <BaseLayout
@@ -10,17 +12,8 @@ import { entryCards, site } from '../data/site';
   <section class="intro" aria-labelledby="home-title">
     <div class="intro-text">
       <h1 id="home-title">{site.name}</h1>
-      <p class="tagline">I find what breaks before your customers do, and I build tools so it breaks less.</p>
-      <p>
-        I started in quality assurance and spent over ten years at Verizon making sure big
-        launches went out clean. These days I'm a digital transformation consultant and project
-        manager, turning slow manual processes into automation that people actually use.
-      </p>
-      <p>
-        I'm also a music and art person. I run a home recording studio, help organize a charity
-        music festival, and make show flyers in Procreate. It all comes down to caring how the
-        finished thing feels to the person on the other end.
-      </p>
+      <p class="tagline">{intro.lead}</p>
+      {intro.paragraphs.map((paragraph) => <p>{paragraph}</p>)}
       <p class="actions">
         <a class="button" href="/resume/">View my resume</a>
         <a href="/contact/">Get in touch</a>
