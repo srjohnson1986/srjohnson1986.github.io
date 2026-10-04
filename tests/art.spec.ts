@@ -38,6 +38,29 @@ test.describe('Art page', () => {
     }
   });
 
+  test('the control says Read more, never "the story behind"', async ({ page }) => {
+    await page.goto('/art/');
+    await expect(page.getByText(/story behind/i)).toHaveCount(0);
+    const storyOnly = withStory.find((a) => a.story && !a.more);
+    if (storyOnly) {
+      const piece = page.locator('.piece', { has: page.getByText(storyOnly.title, { exact: true }) });
+      await expect(piece.locator('summary')).toHaveText('Read more');
+    }
+    const both = withStory.find((a) => a.story && a.more)!;
+    const piece = page.locator('.piece', { has: page.getByText(both.title, { exact: true }) });
+    await expect(piece.locator('summary')).toHaveText(`Read more and ${both.more!.length} more image${both.more!.length === 1 ? '' : 's'}`);
+  });
+
+  test('the Signals Midwest fliers are their own piece, and the summer collage has no story or extra images', async ({ page }) => {
+    await page.goto('/art/');
+    const collage = page.locator('.piece', { has: page.getByText("A collage from my summer of '25", { exact: true }) });
+    await expect(collage).toHaveCount(1);
+    await expect(collage.locator('details')).toHaveCount(0);
+    const tour = page.locator('.piece', { has: page.getByText('Alt fliers for the Signals Midwest tour', { exact: true }) });
+    await expect(tour.locator('summary')).toHaveText('Read more and 4 more images');
+    await expect(tour.locator('details')).toContainText('Signals Midwest');
+  });
+
   test('a piece with a story opens and closes from the keyboard', async ({ page }) => {
     const art = withStory.find((a) => a.story)!;
     await page.goto('/art/');
