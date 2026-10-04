@@ -31,6 +31,25 @@ const detailsLabel = (piece: Artwork) => {
     Show flyers and other work made in Procreate. Open a piece to read the story behind it.
   </p>
 
+  <section class="statement" aria-label="About my flyers">
+    <p>
+      I love the look of imperfect copy-collaged/vandalized zines and old boxing fliers so I try
+      to emulate those. I also like poking fun at bad or low-effort fliers. Bands, venues, and
+      promoters like knowing they're being paid attention to, but keeping them humble is of
+      utmost importance.
+    </p>
+    <p>
+      To me, fliers need to have bands, location, and date. It's common knowledge punk shows start
+      around 7, and if you want to get specifics, you can do some googling after knowing you like
+      the bands, have the means, and want to make the show a priority that evening. Preferentially,
+      I like seeing the year, but I'll concede that if it makes things busier than I want.
+    </p>
+    <p>
+      I HATE boring looking band names/logos. I try to make sure they're angled, traced, and/or
+      fonted in a unique way.
+    </p>
+  </section>
+
   {
     groups.length === 0 ? (
       <p class="empty">
@@ -102,6 +121,15 @@ const detailsLabel = (piece: Artwork) => {
   .empty {
     margin: 0 0 1.75rem;
     color: var(--muted);
+  }
+
+  .statement {
+    max-width: 42rem;
+    margin: 0 0 1.75rem;
+  }
+
+  .statement p {
+    margin: 0 0 0.9rem;
   }
 
   .group {
