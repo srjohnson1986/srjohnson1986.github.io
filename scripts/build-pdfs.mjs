@@ -6,7 +6,7 @@
 //   2. Serve dist/ on a throwaway local port, so the pages load their CSS and icons the
 //      same way they do on the live site.
 //   3. Open each print route in headless Chromium and save it as
-//      dist/resume/steven-johnson-resume-<variant>.pdf. Page size and margins come from
+//      dist/resume/steve-johnson-resume-<variant>.pdf. Page size and margins come from
 //      the @page rule in src/styles/print.css.
 //
 // Any problem exits non-zero, so a missing or broken PDF fails the build and the deploy.
@@ -109,7 +109,7 @@ try {
     const pdf = await page.pdf({ preferCSSPageSize: true, printBackground: true });
     await page.close();
 
-    const file = path.join(dist, 'resume', `steven-johnson-resume-${id}.pdf`);
+    const file = path.join(dist, 'resume', `steve-johnson-resume-${id}.pdf`);
     await writeFile(file, pdf);
 
     const pages = countPages(pdf);
