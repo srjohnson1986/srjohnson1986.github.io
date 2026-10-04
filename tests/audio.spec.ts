@@ -161,6 +161,7 @@ test.describe('Audio players', () => {
 
   test('the Band dropdown lists every band alphabetically, and a split shows under each of its bands', async ({ page }) => {
     await page.goto('/audio/');
+    await page.locator('[data-filter-panel] > summary').click();
     const options = await page.locator('select[name="band"] option').allTextContents();
     expect(options[0]).toBe('All bands');
     const names = options.slice(1);

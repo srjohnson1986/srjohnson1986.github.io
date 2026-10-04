@@ -4,8 +4,9 @@
 // How it works: every item in the slot carries data-item plus one data-<facet> attribute per
 // facet, holding that item's values separated by spaces (data-year="2026", data-tag="kotlin
 // web"). A select facet shows items whose list includes the chosen value. A tags facet shows
-// items that have every tag that is ticked. The form is hidden in the HTML and revealed by the
-// script, so without JavaScript the full list simply shows.
+// items that have every tag that is ticked. The filters sit in a panel that starts closed and is
+// opened with a click. The panel is hidden in the HTML and revealed by the script, so without
+// JavaScript the full list simply shows.
 
 export interface FilterOption {
   value: string;
@@ -29,7 +30,9 @@ const selects = facets.filter((f) => f.kind === 'select');
 const tagGroups = facets.filter((f) => f.kind === 'tags');
 ---
 
-<form class="filters" data-archive-filters data-noun={noun} aria-label={`Filter ${noun}`} hidden>
+<details class="filter-panel" data-filter-panel hidden>
+  <summary>Filters<span class="filter-count" data-filter-count></span></summary>
+<form class="filters" data-archive-filters data-noun={noun} aria-label={`Filter ${noun}`}>
   {
     selects.length > 0 && (
       <div class="selects">
@@ -75,6 +78,7 @@ const tagGroups = facets.filter((f) => f.kind === 'tags');
     <button type="button" data-clear>Clear filters</button>
   </div>
 </form>
+</details>
 
 <slot />
 
@@ -84,8 +88,10 @@ const tagGroups = facets.filter((f) => f.kind === 'tags');
   // The selection lives in the URL (?year=2026&tag=kotlin&tag=web), so a filtered view can be
   // shared, and reloading or going back keeps it.
   const form = document.querySelector<HTMLFormElement>('[data-archive-filters]');
+  const panel = document.querySelector<HTMLElement>('[data-filter-panel]');
+  const countNote = document.querySelector<HTMLElement>('[data-filter-count]');
 
-  if (form) {
+  if (form && panel && countNote) {
     const items = [...document.querySelectorAll<HTMLElement>('[data-item]')];
     const status = form.querySelector<HTMLElement>('.filter-status')!;
     const empty = document.querySelector<HTMLElement>('[data-no-results]')!;
@@ -109,6 +115,10 @@ const tagGroups = facets.filter((f) => f.kind === 'tags');
       }
 
       status.textContent = `Showing ${shown} of ${items.length} ${noun}`;
+
+      // The panel starts closed, so say in its title how many filters are in use.
+      const active = selects.filter((s) => s.value).length + boxes.filter((b) => b.checked).length;
+      countNote.textContent = active ? ` · ${active} selected` : '';
       empty.hidden = shown !== 0;
 
       const params = new URLSearchParams();
@@ -129,18 +139,46 @@ const tagGroups = facets.filter((f) => f.kind === 'tags');
       apply();
     });
 
-    form.hidden = false;
+    panel.hidden = false;
     apply();
   }
 </script>
 
 <style>
-  .filters {
+  .filter-panel {
     margin-bottom: 1.5rem;
-    padding: 1rem 1.1rem;
     border: 1px solid var(--rule);
     border-radius: 0.6rem;
     background: var(--card);
+  }
+
+  .filter-panel summary {
+    padding: 0.7rem 1.1rem;
+    font-weight: 600;
+    list-style: none;
+    cursor: pointer;
+  }
+
+  .filter-panel summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .filter-panel summary::after {
+    content: ' \25BE';
+    color: var(--muted);
+  }
+
+  .filter-panel[open] summary::after {
+    content: ' \25B4';
+  }
+
+  .filter-count {
+    color: var(--muted);
+    font-weight: 400;
+  }
+
+  .filters {
+    padding: 0.25rem 1.1rem 1rem;
   }
 
   .selects {
