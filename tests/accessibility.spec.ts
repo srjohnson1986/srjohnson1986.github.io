@@ -87,6 +87,13 @@ test.describe('axe scan, states that change the page', () => {
         await expectClean(page, `home after switching away from ${scheme}`);
       });
 
+      test('Art with the larger view open', async ({ page }) => {
+        await page.goto('/art/');
+        await page.locator('a[data-lightbox]').first().click();
+        await expect(page.locator('dialog.lightbox')).toBeVisible();
+        await expectClean(page, `/art/ larger view (${scheme})`);
+      });
+
       test('the phone menu, open', async ({ page }) => {
         await page.setViewportSize({ width: 375, height: 812 });
         await page.goto('/');

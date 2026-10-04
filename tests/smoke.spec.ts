@@ -57,7 +57,7 @@ test('the audio page lists the releases, each with one visible Bandcamp player',
 
 test('the art page serves its images', async ({ page, request }) => {
   await page.goto('/art/');
-  const sources = await page.locator('.piece > img').evaluateAll((imgs) => imgs.slice(0, 3).map((img) => (img as HTMLImageElement).src));
+  const sources = await page.locator('.piece > .zoom > img').evaluateAll((imgs) => imgs.slice(0, 3).map((img) => (img as HTMLImageElement).src));
   expect(sources.length).toBeGreaterThan(0);
   for (const src of sources) {
     const response = await request.get(src);
