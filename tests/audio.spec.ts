@@ -159,6 +159,33 @@ test.describe('Audio players', () => {
     await expect(page.getByLabel('Kind')).toHaveCount(0);
   });
 
+  test('the Band dropdown lists every band alphabetically, and a split shows under each of its bands', async ({ page }) => {
+    await page.goto('/audio/');
+    const options = await page.locator('select[name="band"] option').allTextContents();
+    expect(options[0]).toBe('All bands');
+    const names = options.slice(1);
+    expect(names).toEqual([...names].sort((a, b) => a.localeCompare(b, 'en', { sensitivity: 'base' })));
+    for (const band of ['Seagulls', 'Karbomb', 'Naw']) expect(names).toContain(band);
+    expect(names).not.toContain('Seagulls and Karbomb');
+    expect(names).not.toContain('Naw and Asbestos Worker');
+    expect(names).not.toContain('Asbestos Worker'); // only the Naw side of that split was recorded here
+
+    const titles = () => page.locator('[data-item]:not([hidden]) h2').allTextContents();
+    await page.locator('select[name="band"]').selectOption({ label: 'Karbomb' });
+    expect(await titles()).toEqual(['Tag Team Champions']);
+    await page.locator('select[name="band"]').selectOption({ label: 'Naw' });
+    expect(await titles()).toContain('Naw X Asbestos Worker'); // the split shows under the band that was recorded
+    await page.locator('select[name="band"]').selectOption({ label: 'Seagulls' });
+    expect(await titles()).toContain('Tag Team Champions');
+    expect(await titles()).toContain('The Royal We');
+    expect(await titles()).not.toContain('Part Deux');
+  });
+
+  test('the genre group is titled just Genre', async ({ page }) => {
+    await page.goto('/audio/');
+    await expect(page.locator('fieldset legend')).toHaveText('Genre');
+  });
+
   test('the studio story is shown near the top, above the releases', async ({ page }) => {
     await page.goto('/audio/');
     const story = page.getByRole('region', { name: 'About the studio' });

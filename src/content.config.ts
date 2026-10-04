@@ -265,6 +265,9 @@ const releases = defineCollection({
   schema: z.strictObject({
     title: copy,
     artist: copy,
+    // The bands the release is filed under in the Band dropdown. Leave out when it is just the artist;
+    // list each band for a split (artist "Seagulls and Karbomb" has bands Seagulls and Karbomb).
+    bands: z.array(copy).min(1).optional(),
     year,
     type: z.enum(['album', 'ep', 'single', 'split']),
     // The owner's credited roles on this release. Leave out when the release lists none.

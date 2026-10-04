@@ -1,5 +1,6 @@
 import { getCollection, type CollectionEntry } from 'astro:content';
 import { tagLabel } from './projects';
+import { bandsOf, bandSlug } from './band';
 
 export type Release = CollectionEntry<'releases'>;
 export type ReleaseType = Release['data']['type'];
@@ -29,6 +30,7 @@ export async function getReleases(): Promise<Release[]> {
 
 export interface ReleaseFacets {
   years: number[];
+  bands: { band: string; slug: string }[];
   roles: { role: Role; label: string; count: number }[];
   tags: { tag: string; label: string; count: number }[];
 }
@@ -37,9 +39,11 @@ export interface ReleaseFacets {
 export function getFacets(releases: Release[]): ReleaseFacets {
   const years = [...new Set(releases.map((r) => r.data.year))].sort((a, b) => b - a);
 
+  const bandNames = new Map<string, string>(); // slug -> name
   const roleCounts = new Map<Role, number>();
   const tagCounts = new Map<string, number>();
   for (const { data } of releases) {
+    for (const band of bandsOf(data)) bandNames.set(bandSlug(band), band);
     for (const role of data.roles ?? []) roleCounts.set(role, (roleCounts.get(role) ?? 0) + 1);
     for (const tag of data.tags) tagCounts.set(tag, (tagCounts.get(tag) ?? 0) + 1);
   }
@@ -47,6 +51,9 @@ export function getFacets(releases: Release[]): ReleaseFacets {
   const roleOrder = Object.keys(ROLE_LABELS) as Role[];
   return {
     years,
+    bands: [...bandNames]
+      .map(([slug, band]) => ({ band, slug }))
+      .sort((a, b) => a.band.localeCompare(b.band, 'en', { sensitivity: 'base' })),
     roles: [...roleCounts]
       .map(([role, count]) => ({ role, label: ROLE_LABELS[role], count }))
       .sort((a, b) => roleOrder.indexOf(a.role) - roleOrder.indexOf(b.role)),

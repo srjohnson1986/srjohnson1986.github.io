@@ -1,5 +1,6 @@
 import { test, expect, type Page } from './helpers/test';
 import { projects, releases } from './helpers/data';
+import { bandsOf, bandSlug } from '../src/lib/band';
 
 // The Development and Audio archives share one filter component, so both are tested the same way.
 interface Item {
@@ -31,11 +32,11 @@ const archives: Archive[] = [
     name: 'Audio',
     path: '/audio/',
     noun: 'releases',
-    selects: ['year', 'role'],
+    selects: ['year', 'band', 'role'],
     tagFacet: 'tag',
     items: releases.map((r) => ({
       title: r.title,
-      facets: { year: [String(r.year)], role: r.roles ?? [], tag: r.tags },
+      facets: { year: [String(r.year)], band: bandsOf(r).map(bandSlug), role: r.roles ?? [], tag: r.tags },
     })),
   },
 ];

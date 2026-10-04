@@ -87,6 +87,7 @@ export interface Release {
   slug: string;
   title: string;
   artist: string;
+  bands?: string[];
   year: number;
   type: string;
   roles?: string[];
