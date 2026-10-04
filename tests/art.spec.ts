@@ -38,6 +38,14 @@ test.describe('Art page', () => {
     }
   });
 
+  test('any tags on a piece are lowercase-kebab-case and not repeated', () => {
+    const kebab = /^[a-z0-9]+(-[a-z0-9]+)*$/;
+    for (const art of artworks) {
+      for (const tag of art.tags ?? []) expect(tag, `${art.title}: "${tag}"`).toMatch(kebab);
+      expect(new Set(art.tags ?? []).size, `${art.title} repeats a tag`).toBe((art.tags ?? []).length);
+    }
+  });
+
   test('the control says Read more, never "the story behind"', async ({ page }) => {
     await page.goto('/art/');
     await expect(page.getByText(/story behind/i)).toHaveCount(0);
