@@ -11,8 +11,8 @@ test('the home page is served with its title and heading', async ({ page, baseUR
   const response = await page.goto('/');
   expect(response!.status()).toBe(200);
   if (baseURL!.startsWith('https://')) expect(page.url()).toMatch(/^https:/);
-  await expect(page).toHaveTitle(/Steven Johnson/);
-  await expect(page.getByRole('heading', { level: 1, name: 'Steven Johnson' })).toBeVisible();
+  await expect(page).toHaveTitle(/Steve Johnson/);
+  await expect(page.getByRole('heading', { level: 1, name: 'Steve Johnson' })).toBeVisible();
 });
 
 test('every navigation link responds', async ({ request }) => {
@@ -27,10 +27,10 @@ test('every navigation link responds', async ({ request }) => {
 test('each resume version and its PDF are served', async ({ page, request }) => {
   for (const variant of variants) {
     await page.goto(`/resume/${variant.id}/`);
-    await expect(page.getByRole('heading', { level: 1, name: 'Steven Johnson' })).toBeVisible();
+    await expect(page.getByRole('heading', { level: 1, name: 'Steve Johnson' })).toBeVisible();
     await expect(page.getByRole('heading', { level: 2, name: 'Experience' })).toBeVisible();
 
-    const pdf = await request.get(`/resume/steven-johnson-resume-${variant.id}.pdf`);
+    const pdf = await request.get(`/resume/steve-johnson-resume-${variant.id}.pdf`);
     expect(pdf.status(), `${variant.id} PDF`).toBe(200);
     expect(pdf.headers()['content-type']).toContain('application/pdf');
     expect((await pdf.body()).subarray(0, 5).toString()).toBe('%PDF-');

@@ -1,6 +1,6 @@
 # Project notes for Claude Code
 
-Personal portfolio site for Steven Johnson (GitHub: srjohnson1986). Astro, hosted on GitHub Pages. The repo is public.
+Personal portfolio site for Steve Johnson (GitHub: srjohnson1986). Astro, hosted on GitHub Pages. The repo is public.
 
 Read `PROJECT_BRIEF.md` (kept in `private/`) for goals, pages, and privacy rules. Private inputs live in `private/` and are never committed or published.
 
@@ -51,9 +51,9 @@ Same flow as the TPD-Addin-XLAM and soundboard repos. `main` deploys on every me
 ## Working agreements
 
 - Claude does the GitHub work: issues, labels, branches, commits, pushes, and pull requests, using `gh` and `git`, and explains non-obvious steps as it goes.
-- **Standing permission to merge (given 2026-10-03, until Steven says to stop):** Claude merges its own pull requests once the build check has passed. A merge deploys to the live site, so: never merge while a check is failing or still running, check status once when returning to a PR rather than polling, and fix a red check instead of merging past it. Merge with `gh pr merge --merge --delete-branch`.
+- **Standing permission to merge (given 2026-10-03, until Steve says to stop):** Claude merges its own pull requests once the build check has passed. A merge deploys to the live site, so: never merge while a check is failing or still running, check status once when returning to a PR rather than polling, and fix a red check instead of merging past it. Merge with `gh pr merge --merge --delete-branch`.
 - Never force-push or rewrite history on `main`, and never change repository settings (branch protection, GitHub's auto-merge setting, visibility) without asking.
-- To revoke the merge permission, Steven says so in chat and this section is updated.
+- To revoke the merge permission, Steve says so in chat and this section is updated.
 - Only use numbers that appear in `private/bank-export.md` or that I give you. Never invent metrics.
 - Only bullets with `public: true` appear on the site.
 - Never publish the Target Roles section, the behavioral (STAR) stories, or internal notes from the bank.

@@ -1,4 +1,4 @@
-# Steven Johnson - personal site
+# Steve Johnson - personal site
 
 **Live site:** https://srjohnson1986.github.io
 

@@ -36,7 +36,7 @@ for (const variant of variants) {
       await page.goto(`/resume/${variant.id}/`);
 
       await expect(page).toHaveTitle(new RegExp(variant.label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
-      await expect(page.getByRole('heading', { level: 1, name: 'Steven Johnson' })).toBeVisible();
+      await expect(page.getByRole('heading', { level: 1, name: 'Steve Johnson' })).toBeVisible();
       for (const name of ['Summary', 'Core Skills', 'Experience', 'Education and Certifications']) {
         await expect(page.getByRole('heading', { level: 2, name })).toBeVisible();
       }
@@ -64,7 +64,7 @@ for (const variant of variants) {
       await expect(switcher.getByRole('link')).toHaveCount(variants.length);
 
       const pdf = page.getByRole('link', { name: /Download this version as a PDF/ });
-      await expect(pdf).toHaveAttribute('href', `/resume/steven-johnson-resume-${variant.id}.pdf`);
+      await expect(pdf).toHaveAttribute('href', `/resume/steve-johnson-resume-${variant.id}.pdf`);
     });
 
     test('web page uses real organization names', async ({ page }) => {
@@ -129,5 +129,5 @@ test('a neutral version shows alternate organization names in print and real nam
 test('/resume/ sends visitors to the first version', async ({ page }) => {
   await page.goto('/resume/');
   await page.waitForURL(`**/resume/${variants[0].id}/`);
-  await expect(page.getByRole('heading', { level: 1, name: 'Steven Johnson' })).toBeVisible();
+  await expect(page.getByRole('heading', { level: 1, name: 'Steve Johnson' })).toBeVisible();
 });

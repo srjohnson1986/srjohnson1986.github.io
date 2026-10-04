@@ -16,7 +16,7 @@ export interface EntryCard {
 }
 
 export const site = {
-  name: 'Steven Johnson',
+  name: 'Steve Johnson',
   url: 'https://srjohnson1986.github.io',
   repo: 'https://github.com/srjohnson1986/srjohnson1986.github.io',
   area: 'Atlanta area',
