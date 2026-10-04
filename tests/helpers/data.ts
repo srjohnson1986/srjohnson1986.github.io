@@ -64,6 +64,7 @@ export const variantBulletIds = (v: Variant): string[] => [
   ...(v.bullets ?? []),
 ];
 
+export const studio = load<{ id: string; heading: string; story: string[] }[]>('src/data/studio.yaml')[0];
 export const bulletById = new Map(bullets.map((b) => [b.id, b]));
 export const roleById = new Map(roles.map((r) => [r.id, r]));
 export const summaryById = new Map(summaries.map((s) => [s.id, s]));

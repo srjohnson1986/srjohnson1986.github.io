@@ -3,6 +3,15 @@
 
 - id: kingdom-hell
   heading: Kingdom Hell rates
+  story:
+    - >-
+      My high school bandmates and I were poor and wanted to figure out how to record so we could
+      become rockstars. We started with a 4 track and, over the years, we've each taken our own
+      path in music, but we remain grounded in that we all know how to, and still actively, record
+      bands.
+    - >-
+      My home doubles as a recording studio that I call Kingdom Hell, as I'm directly next to a
+      Kingdom Hall and I enjoy tongue-in-cheek irreverence.
   rates:
     - price: $300
       description: for a full, loud day.
