@@ -2,14 +2,15 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { getEntry } from 'astro:content';
 import { site } from '../data/site';
+import { fill, linkParts } from '../lib/copy';
 
 const intro = (await getEntry('intros', 'contact'))!.data;
 ---
 
-<BaseLayout title={`Contact | ${site.name}`} description={`How to reach ${site.name}.`}>
+<BaseLayout title={fill(intro.title)} description={fill(intro.description)}>
   <h1>Contact</h1>
   <p class="lead">
-    {site.email ? `${intro.email_note} ` : ''}{intro.lead.replaceAll('{area}', site.area)}
+    {site.email ? `${intro.email_note} ` : ''}{fill(intro.lead)}
   </p>
 
   <dl class="contact">
@@ -31,10 +32,7 @@ const intro = (await getEntry('intros', 'contact'))!.data;
     </div>
   </dl>
 
-  <p>
-    Looking for my background? See the <a href="/resume/">resume</a>, with a PDF download for
-    each version.
-  </p>
+  <p>{linkParts(intro.closing!).map((part) => (part.href ? <a href={part.href}>{part.text}</a> : part.text))}</p>
 </BaseLayout>
 
 <style>

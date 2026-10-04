@@ -4,6 +4,7 @@ import { getEntry } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { getArtworks, groupByMedium, FORMAT_LABELS, type Artwork } from '../lib/art';
 import { site } from '../data/site';
+import { fill } from '../lib/copy';
 
 const intro = (await getEntry('intros', 'art'))!.data;
 const pieces = await getArtworks();
@@ -37,8 +38,8 @@ const detailsLabel = (piece: Artwork) => {
 ---
 
 <BaseLayout
-  title={`Art | ${site.name}`}
-  description="Show flyers and other art made in Procreate, with the story behind each piece."
+  title={fill(intro.title)}
+  description={fill(intro.description)}
 >
   <h1>Art</h1>
   <p class="lead">{intro.lead}</p>
@@ -49,9 +50,7 @@ const detailsLabel = (piece: Artwork) => {
 
   {
     groups.length === 0 ? (
-      <p class="empty">
-        Artwork is on the way. Show flyers and other Procreate work will appear here.
-      </p>
+      <p class="empty">{intro.empty}</p>
     ) : (
       groups.map((group) => (
         <section

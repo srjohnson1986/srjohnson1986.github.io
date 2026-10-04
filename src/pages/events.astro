@@ -1,16 +1,18 @@
 ---
-import { getCollection } from 'astro:content';
+import { getCollection, getEntry } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Facts from '../components/Facts.astro';
 import { site } from '../data/site';
+import { fill } from '../lib/copy';
 
 const organizations = (await getCollection('events')).sort((a, b) => a.id.localeCompare(b.id));
-const description = organizations[0]?.data.summary ?? 'Live music events I help organize.';
+const intro = (await getEntry('intros', 'events'))!.data;
+const description = organizations[0]?.data.summary ?? fill(intro.description);
 ---
 
-<BaseLayout title={`Events | ${site.name}`} description={description}>
+<BaseLayout title={fill(intro.title)} description={description}>
   <h1>Events</h1>
-  <p class="lead">Live music I help put on, run by volunteers.</p>
+  <p class="lead">{intro.lead}</p>
 
   {
     organizations.map((org) => (

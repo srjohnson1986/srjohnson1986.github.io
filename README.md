@@ -95,7 +95,7 @@ A passing suite only means something if it can fail, so each area was checked by
 | A software project | A new YAML file in `src/content/projects/`, following the existing ones |
 | A piece of art | See [src/content/art/README.md](src/content/art/README.md) |
 | An audio release | See [src/content/releases/README.md](src/content/releases/README.md) |
-| The wording at the top of the Home, Art, Audio, and Contact pages, and the 404 text | `src/data/intros.yaml` |
+| Page titles and descriptions, the lines at the top of each page, the 404 text, and the small messages (nothing here, no results). Write `{name}` and `{area}` to fill them from `site.ts`, and `[words](/page/)` for a link to a page or section of this site | `src/data/intros.yaml` |
 | A card under "Explore" on the Home page | `src/data/home-cards.yaml` |
 | Events or studio information | `src/data/events.yaml` and `src/data/studio.yaml` |
 | A page in the navigation | `src/data/site.ts` |

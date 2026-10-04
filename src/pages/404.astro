@@ -2,6 +2,7 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { getEntry } from 'astro:content';
 import { nav, site } from '../data/site';
+import { fill } from '../lib/copy';
 
 const text = (await getEntry('intros', 'not-found'))!.data;
 
@@ -10,8 +11,8 @@ const sections = nav.filter((item) => item.href !== '/');
 ---
 
 <BaseLayout
-  title={`Page not found | ${site.name}`}
-  description="That address is not part of this site."
+  title={fill(text.title)}
+  description={fill(text.description)}
   noindex
 >
   <h1>{text.heading}</h1>

@@ -66,7 +66,13 @@ export const variantBulletIds = (v: Variant): string[] => [
 
 interface Intro {
   id: string;
+  title: string;
+  description: string;
   lead: string;
+  closing?: string;
+  studio_link?: string;
+  empty?: string;
+  no_match?: string;
   paragraphs?: string[];
   email_note?: string;
   heading?: string;
