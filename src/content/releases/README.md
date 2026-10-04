@@ -7,7 +7,7 @@ title: "Album Title"
 artist: "Artist Name"
 year: 2026
 kind: album               # album, ep, single, or split
-roles: [engineered]       # optional: produced, engineered, mixed, mastered, performed
+roles: [engineered]       # optional: produced, engineered, mixed, mastered, wrote, performed
 tags: [punk, pop-punk]    # genres, lowercase with hyphens
 bandcamp: https://artist.bandcamp.com/album/album-title
 embed: https://bandcamp.com/EmbeddedPlayer/album=1234567890/size=large/bgcol=ffffff/linkcol=0687f5/tracklist=false/artwork=small/transparent=true/

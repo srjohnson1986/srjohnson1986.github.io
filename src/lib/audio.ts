@@ -17,6 +17,7 @@ export const ROLE_LABELS: Record<Role, string> = {
   engineered: 'Engineered',
   mixed: 'Mixed',
   mastered: 'Mastered',
+  wrote: 'Wrote',
   performed: 'Performed',
 };
 
