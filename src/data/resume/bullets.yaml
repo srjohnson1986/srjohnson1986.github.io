@@ -888,7 +888,7 @@
   tags: [qa, development]
   public: true
   text: >-
-    Authored a public Playwright suite that renders every resume version from the site's own data files and checks each one against the skills and bullets it should show.
+    Designed a public Playwright suite that renders every resume version from the site's own data files and checks each one against the skills and bullets it should show.
 
 - id: ps-automated-accessibility-scanning
   role: portfolio-site
@@ -913,3 +913,21 @@
   public: true
   text: >-
     Established an issue-first workflow in which every change ships through a reviewed pull request and merges only after the build check passes.
+
+- id: vz-authored-requirements-test-data-retrieval-tool
+  role: verizon
+  theme: tooling
+  tags: [requirements, qa]
+  public: true
+  text: >-
+    Authored requirements and acceptance criteria for a new internal test-data retrieval
+    tool, then worked with developers to strengthen test coverage during build and testing.
+
+- id: vz-verified-discounting-launches-separating-defects
+  role: verizon
+  theme: discount-stacking-and-defect-triage
+  tags: [qa]
+  public: true
+  text: >-
+    Verified discounting on launches, separating true code defects from configuration errors
+    and requirement gaps.
