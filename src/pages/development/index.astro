@@ -9,20 +9,6 @@ const facets = getFacets(projects);
 
 const filterFacets: Facet[] = [
   {
-    kind: 'select',
-    name: 'year',
-    label: 'Year',
-    allLabel: 'All years',
-    options: facets.years.map((year) => ({ value: String(year), label: String(year) })),
-  },
-  {
-    kind: 'select',
-    name: 'type',
-    label: 'Type',
-    allLabel: 'All types',
-    options: facets.types.map((t) => ({ value: t.type, label: `${t.label} (${t.count})` })),
-  },
-  {
     kind: 'tags',
     name: 'tag',
     legend: 'Tags (a project must have every tag you pick)',
@@ -52,8 +38,6 @@ const filterFacets: Facet[] = [
           <li
             class="project"
             data-item
-            data-year={project.data.year}
-            data-type={project.data.type}
             data-tag={project.data.tags.join(' ')}
           >
             <h2>

@@ -34,27 +34,17 @@ export async function getProjects(): Promise<Project[]> {
 }
 
 export interface ProjectFacets {
-  years: number[];
-  types: { type: ProjectType; label: string; count: number }[];
   tags: { tag: string; label: string; count: number }[];
 }
 
 /** Everything the archive filters offer, derived from the projects so it can never go stale. */
 export function getFacets(projects: Project[]): ProjectFacets {
-  const years = [...new Set(projects.map((p) => p.data.year))].sort((a, b) => b - a);
-
-  const typeCounts = new Map<ProjectType, number>();
   const tagCounts = new Map<string, number>();
   for (const { data } of projects) {
-    typeCounts.set(data.type, (typeCounts.get(data.type) ?? 0) + 1);
     for (const tag of data.tags) tagCounts.set(tag, (tagCounts.get(tag) ?? 0) + 1);
   }
 
   return {
-    years,
-    types: [...typeCounts]
-      .map(([type, count]) => ({ type, label: TYPE_LABELS[type], count }))
-      .sort((a, b) => a.label.localeCompare(b.label)),
     tags: [...tagCounts]
       .map(([tag, count]) => ({ tag, label: tagLabel(tag), count }))
       .sort((a, b) => b.count - a.count || a.label.localeCompare(b.label)),
