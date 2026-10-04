@@ -931,3 +931,12 @@
   text: >-
     Verified discounting on launches, separating true code defects from configuration errors
     and requirement gaps.
+
+- id: vz-published-user-guides-tens-thousands-views
+  role: verizon
+  theme: training-and-documentation-culture
+  tags: [jira, documentation-training, qa]
+  public: true
+  text: >-
+    Published user guides that reached tens of thousands of views, reducing repeat questions
+    across teams.
