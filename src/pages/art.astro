@@ -94,6 +94,7 @@ const detailsLabel = (piece: Artwork) => {
                     <strong>{piece.data.title}</strong>
                     {metaOf(piece) && <span class="meta">{metaOf(piece)}</span>}
                   </figcaption>
+                  {!(piece.data.story || piece.data.more || piece.data.caption) && <div class="read-more-space" aria-hidden="true" />}
                   {(piece.data.story || piece.data.more || piece.data.caption) && (
                     <details>
                       <summary>{detailsLabel(piece)}</summary>
@@ -268,6 +269,22 @@ const detailsLabel = (piece: Artwork) => {
     cursor: zoom-in;
   }
 
+  /* Every flyer sits whole in the same 4:5 frame on a soft mat, so the squares and the posters line
+     up in rows. Nothing is cropped: object-fit: contain shows the whole flyer inside the frame. */
+  .piece > .zoom {
+    position: relative;
+    aspect-ratio: 4 / 5;
+    background: color-mix(in srgb, var(--fg) 6%, var(--card));
+  }
+
+  .piece > .zoom :global(img) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
   .zoom:focus-visible {
     outline: 3px solid var(--focus);
     outline-offset: -3px;
@@ -328,6 +345,34 @@ const detailsLabel = (piece: Artwork) => {
     display: grid;
     gap: 0.2rem;
     padding: 0.75rem 0.9rem;
+  }
+
+  /* Room for a two-line title and a one-line date, so cards in a row end at the same place. */
+  .piece > figcaption strong {
+    display: block;
+    min-height: calc(2 * 1.55em);
+  }
+
+  .piece > figcaption .meta {
+    min-height: 1.55em;
+  }
+
+  /* In the narrowest cards a long title wraps to a third line, so reserve it there. */
+  .piece {
+    container-type: inline-size;
+  }
+
+  @container (max-width: 13.5rem) {
+    .piece > figcaption strong {
+      min-height: calc(3 * 1.55em);
+    }
+  }
+
+  /* A card without a Read more keeps the space one would take, so it is as tall as its neighbours.
+     An opened Read more still grows only its own card. */
+  .read-more-space,
+  .piece > details {
+    min-height: 2.25rem;
   }
 
   .meta {
