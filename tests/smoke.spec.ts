@@ -75,19 +75,26 @@ test('the contact page offers email, LinkedIn, and GitHub', async ({ page }) => 
 
 test('the main pages have no console errors or failed requests', async ({ page, baseURL }) => {
   const origin = new URL(baseURL!).origin;
+  // The Audio page embeds real Bandcamp players. What those pages log, and the connections they keep
+  // open, are Bandcamp's business, so only this site's own errors and requests are judged here.
+  const ours = (url: string) => url.startsWith(origin);
   const problems: string[] = [];
   page.on('console', (message) => {
-    if (message.type() === 'error') problems.push(`console error on ${page.url()}: ${message.text()}`);
+    if (message.type() === 'error' && ours(message.location().url || page.url())) {
+      problems.push(`console error on ${page.url()}: ${message.text()}`);
+    }
   });
   page.on('pageerror', (error) => problems.push(`script error on ${page.url()}: ${error}`));
-  page.on('requestfailed', (request) => problems.push(`request failed: ${request.url()}`));
+  page.on('requestfailed', (request) => {
+    if (ours(request.url())) problems.push(`request failed: ${request.url()}`);
+  });
   page.on('response', (response) => {
-    if (response.url().startsWith(origin) && response.status() >= 400) problems.push(`${response.status()} for ${response.url()}`);
+    if (ours(response.url()) && response.status() >= 400) problems.push(`${response.status()} for ${response.url()}`);
   });
 
   for (const path of mainPages) {
-    await page.goto(path);
-    await page.waitForLoadState('networkidle');
+    // 'load', not 'networkidle': the players on the Audio page keep the network busy.
+    await page.goto(path, { waitUntil: 'load' });
   }
   expect(problems, problems.join('\n')).toEqual([]);
 });
