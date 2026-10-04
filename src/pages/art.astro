@@ -16,9 +16,9 @@ const metaOf = (piece: Artwork) =>
 // What the expand and collapse control says, depending on what is inside it.
 const detailsLabel = (piece: Artwork) => {
   const extra = piece.data.more?.length ?? 0;
-  if (piece.data.story && extra) return `The story and ${extra} more image${extra === 1 ? '' : 's'}`;
+  if (piece.data.story && extra) return `Read more and ${extra} more image${extra === 1 ? '' : 's'}`;
   if (extra) return `${extra} more image${extra === 1 ? '' : 's'}`;
-  return 'The story behind this piece';
+  return 'Read more';
 };
 ---
 
@@ -28,7 +28,7 @@ const detailsLabel = (piece: Artwork) => {
 >
   <h1>Art</h1>
   <p class="lead">
-    Show flyers and other work made in Procreate. Open a piece to read the story behind it.
+    Show flyers and other work made in Procreate. Open a piece to read more about it.
   </p>
 
   <section class="statement" aria-label="About my flyers">
