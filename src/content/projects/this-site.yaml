@@ -43,6 +43,9 @@ built:
     An issue-first workflow: every change starts as an issue, gets its own branch and pull
     request, and merges after the build check passes, with each merge deploying to the live
     site.
+  - >-
+    A test suite that reads the same YAML files the site is built from, so a test states what
+    a page should contain without a second hand-copied list.
   - Built with Claude Code under those guardrails.
 
 outcome:
@@ -53,9 +56,15 @@ outcome:
     Broken data is caught at build time instead of in production: each rule has been broken
     on purpose to confirm that it fails with a readable message.
   - >-
-    In progress: a public Playwright test suite is the next piece. It will check that every
-    resume version renders, every PDF exists, internal links resolve, the deployed site
-    passes a smoke test, and basic accessibility checks pass.
+    A public Playwright suite checks that every resume version renders from the real data,
+    that each version has one real PDF of a sensible length, and that a crawl from the home
+    page finds no broken link, anchor, or orphaned page.
+  - >-
+    The suite also covers the interactive pieces (filters, art, audio, navigation) and runs
+    axe accessibility scans of every page in light, dark, and phone width.
+  - >-
+    CI runs the suite on every pull request and it must be green before a merge. A short
+    smoke test then checks the live site after every deploy, weekly, and on demand.
 
 links:
   repo: https://github.com/srjohnson1986/srjohnson1986.github.io

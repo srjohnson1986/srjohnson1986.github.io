@@ -25,6 +25,9 @@
     - cb-diagnosed-fixed-race-condition
     - tpd-added-github-actions-workflow
     - tpd-split-business-logic-out
+    - ps-built-public-playwright-suite
+    - ps-automated-accessibility-scanning
+    - ps-configured-github-actions-suite-smoke
 
 - id: consulting
   order: 2
@@ -45,6 +48,9 @@
     - cb-directed-claude-code-through
     - nu-replaced-paper-based-personnel-change-of-status
     - nu-trained-hr-users-developers
+    - ps-built-public-playwright-suite
+    - ps-configured-github-actions-suite-smoke
+    - ps-established-issue-first-workflow
 
 - id: creative
   order: 3
