@@ -1,8 +1,8 @@
 import { test, expect } from './helpers/test';
 import { artworks } from './helpers/data';
 
-const withStory = artworks.filter((a) => a.story || a.more);
-const withoutStory = artworks.filter((a) => !a.story && !a.more);
+const withStory = artworks.filter((a) => a.story || a.more || a.caption);
+const withoutStory = artworks.filter((a) => !a.story && !a.more && !a.caption);
 const series = artworks.filter((a) => a.more);
 
 test.describe('Art page', () => {
@@ -41,12 +41,12 @@ test.describe('Art page', () => {
   test('the control says Read more, never "the story behind"', async ({ page }) => {
     await page.goto('/art/');
     await expect(page.getByText(/story behind/i)).toHaveCount(0);
-    const storyOnly = withStory.find((a) => a.story && !a.more);
+    const storyOnly = withStory.find((a) => (a.story || a.caption) && !a.more);
     if (storyOnly) {
       const piece = page.locator('.piece', { has: page.getByText(storyOnly.title, { exact: true }) });
       await expect(piece.locator('summary')).toHaveText('Read more');
     }
-    const both = withStory.find((a) => a.story && a.more)!;
+    const both = withStory.find((a) => (a.story || a.caption) && a.more)!;
     const piece = page.locator('.piece', { has: page.getByText(both.title, { exact: true }) });
     await expect(piece.locator('summary')).toHaveText(`Read more and ${both.more!.length} more image${both.more!.length === 1 ? '' : 's'}`);
   });
@@ -55,10 +55,28 @@ test.describe('Art page', () => {
     await page.goto('/art/');
     const collage = page.locator('.piece', { has: page.getByText("A collage from my summer of '25", { exact: true }) });
     await expect(collage).toHaveCount(1);
-    await expect(collage.locator('details')).toHaveCount(0);
+    await expect(collage.locator('summary')).toHaveText('Read more'); // only its caption is in there
+    await expect(collage.locator('.more')).toHaveCount(0);
+    await expect(collage.locator('details')).not.toContainText('Signals Midwest');
     const tour = page.locator('.piece', { has: page.getByText('Alt fliers for the Signals Midwest tour', { exact: true }) });
     await expect(tour.locator('summary')).toHaveText('Read more and 4 more images');
     await expect(tour.locator('details')).toContainText('Signals Midwest');
+  });
+
+  test('under an image there is only the title, date, and format; every caption is under Read more', async ({ page }) => {
+    await page.goto('/art/');
+    await expect(page.locator('.piece > figcaption .caption')).toHaveCount(0);
+    for (const art of artworks) {
+      const piece = page.locator('.piece', { has: page.getByText(art.title, { exact: true }) });
+      const under = piece.locator(':scope > figcaption');
+      await expect(under.locator('strong')).toHaveText(art.title);
+      const parts = await under.locator('> *').evaluateAll((els) => els.map((el) => el.tagName + '.' + el.className));
+      expect(parts.every((p) => p === 'STRONG.' || p.startsWith('SPAN.meta')), `${art.title}: ${parts.join(', ')}`).toBe(true);
+      if (art.caption) {
+        await expect(piece.locator('details > p.caption')).toHaveText(art.caption.replace(/\s+/g, ' ').trim());
+        await expect(piece.locator('summary')).toBeVisible();
+      }
+    }
   });
 
   test('a piece with a story opens and closes from the keyboard', async ({ page }) => {
