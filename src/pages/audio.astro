@@ -159,6 +159,43 @@ const filterFacets: Facet[] = [
   }
 </BaseLayout>
 
+<script>
+  // Starting one player stops the others. The players are cross-origin iframes, so the page cannot
+  // press pause in them, but it can see which one a visitor clicked into (the iframe takes focus)
+  // and reset every player that was clicked into before. A reset player goes silent and returns to
+  // its first track. Players nobody has touched are left alone, so nothing reloads needlessly.
+  const used = new Set<HTMLIFrameElement>();
+
+  // Replacing the iframe with a copy of itself is what stops its sound. A copy that is hidden and
+  // lazy is not loaded, so a hidden light or dark twin stays quiet and costs nothing.
+  const reset = (frame: HTMLIFrameElement) => {
+    used.delete(frame);
+    frame.replaceWith(frame.cloneNode() as HTMLIFrameElement);
+  };
+
+  // Which player has focus now? Clicking into a player from the page fires a blur on the page, but
+  // moving from one player straight to another fires no event at all, so this is also checked a few
+  // times a second while the page is visible.
+  const check = () => {
+    const frame = document.activeElement;
+    if (!(frame instanceof HTMLIFrameElement) || !frame.closest('.player') || used.has(frame)) return;
+    for (const other of [...used]) reset(other);
+    used.add(frame);
+  };
+  window.addEventListener('blur', () => setTimeout(check, 0));
+  window.setInterval(() => {
+    if (!document.hidden) check();
+  }, 250);
+
+  // Each release has a light and a dark player, and only one is shown. When the theme changes, a
+  // player that was in use is hidden but would keep playing, so reset it.
+  const resetHidden = () => {
+    for (const frame of [...used]) if (getComputedStyle(frame).display === 'none') reset(frame);
+  };
+  new MutationObserver(resetHidden).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', resetHidden);
+</script>
+
 <style>
   h1 {
     margin: 0 0 0.5rem;
