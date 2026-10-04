@@ -268,7 +268,7 @@ const releases = defineCollection({
     year,
     kind: z.enum(['album', 'ep', 'single', 'split']),
     // The owner's credited roles on this release. Leave out when the release lists none.
-    roles: z.array(z.enum(['produced', 'engineered', 'mixed', 'mastered', 'performed'])).min(1).optional(),
+    roles: z.array(z.enum(['produced', 'engineered', 'mixed', 'mastered', 'wrote', 'performed'])).min(1).optional(),
     tags: z.array(kebab).min(1),
     // The release page on Bandcamp, always shown as a plain link.
     bandcamp: httpsUrl,
