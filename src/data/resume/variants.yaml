@@ -27,6 +27,8 @@
     - tpd-split-business-logic-out
     - ps-built-public-playwright-suite
     - ps-automated-accessibility-scanning
+    - vz-authored-requirements-test-data-retrieval-tool
+    - vz-verified-discounting-launches-separating-defects
     - ps-configured-github-actions-suite-smoke
 
 - id: consulting
@@ -51,6 +53,8 @@
     - ps-built-public-playwright-suite
     - ps-configured-github-actions-suite-smoke
     - ps-established-issue-first-workflow
+    - vz-authored-requirements-test-data-retrieval-tool
+    - vz-verified-discounting-launches-separating-defects
 
 - id: creative
   order: 3
