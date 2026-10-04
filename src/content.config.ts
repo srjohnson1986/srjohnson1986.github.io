@@ -266,7 +266,7 @@ const releases = defineCollection({
     title: copy,
     artist: copy,
     year,
-    kind: z.enum(['album', 'ep', 'single', 'split']),
+    type: z.enum(['album', 'ep', 'single', 'split']),
     // The owner's credited roles on this release. Leave out when the release lists none.
     roles: z.array(z.enum(['produced', 'engineered', 'mixed', 'mastered', 'wrote', 'performed'])).min(1).optional(),
     tags: z.array(kebab).min(1),

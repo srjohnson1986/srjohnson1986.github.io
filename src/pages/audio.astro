@@ -2,7 +2,7 @@
 import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import ArchiveFilters, { type Facet } from '../components/ArchiveFilters.astro';
-import { getReleases, getFacets, embedFor, KIND_LABELS, ROLE_LABELS } from '../lib/audio';
+import { getReleases, getFacets, embedFor, TYPE_LABELS, ROLE_LABELS } from '../lib/audio';
 import { tagLabel } from '../lib/projects';
 import { site } from '../data/site';
 
@@ -17,13 +17,6 @@ const filterFacets: Facet[] = [
     label: 'Year',
     allLabel: 'All years',
     options: facets.years.map((year) => ({ value: String(year), label: String(year) })),
-  },
-  {
-    kind: 'select',
-    name: 'kind',
-    label: 'Kind',
-    allLabel: 'All kinds',
-    options: facets.kinds.map((k) => ({ value: k.kind, label: `${k.label} (${k.count})` })),
   },
   {
     kind: 'select',
@@ -83,14 +76,13 @@ const filterFacets: Facet[] = [
               class="release"
               data-item
               data-year={release.data.year}
-              data-kind={release.data.kind}
               data-role={(release.data.roles ?? []).join(' ')}
               data-tag={release.data.tags.join(' ')}
             >
               <h2>{release.data.title}</h2>
               <p class="artist">{release.data.artist}</p>
               <p class="meta">
-                {release.data.year} &middot; {KIND_LABELS[release.data.kind]}
+                {release.data.year} &middot; {TYPE_LABELS[release.data.type]}
                 {release.data.roles && (
                   <>
                     {' '}

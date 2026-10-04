@@ -149,6 +149,16 @@ test.describe('Audio players', () => {
     });
   });
 
+  test('each card shows its release type, and there is no Kind dropdown', async ({ page }) => {
+    await page.goto('/audio/');
+    const labels: Record<string, string> = { album: 'Album', ep: 'EP', single: 'Single', split: 'Split' };
+    for (const release of releases) {
+      await expect(card(page, release.title).locator('.meta')).toContainText(labels[release.type]);
+    }
+    await expect(page.locator('select[name="kind"]')).toHaveCount(0);
+    await expect(page.getByLabel('Kind')).toHaveCount(0);
+  });
+
   test('the studio story is shown near the top, above the releases', async ({ page }) => {
     await page.goto('/audio/');
     const story = page.getByRole('region', { name: 'About the studio' });

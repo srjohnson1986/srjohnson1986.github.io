@@ -31,11 +31,11 @@ const archives: Archive[] = [
     name: 'Audio',
     path: '/audio/',
     noun: 'releases',
-    selects: ['year', 'kind', 'role'],
+    selects: ['year', 'role'],
     tagFacet: 'tag',
     items: releases.map((r) => ({
       title: r.title,
-      facets: { year: [String(r.year)], kind: [r.kind], role: r.roles ?? [], tag: r.tags },
+      facets: { year: [String(r.year)], role: r.roles ?? [], tag: r.tags },
     })),
   },
 ];

@@ -88,7 +88,7 @@ export interface Release {
   title: string;
   artist: string;
   year: number;
-  kind: string;
+  type: string;
   roles?: string[];
   tags: string[];
   bandcamp: string;
