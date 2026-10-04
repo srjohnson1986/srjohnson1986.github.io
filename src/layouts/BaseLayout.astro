@@ -33,6 +33,19 @@ const imageUrl = new URL(image, Astro.site ?? site.url);
     <title>{title}</title>
     {description && <meta name="description" content={description} />}
     {noindex && <meta name="robots" content="noindex" />}
+    {
+      chrome && (
+        <script is:inline>
+          /* Apply a saved theme choice before the page paints, so there is no flash of the other theme. */
+          try {
+            var t = localStorage.getItem('theme');
+            if ((t === 'light' || t === 'dark') && !document.documentElement.hasAttribute('data-theme')) {
+              document.documentElement.setAttribute('data-theme', t);
+            }
+          } catch (e) {}
+        </script>
+      )
+    }
     <link rel="canonical" href={canonical.href} />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content={site.name} />

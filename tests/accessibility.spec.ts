@@ -79,6 +79,13 @@ test.describe('axe scan, states that change the page', () => {
         await expectClean(page, `/audio/ filtered with players (${scheme})`);
       });
 
+      test('after switching the theme with the header button', async ({ page }) => {
+        await page.goto('/');
+        await page.getByRole('button', { name: /^Switch to (dark|light) theme$/ }).click();
+        await expect(page.locator('html')).toHaveAttribute('data-theme', scheme === 'light' ? 'dark' : 'light');
+        await expectClean(page, `home after switching away from ${scheme}`);
+      });
+
       test('the phone menu, open', async ({ page }) => {
         await page.setViewportSize({ width: 375, height: 812 });
         await page.goto('/');
