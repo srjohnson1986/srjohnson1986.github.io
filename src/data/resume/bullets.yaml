@@ -881,3 +881,35 @@
   text: >-
     Applied risk-based boundary testing and a code walkthrough with developers to give a
     documented conditional sign-off when there wasn't time to test every combination.
+
+- id: ps-built-public-playwright-suite
+  role: portfolio-site
+  theme: portfolio-site-and-test-suite
+  tags: [qa, development]
+  public: true
+  text: >-
+    Authored a public Playwright suite that renders every resume version from the site's own data files and checks each one against the skills and bullets it should show.
+
+- id: ps-automated-accessibility-scanning
+  role: portfolio-site
+  theme: portfolio-site-and-test-suite
+  tags: [qa]
+  public: true
+  text: >-
+    Automated accessibility scanning with axe across every page in light, dark, and phone width, plus keyboard checks.
+
+- id: ps-configured-github-actions-suite-smoke
+  role: portfolio-site
+  theme: portfolio-site-and-test-suite
+  tags: [qa, development]
+  public: true
+  text: >-
+    Configured GitHub Actions to run the suite on every pull request and a smoke test against the live site after each deploy and weekly.
+
+- id: ps-established-issue-first-workflow
+  role: portfolio-site
+  theme: portfolio-site-and-test-suite
+  tags: [development, consulting]
+  public: true
+  text: >-
+    Established an issue-first workflow in which every change ships through a reviewed pull request and merges only after the build check passes.

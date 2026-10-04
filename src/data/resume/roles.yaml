@@ -18,6 +18,15 @@
   end: 2026
   note: Personal project
 
+- id: portfolio-site
+  title: Developer / Test Author
+  org: Personal portfolio website
+  neutral_org: Personal Project
+  kind: project
+  start: 2026
+  end: 2026
+  note: Personal project
+
 # One employer entry with two positions, because the bank is not split by era.
 - id: verizon
   title: Quality Assurance Lead

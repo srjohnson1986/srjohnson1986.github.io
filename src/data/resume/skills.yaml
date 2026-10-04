@@ -33,7 +33,7 @@
     - Kibana
     - Smartsheet
     - { name: Selenium, training_only: true }
-    - { name: Playwright, training_only: true }
+    - Playwright
     - Microsoft Office
     - Google Docs
     - VS Code
