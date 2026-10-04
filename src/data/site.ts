@@ -22,7 +22,10 @@ export const site = {
   area: 'Atlanta area',
   // Photo for the Home page. Leave undefined to show a placeholder. To use a real photo, put the
   // file in public/images/ and set { src: '/images/<file>', alt: '<description of the photo>' }.
-  photo: undefined as { src: string; alt: string } | undefined,
+  photo: {
+    src: '/images/steve.jpg',
+    alt: 'Steve smiling and waving hello, wearing a navy blazer over a checked shirt.',
+  } as { src: string; alt: string } | undefined,
   // Published on the resume page and in the PDFs. Set to undefined to hide it.
   email: 'srjohnson1986@gmail.com' as string | undefined,
   links: {
