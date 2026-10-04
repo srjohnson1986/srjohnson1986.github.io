@@ -63,9 +63,10 @@ const warnOnce = (message: string) => {
  * warning: varied verbs are the goal, but the owner does not want uniqueness forced.
  */
 export async function getResumeVariants(options: { labels?: 'real' } = {}): Promise<ResumeVariant[]> {
-  const [roleEntries, bulletEntries, summaryEntries, variantEntries, skillEntries, educationEntries] = await Promise.all([
+  const [roleEntries, bulletEntries, groupEntries, summaryEntries, variantEntries, skillEntries, educationEntries] = await Promise.all([
     getCollection('roles'),
     getCollection('bullets'),
+    getCollection('bulletGroups'),
     getCollection('summaries'),
     getCollection('variants'),
     getCollection('skills'),
@@ -73,6 +74,7 @@ export async function getResumeVariants(options: { labels?: 'real' } = {}): Prom
   ]);
 
   const bulletsById = new Map<string, Bullet>(bulletEntries.map((b) => [b.id, b]));
+  const groupsById = new Map(groupEntries.map((g) => [g.id, g]));
   const summariesById = new Map(summaryEntries.map((s) => [s.id, s]));
 
   // Astro only logs a bad reference() and carries on, so the build would still pass and the
@@ -140,11 +142,26 @@ export async function getResumeVariants(options: { labels?: 'real' } = {}): Prom
   return variantsInOrder.map((variant): ResumeVariant => {
     const problems: string[] = [];
 
+    // The variant's bullet ids: each included group in order, then the variant's own list.
+    const listed: string[] = [];
+    for (const ref of variant.data.include ?? []) {
+      const group = groupsById.get(ref.id);
+      if (!group) problems.push(`bullet group "${ref.id}" does not exist`);
+      else listed.push(...group.data.bullets.map((b) => b.id));
+    }
+    listed.push(...(variant.data.bullets ?? []).map((b) => b.id));
+
+    const seen = new Set<string>();
     const chosen: Bullet[] = [];
-    for (const ref of variant.data.bullets) {
-      const bullet = bulletsById.get(ref.id);
-      if (!bullet) problems.push(`bullet "${ref.id}" does not exist`);
-      else if (!bullet.data.public) problems.push(`bullet "${ref.id}" is not public: true`);
+    for (const id of listed) {
+      if (seen.has(id)) {
+        problems.push(`bullet "${id}" is listed twice (check the groups this variant includes)`);
+        continue;
+      }
+      seen.add(id);
+      const bullet = bulletsById.get(id);
+      if (!bullet) problems.push(`bullet "${id}" does not exist`);
+      else if (!bullet.data.public) problems.push(`bullet "${id}" is not public: true`);
       else chosen.push(bullet);
     }
 
