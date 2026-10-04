@@ -1,5 +1,5 @@
 ---
-import { getCollection } from 'astro:content';
+import { getCollection, getEntry } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import ArchiveFilters, { type Facet } from '../components/ArchiveFilters.astro';
 import { getReleases, getFacets, embedFor, TYPE_LABELS, ROLE_LABELS } from '../lib/audio';
@@ -10,6 +10,7 @@ import { site } from '../data/site';
 const releases = await getReleases();
 const facets = getFacets(releases);
 const [studio] = await getCollection('studio');
+const intro = (await getEntry('intros', 'audio'))!.data;
 
 const filterFacets: Facet[] = [
   {
@@ -47,11 +48,7 @@ const filterFacets: Facet[] = [
   description="Recordings made at Kingdom Hell, my home studio: production and engineering for other artists, with a player for each release."
 >
   <h1>Audio</h1>
-  <p class="lead">
-    Recordings made at Kingdom Hell, my home studio, mostly production and engineering for other
-    artists. The roles shown are the ones credited to me on each release's Bandcamp page, where
-    the full credits are.
-  </p>
+  <p class="lead">{intro.lead}</p>
   {
     studio && (
       <section class="story" aria-label="About the studio">

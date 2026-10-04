@@ -255,13 +255,52 @@ const studio = defineCollection({
 
 const intros = defineCollection({
   loader: file('src/data/intros.yaml'),
+  schema: z
+    .strictObject({
+      // Which page the text is for.
+      id: z.enum(['home', 'art', 'audio', 'contact', 'not-found']),
+      // The line under the page's heading.
+      lead: copy,
+      // One paragraph per entry, in order (Home and Art).
+      paragraphs: z.array(copy).min(1).optional(),
+      // Shown before the lead, only when an email address is published (Contact).
+      email_note: copy.optional(),
+      // The 404 page's heading, its button to the home page, and the heading above its list of sections.
+      heading: copy.optional(),
+      button: copy.optional(),
+      links_heading: copy.optional(),
+    })
+    .superRefine((entry, ctx) => {
+      const need = (field: keyof typeof entry) => {
+        if (entry[field] === undefined) ctx.addIssue({ code: 'custom', message: `The ${entry.id} entry needs "${field}"`, path: [field] });
+      };
+      if (entry.id === 'home' || entry.id === 'art') need('paragraphs');
+      if (entry.id === 'contact') need('email_note');
+      if (entry.id === 'not-found') {
+        need('heading');
+        need('button');
+        need('links_heading');
+      }
+    }),
+});
+
+// ---------------------------------------------------------------------------
+// Home cards (src/data/home-cards.yaml), the "Explore" cards on the Home page
+// ---------------------------------------------------------------------------
+
+const homeCards = defineCollection({
+  loader: file('src/data/home-cards.yaml'),
   schema: z.strictObject({
-    // Which page the text is for: home or art.
-    id: z.enum(['home', 'art']),
-    // The line under the page's heading.
-    lead: copy,
-    // One paragraph per entry, in order.
-    paragraphs: z.array(copy).min(1),
+    id: kebab,
+    // Position on the Home page (1 is first).
+    order: z.number().int().min(1),
+    title: copy,
+    blurb: copy,
+    // The page the card opens, such as /audio/. Leave out while the page is not built yet.
+    href: z
+      .string()
+      .regex(/^\/[a-z0-9-]*(\/[a-z0-9-]+)*\/?$/, 'Use a page path on this site, such as /audio/')
+      .optional(),
   }),
 });
 
@@ -334,4 +373,4 @@ const projects = defineCollection({
   }),
 });
 
-export const collections = { roles, bullets, bulletGroups, summaries, variants, skills, education, events, artworks, studio, intros, releases, projects };
+export const collections = { roles, bullets, bulletGroups, summaries, variants, skills, education, events, artworks, studio, intros, homeCards, releases, projects };

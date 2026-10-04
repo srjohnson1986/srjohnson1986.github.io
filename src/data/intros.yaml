@@ -1,6 +1,7 @@
-# Introductions at the top of the Home and Art pages. The wording is the owner's own. Each entry has a
-# short lead line and one paragraph per list item; the pages show them in this order. The build checks
-# the same copy rules as everywhere else (single hyphens only, no phone numbers).
+# The words at the top of the Home, Art, Audio, and Contact pages, and the text of the 404 page. The
+# wording is the owner's own. Each entry has a lead line, and some have paragraphs (shown in this
+# order) or a few other fields, noted below. The build checks the same copy rules as everywhere
+# else (single hyphens only, no phone numbers).
 
 - id: home
   # The line under the name.
@@ -35,3 +36,27 @@
     - >-
       I HATE boring looking band names/logos. I try to make sure they're angled, traced, and/or
       fonted in a unique way.
+
+- id: audio
+  # The line under the Audio heading.
+  lead: >-
+    Recordings made at Kingdom Hell, my home studio, mostly production and engineering for other
+    artists. The roles shown are the ones credited to me on each release's Bandcamp page, where the
+    full credits are.
+
+- id: contact
+  # Shown first, and only when an email address is published (see src/data/site.ts).
+  email_note: Email is the best way to reach me.
+  # The line under the Contact heading. {area} is replaced with the area set in src/data/site.ts,
+  # which is the only place the location is written.
+  lead: I am based in the {area}.
+
+- id: not-found
+  # The 404 page, shown for an address the site does not have.
+  heading: Page not found
+  lead: >-
+    That address is not part of this site. It may have been mistyped, or the page may have moved.
+  # The button that goes to the home page.
+  button: Go to the home page
+  # The heading above the list of main sections.
+  links_heading: Or try one of these

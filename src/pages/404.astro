@@ -1,6 +1,9 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import { getEntry } from 'astro:content';
 import { nav, site } from '../data/site';
+
+const text = (await getEntry('intros', 'not-found'))!.data;
 
 // GitHub Pages serves this file, with a 404 status, for any address the site does not have.
 const sections = nav.filter((item) => item.href !== '/');
@@ -11,16 +14,14 @@ const sections = nav.filter((item) => item.href !== '/');
   description="That address is not part of this site."
   noindex
 >
-  <h1>Page not found</h1>
-  <p class="lead">
-    That address is not part of this site. It may have been mistyped, or the page may have moved.
-  </p>
+  <h1>{text.heading}</h1>
+  <p class="lead">{text.lead}</p>
 
   <p>
-    <a class="button" href="/">Go to the home page</a>
+    <a class="button" href="/">{text.button}</a>
   </p>
 
-  <h2>Or try one of these</h2>
+  <h2>{text.links_heading}</h2>
   <ul class="sections">
     {sections.map((item) => <li><a href={item.href}>{item.label}</a></li>)}
   </ul>

@@ -8,13 +8,6 @@ export interface NavItem {
   group?: string;
 }
 
-export interface EntryCard {
-  title: string;
-  blurb: string;
-  /** Leave unset while the destination page is not built yet. The card then shows "Coming soon". */
-  href?: string;
-}
-
 export const site = {
   name: 'Steve Johnson',
   url: 'https://srjohnson1986.github.io',
@@ -46,23 +39,4 @@ export const nav: NavItem[] = [
   { label: 'Art', href: '/art/', group: 'Creative' },
   { label: 'Events', href: '/events/', group: 'Creative' },
   { label: 'Contact', href: '/contact/' },
-];
-
-// The three entry points on the Home page. A card without an href shows "Coming soon".
-export const entryCards: EntryCard[] = [
-  {
-    title: 'Technology and QA',
-    blurb: 'Apps, tools, and sites I have built, with the code and live demos.',
-    href: '/development/',
-  },
-  {
-    title: 'Audio',
-    blurb: 'Kingdom Hell, my home studio: production and engineering for other artists.',
-    href: '/audio/',
-  },
-  {
-    title: 'Art',
-    blurb: 'Show flyers and other work made in Procreate.',
-    href: '/art/',
-  },
 ];

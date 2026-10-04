@@ -64,9 +64,25 @@ export const variantBulletIds = (v: Variant): string[] => [
   ...(v.bullets ?? []),
 ];
 
-export const intros = Object.fromEntries(
-  load<{ id: string; lead: string; paragraphs: string[] }[]>('src/data/intros.yaml').map((i) => [i.id, i]),
-);
+interface Intro {
+  id: string;
+  lead: string;
+  paragraphs?: string[];
+  email_note?: string;
+  heading?: string;
+  button?: string;
+  links_heading?: string;
+}
+export const intros = Object.fromEntries(load<Intro[]>('src/data/intros.yaml').map((i) => [i.id, i])) as Record<string, Intro>;
+
+export interface HomeCard {
+  id: string;
+  order: number;
+  title: string;
+  blurb: string;
+  href?: string;
+}
+export const homeCards = load<HomeCard[]>('src/data/home-cards.yaml').sort((a, b) => a.order - b.order);
 export const studio = load<{ id: string; heading: string; story: string[] }[]>('src/data/studio.yaml')[0];
 export const bulletById = new Map(bullets.map((b) => [b.id, b]));
 export const roleById = new Map(roles.map((r) => [r.id, r]));

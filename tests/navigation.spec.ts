@@ -1,6 +1,6 @@
 import { test, expect } from './helpers/test';
-import { nav, entryCards } from '../src/data/site';
-import { intros } from './helpers/data';
+import { nav, site } from '../src/data/site';
+import { intros, homeCards } from './helpers/data';
 
 const grouped = nav.filter((item) => item.group);
 const groupName = grouped[0]?.group;
@@ -83,7 +83,15 @@ test.describe('navigation on a phone', () => {
 });
 
 test.describe('Home page entry cards', () => {
-  for (const card of entryCards) {
+  test('the cards appear in the order set in src/data/home-cards.yaml, with their words', async ({ page }) => {
+    await page.goto('/');
+    const section = page.getByRole('region', { name: 'Explore' });
+    await expect(section.locator('h3')).toHaveText(homeCards.map((c) => c.title));
+    for (const card of homeCards) await expect(section).toContainText(card.blurb);
+  });
+
+
+  for (const card of homeCards) {
     test(`"${card.title}" ${card.href ? `links to ${card.href}` : 'is not a link while its page is not built'}`, async ({ page }) => {
       await page.goto('/');
       const section = page.getByRole('region', { name: 'Explore' });
@@ -112,5 +120,26 @@ test.describe('page introductions come from src/data/intros.yaml', () => {
     await expect(page.locator('p.lead')).toHaveText(words(intros.art.lead));
     const shown = await page.locator('.statement > p').allTextContents();
     expect(shown.map(words)).toEqual(intros.art.paragraphs.map(words));
+  });
+
+  test('the Audio page shows its lead from the file', async ({ page }) => {
+    await page.goto('/audio/');
+    await expect(page.locator('p.lead')).toHaveText(words(intros.audio.lead));
+  });
+
+  test('the Contact page shows its email note and lead, with the area filled in from site.ts', async ({ page }) => {
+    await page.goto('/contact/');
+    const expected = `${intros.contact.email_note} ${intros.contact.lead.replace('{area}', site.area)}`;
+    await expect(page.locator('p.lead')).toHaveText(words(expected));
+    await expect(page.locator('p.lead')).not.toContainText('{area}');
+  });
+
+  test('the 404 page shows its heading, lead, button, and list heading from the file', async ({ page }) => {
+    await page.goto('/this-page-does-not-exist/');
+    const text = intros['not-found'];
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText(words(text.heading!));
+    await expect(page.locator('p.lead')).toHaveText(words(text.lead));
+    await expect(page.getByRole('link', { name: words(text.button!) })).toHaveAttribute('href', '/');
+    await expect(page.getByRole('heading', { level: 2, name: words(text.links_heading!) })).toBeVisible();
   });
 });
