@@ -1,0 +1,16 @@
+# Dependency updates arrive as pull requests, so the CI check vets each one before it can merge.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    # Minor and patch updates arrive together in one pull request. A major update stays separate.
+    groups:
+      minor-and-patch:
+        update-types: [minor, patch]
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly

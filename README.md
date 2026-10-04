@@ -104,6 +104,12 @@ Run `npm run build` after any change. If an entry breaks a rule, the build stops
 
 This site was built with an AI coding agent (Claude Code) working inside that workflow, with its changes going through pull requests and the checks above.
 
+## Dependencies
+
+[Dependabot](.github/dependabot.yml) opens a pull request each week for npm and GitHub Actions updates, so the CI check vets every update before it can merge.
+
+`npm audit` reports one known warning (two lines: the library and Astro, which uses it). It is `http-cache-semantics`, which Astro uses only to cache remote images during the build. This site uses no remote images, and nothing from the library is shipped to visitors. No fix exists: the advisory covers every release up to the newest (4.2.0), the newest Astro already depends on it, and the `npm audit fix --force` suggestion would downgrade Astro to version 2. This is checked again from time to time; once a patched release appears, Dependabot will offer it.
+
 ## Content and privacy rules
 
 The repository is public, so some things are kept out on purpose: source material for the resume stays in a private, git-ignored folder and is never committed, only resume bullets marked public appear on the site, there is no phone number, and my location is given only as the Atlanta area.
