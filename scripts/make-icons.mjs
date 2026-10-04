@@ -1,0 +1,66 @@
+// Makes the site icons: public/favicon.svg (follows the browser's light or dark theme),
+// public/favicon.ico (32 px fallback in a real ICO file), and public/apple-touch-icon.png (180 px,
+// solid background with square corners, because iOS rounds them itself and fills transparent
+// corners with black). Run it again after changing the drawing or the colors:
+//   node scripts/make-icons.mjs
+import sharp from 'sharp';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const pub = (f) => path.join(root, 'public', f);
+
+// The site's colors (src/styles/global.css): light accent and page color, dark accent and page color.
+const light = { tile: '#8a4b1f', ink: '#fbfaf7' };
+const dark = { tile: '#e0a070', ink: '#131316' };
+
+// "SJ" in Roboto Condensed SemiBold (SIL Open Font License), as fixed outlines in a 128 x 128
+// box. They were read once from the font file, so this script and the icons do not need the font
+// installed, and every device draws the same letters.
+const LETTERS = 'M52.31 77.65Q52.31 76 51.98 74.69Q51.65 73.37 50.71 72.27Q49.77 71.18 48 70.1Q46.24 69.02 43.45 67.88Q40.16 66.55 37.22 65.02Q34.27 63.49 31.96 61.49Q29.65 59.49 28.33 56.82Q27.02 54.16 27.02 50.55Q27.02 46.98 28.27 44.06Q29.53 41.14 31.9 39.04Q34.27 36.94 37.49 35.8Q40.71 34.67 44.67 34.67Q50.2 34.67 54.16 36.98Q58.12 39.29 60.28 43.25Q62.43 47.22 62.43 52.2L51.96 52.2Q51.96 49.57 51.2 47.59Q50.43 45.61 48.79 44.45Q47.14 43.29 44.55 43.29Q42.12 43.29 40.55 44.25Q38.98 45.22 38.24 46.84Q37.49 48.47 37.49 50.55Q37.49 52.08 38.16 53.25Q38.82 54.43 40.06 55.41Q41.29 56.39 43.04 57.25Q44.78 58.12 46.94 58.98Q50.9 60.47 53.88 62.24Q56.86 64 58.84 66.24Q60.82 68.47 61.81 71.26Q62.79 74.04 62.79 77.57Q62.79 81.14 61.57 84.04Q60.35 86.94 58.04 89.02Q55.73 91.1 52.45 92.22Q49.18 93.33 45.14 93.33Q41.33 93.33 37.86 92.22Q34.39 91.1 31.73 88.82Q29.06 86.55 27.53 83.06Q26 79.57 26 74.9L36.51 74.9Q36.51 77.53 37.08 79.41Q37.65 81.29 38.82 82.45Q40 83.61 41.65 84.16Q43.29 84.71 45.33 84.71Q47.84 84.71 49.35 83.8Q50.86 82.9 51.59 81.29Q52.31 79.69 52.31 77.65ZM91.49 75.14L91.49 35.45L102 35.45L102 75.14Q102 80.82 99.86 84.92Q97.73 89.02 94.06 91.18Q90.39 93.33 85.76 93.33Q81.02 93.33 77.33 91.45Q73.65 89.57 71.55 85.71Q69.45 81.84 69.45 75.92L80 75.92Q80 79.1 80.72 81Q81.45 82.9 82.78 83.75Q84.12 84.59 85.76 84.59Q87.53 84.59 88.82 83.49Q90.12 82.39 90.8 80.28Q91.49 78.16 91.49 75.14Z';
+
+fs.writeFileSync(
+  pub('favicon.svg'),
+  `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <style>
+    .tile { fill: ${light.tile}; }
+    .ink { fill: ${light.ink}; }
+    @media (prefers-color-scheme: dark) {
+      .tile { fill: ${dark.tile}; }
+      .ink { fill: ${dark.ink}; }
+    }
+  </style>
+  <rect class="tile" width="128" height="128" rx="26"/>
+  <path class="ink" d="${LETTERS}"/>
+</svg>
+`,
+);
+
+const png = (size, c, rounded = true) =>
+  sharp(
+    Buffer.from(
+      `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128"><rect width="128" height="128"${rounded ? ' rx="26"' : ''} fill="${c.tile}"/><path d="${LETTERS}" fill="${c.ink}"/></svg>`,
+    ),
+    { density: 384 },
+  )
+    .resize(size, size)
+    .png();
+
+// A real ICO file: a small header, then one 32 px PNG image (the format ICO has allowed since
+// Windows Vista). A bare PNG renamed to .ico works in some browsers and fails in others.
+const icon = await png(32, light).toBuffer();
+const header = Buffer.alloc(22);
+header.writeUInt16LE(0, 0); // reserved
+header.writeUInt16LE(1, 2); // type 1 = icon
+header.writeUInt16LE(1, 4); // one image
+header.writeUInt8(32, 6); // width
+header.writeUInt8(32, 7); // height
+header.writeUInt16LE(1, 10); // color planes
+header.writeUInt16LE(32, 12); // bits per pixel
+header.writeUInt32LE(icon.length, 14); // image size
+header.writeUInt32LE(22, 18); // image offset
+fs.writeFileSync(pub('favicon.ico'), Buffer.concat([header, icon]));
+
+await png(180, light, false).toFile(pub('apple-touch-icon.png'));
+console.log('wrote favicon.svg, favicon.ico, apple-touch-icon.png');

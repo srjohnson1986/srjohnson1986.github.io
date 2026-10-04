@@ -44,7 +44,8 @@ const imageUrl = new URL(image, Astro.site ?? site.url);
     <meta property="og:image:height" content="630" />
     <meta property="og:image:alt" content={`${site.name}, waving hello`} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="icon" href="/favicon.ico" />
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
   </head>
   <body class={bodyClass}>
     {chrome && <a class="skip-link" href="#main">Skip to content</a>}
