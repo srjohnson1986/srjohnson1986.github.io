@@ -2,7 +2,7 @@
 import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import ArchiveFilters, { type Facet } from '../components/ArchiveFilters.astro';
-import { getReleases, getFacets, KIND_LABELS, ROLE_LABELS } from '../lib/audio';
+import { getReleases, getFacets, embedFor, KIND_LABELS, ROLE_LABELS } from '../lib/audio';
 import { tagLabel } from '../lib/projects';
 import { site } from '../data/site';
 
@@ -104,17 +104,26 @@ const filterFacets: Facet[] = [
               <div class="player">
                 {
                   release.data.embed && (
-                    <iframe
-                      src={release.data.embed}
-                      title={`Bandcamp player: ${release.data.title} by ${release.data.artist}`}
-                      loading="lazy"
-                      height={release.data.embedHeight ?? 120}
-                    />
+                    <>
+                      {/* Two copies, one per theme. CSS shows the one that matches the page, and the
+                          hidden one is lazy, so the browser never fetches it. */}
+                      <iframe
+                        class="embed-light"
+                        src={embedFor(release.data.embed, 'light')}
+                        title={`Bandcamp player: ${release.data.title} by ${release.data.artist}`}
+                        loading="lazy"
+                        height={release.data.embedHeight ?? 120}
+                      />
+                      <iframe
+                        class="embed-dark"
+                        src={embedFor(release.data.embed, 'dark')}
+                        title={`Bandcamp player: ${release.data.title} by ${release.data.artist}`}
+                        loading="lazy"
+                        height={release.data.embedHeight ?? 120}
+                      />
+                    </>
                   )
                 }
-                <a class="listen" href={release.data.bandcamp} rel="noopener">
-                  Listen on Bandcamp
-                </a>
               </div>
             </li>
           ))}
@@ -257,21 +266,34 @@ const filterFacets: Facet[] = [
     margin-bottom: 0.8rem;
   }
 
-  .player {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 0.6rem 1rem;
-  }
-
-  .listen {
-    font-size: 0.95rem;
-  }
-
-  /* The player takes the full row; the plain Bandcamp link sits under it. */
+  /* The Bandcamp player is drawn from the colors in its address, so each release has a light and a
+     dark copy and the page shows the one for the current theme: the dark one when the visitor chose
+     dark, or when no choice was made and the system is dark. */
   .player iframe {
-    flex: 1 1 100%;
+    display: block;
     width: 100%;
     border: 0;
+  }
+
+  .embed-dark {
+    display: none !important;
+  }
+
+  :global(:root[data-theme='dark']) .embed-light {
+    display: none !important;
+  }
+
+  :global(:root[data-theme='dark']) .embed-dark {
+    display: block !important;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :global(:root:not([data-theme])) .embed-light {
+      display: none !important;
+    }
+
+    :global(:root:not([data-theme])) .embed-dark {
+      display: block !important;
+    }
   }
 </style>

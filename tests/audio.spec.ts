@@ -14,17 +14,24 @@ async function stubBandcamp(page: Page) {
 
 const card = (page: Page, title: string) => page.locator('.release', { has: page.getByRole('heading', { name: title, exact: true }) });
 
+// The same address the site builds for the dark player: the dark card and accent colors.
+const darkEmbed = (embed: string) => embed.replace(/\/bgcol=[0-9a-f]+/i, '/bgcol=1b1b20').replace(/\/linkcol=[0-9a-f]+/i, '/linkcol=e0a070');
+
 test.describe('Audio players', () => {
-  test('every release shows its own Bandcamp player, with no buttons to load it', async ({ page }) => {
+  test('every release has a light and a dark Bandcamp player, and no button or Bandcamp link around them', async ({ page }) => {
     await stubBandcamp(page);
     await page.goto('/audio/');
-    await expect(page.locator('iframe')).toHaveCount(releases.length);
+    await expect(page.locator('iframe')).toHaveCount(releases.length * 2);
     await expect(page.getByRole('button', { name: /player/i })).toHaveCount(0);
+    await expect(page.getByRole('link', { name: /Bandcamp/i })).toHaveCount(0);
     for (const release of releases) {
-      const frame = card(page, release.title).locator('iframe');
-      await expect(frame).toHaveCount(1);
-      await expect(frame).toHaveAttribute('src', release.embed);
-      await expect(frame).toHaveAttribute('title', `Bandcamp player: ${release.title} by ${release.artist}`);
+      const title = `Bandcamp player: ${release.title} by ${release.artist}`;
+      const light = card(page, release.title).locator('iframe.embed-light');
+      const dark = card(page, release.title).locator('iframe.embed-dark');
+      await expect(light).toHaveAttribute('src', release.embed);
+      await expect(dark).toHaveAttribute('src', darkEmbed(release.embed));
+      await expect(light).toHaveAttribute('title', title);
+      await expect(dark).toHaveAttribute('title', title);
       expect(new URL(release.embed).hostname).toBe('bandcamp.com');
     }
   });
@@ -32,24 +39,53 @@ test.describe('Audio players', () => {
   test('players are marked lazy, so the browser loads them as the visitor scrolls', async ({ page }) => {
     await stubBandcamp(page);
     await page.goto('/audio/');
-    await expect(page.locator('iframe[loading="lazy"]')).toHaveCount(releases.length);
+    await expect(page.locator('iframe[loading="lazy"]')).toHaveCount(releases.length * 2);
   });
 
-  test('every release links to its Bandcamp page', async ({ page }) => {
-    await page.goto('/audio/');
-    for (const release of releases) {
-      const link = card(page, release.title).getByRole('link', { name: 'Listen on Bandcamp' });
-      await expect(link).toHaveAttribute('href', release.bandcamp);
-    }
+  test.describe('with a light page', () => {
+    test.use({ colorScheme: 'light' });
+
+    test('only the light players show, and the dark ones are never requested', async ({ page }) => {
+      const requested = await stubBandcamp(page);
+      await page.goto('/audio/');
+      await page.waitForLoadState('networkidle');
+      await expect(page.locator('iframe.embed-light:visible')).toHaveCount(releases.length);
+      await expect(page.locator('iframe.embed-dark:visible')).toHaveCount(0);
+      expect(requested.filter((url) => url.includes('bgcol=1b1b20'))).toEqual([]);
+    });
   });
 
-  test('with scripts off, each release still shows its player and its Bandcamp link', async ({ browser }) => {
-    const context = await browser.newContext({ javaScriptEnabled: false });
+  test.describe('with a dark page', () => {
+    test.use({ colorScheme: 'dark' });
+
+    test('only the dark players show, and the light ones are never requested', async ({ page }) => {
+      const requested = await stubBandcamp(page);
+      await page.goto('/audio/');
+      await page.waitForLoadState('networkidle');
+      await expect(page.locator('iframe.embed-dark:visible')).toHaveCount(releases.length);
+      await expect(page.locator('iframe.embed-light:visible')).toHaveCount(0);
+      expect(requested.length).toBeGreaterThan(0);
+      expect(requested.filter((url) => !url.includes('bgcol=1b1b20'))).toEqual([]);
+    });
+
+    test('the theme button switches the players, and the choice holds', async ({ page }) => {
+      await stubBandcamp(page);
+      await page.goto('/audio/');
+      await page.getByRole('button', { name: 'Switch to light theme' }).click();
+      await expect(page.locator('iframe.embed-light:visible')).toHaveCount(releases.length);
+      await expect(page.locator('iframe.embed-dark:visible')).toHaveCount(0);
+      await page.reload();
+      await expect(page.locator('iframe.embed-light:visible')).toHaveCount(releases.length);
+    });
+  });
+
+  test('with scripts off, each release still shows one player for the system theme', async ({ browser }) => {
+    const context = await browser.newContext({ javaScriptEnabled: false, colorScheme: 'dark' });
     const page = await context.newPage();
     await page.route('https://bandcamp.com/**', (route) => route.fulfill({ contentType: 'text/html', body: '<p>stub</p>' }));
     await page.goto('/audio/');
-    await expect(page.locator('iframe')).toHaveCount(releases.length);
-    await expect(page.getByRole('link', { name: 'Listen on Bandcamp' })).toHaveCount(releases.length);
+    await expect(page.locator('iframe:visible')).toHaveCount(releases.length);
+    await expect(page.locator('iframe.embed-dark:visible')).toHaveCount(releases.length);
     await context.close();
   });
 

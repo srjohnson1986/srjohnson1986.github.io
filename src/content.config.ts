@@ -270,7 +270,7 @@ const releases = defineCollection({
     // The owner's credited roles on this release. Leave out when the release lists none.
     roles: z.array(z.enum(['produced', 'engineered', 'mixed', 'mastered', 'wrote', 'performed'])).min(1).optional(),
     tags: z.array(kebab).min(1),
-    // The release page on Bandcamp, always shown as a plain link.
+    // The release page on Bandcamp. A record of where the release lives; the page shows the player.
     bandcamp: httpsUrl,
     // The player, loaded only when a visitor asks for it.
     embed: bandcampPlayer,

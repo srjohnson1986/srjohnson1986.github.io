@@ -47,11 +47,12 @@ test('the project archive lists the projects and a project page loads', async ({
   }
 });
 
-test('the audio page lists the releases and preloads no players', async ({ page }) => {
+test('the audio page lists the releases, each with one visible Bandcamp player', async ({ page }) => {
   await page.goto('/audio/');
   await expect(page.locator('.release')).toHaveCount(releases.length);
-  await expect(page.locator('iframe')).toHaveCount(0);
-  await expect(page.getByRole('link', { name: 'Listen on Bandcamp' })).toHaveCount(releases.length);
+  // Each release has a light and a dark copy; CSS shows the one that matches the theme.
+  await expect(page.locator('iframe:visible')).toHaveCount(releases.length);
+  await expect(page.locator('iframe[src^="https://bandcamp.com/EmbeddedPlayer/"]')).toHaveCount(releases.length * 2);
 });
 
 test('the art page serves its images', async ({ page, request }) => {
