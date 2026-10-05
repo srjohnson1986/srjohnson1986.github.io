@@ -2,13 +2,54 @@
 import { Image, getImage } from 'astro:assets';
 import { getEntry } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { getArtworks, groupByMedium, FORMAT_LABELS, type Artwork } from '../lib/art';
+import ArchiveFilters, { type Facet } from '../components/ArchiveFilters.astro';
+import { getArtworks, getFacets, groupByMedium, FORMAT_LABELS, type Artwork } from '../lib/art';
+import { tagLabel } from '../lib/projects';
 import { site } from '../data/site';
 import { fill } from '../lib/copy';
 
 const intro = (await getEntry('intros', 'art'))!.data;
 const pieces = await getArtworks();
 const groups = groupByMedium(pieces);
+const facets = getFacets(pieces);
+
+// The page is built newest first, so that is the first choice (and what shows without JavaScript).
+// The Tags group is left out until at least one piece has a tag, rather than showing an empty box.
+const filterFacets: Facet[] = [
+  {
+    kind: 'order',
+    name: 'sort',
+    label: 'Sort by',
+    options: [
+      { value: 'newest', label: 'Newest first' },
+      { value: 'oldest', label: 'Oldest first' },
+    ],
+  },
+  {
+    kind: 'select',
+    name: 'year',
+    label: 'Year',
+    allLabel: 'All years',
+    options: facets.years.map((year) => ({ value: String(year), label: String(year) })),
+  },
+  {
+    kind: 'select',
+    name: 'format',
+    label: 'Format',
+    allLabel: 'Any format',
+    options: facets.formats.map((f) => ({ value: f.format, label: f.label })),
+  },
+  ...(facets.tags.length > 0
+    ? [
+        {
+          kind: 'tags' as const,
+          name: 'tag',
+          legend: 'Tags (a piece must have every tag you pick)',
+          options: facets.tags.map((t) => ({ value: t.tag, label: `${tagLabel(t.tag)} (${t.count})` })),
+        },
+      ]
+    : []),
+];
 
 // "2026.02.13 · Social media", "2025 · Square", or just the shape when there is no date.
 const metaOf = (piece: Artwork) =>
@@ -52,9 +93,11 @@ const detailsLabel = (piece: Artwork) => {
     groups.length === 0 ? (
       <p class="empty">{intro.empty}</p>
     ) : (
-      groups.map((group) => (
+      <ArchiveFilters facets={filterFacets} noun="pieces" emptyMessage={intro.no_match!}>
+      {groups.map((group) => (
         <section
           class="group"
+          data-filter-group
           aria-label={groups.length > 1 ? undefined : group.label}
           aria-labelledby={groups.length > 1 ? `group-${group.medium}` : undefined}
         >
@@ -62,7 +105,7 @@ const detailsLabel = (piece: Artwork) => {
           {groups.length > 1 && <h2 id={`group-${group.medium}`}>{group.label}</h2>}
           <ul class="gallery">
             {group.pieces.map((piece) => (
-              <li>
+              <li data-item data-year={piece.data.year} data-format={piece.data.format} data-tag={piece.data.tags?.join(' ')}>
                 <figure class="piece">
                   <a class="zoom" href={large.get(piece.id)} data-lightbox data-title={piece.data.title} aria-label={`View larger: ${piece.data.title}`}>
                     <Image
@@ -118,7 +161,8 @@ const detailsLabel = (piece: Artwork) => {
             ))}
           </ul>
         </section>
-      ))
+      ))}
+      </ArchiveFilters>
     )
   }
 </BaseLayout>
@@ -129,7 +173,8 @@ const detailsLabel = (piece: Artwork) => {
   // card), so this measures every card in a row and gives them all the height of the tallest. It
   // measures the real text, so it works for any font or window width. Without JavaScript the cards
   // are simply not equalized. Opening Read more still grows only its own card: the Read more area is
-  // measured as if closed, and its height is only a minimum.
+  // measured as if closed, and its height is only a minimum. It runs again whenever the filters or
+  // the sort order change, since that changes which cards sit together.
   const captions = [...document.querySelectorAll<HTMLElement>('.gallery .piece > figcaption')];
   const footers = [...document.querySelectorAll<HTMLElement>('.gallery .piece > details, .gallery .piece > .read-more-space')];
 
@@ -146,6 +191,7 @@ const detailsLabel = (piece: Artwork) => {
     for (const el of [...captions, ...footers]) el.style.minHeight = '';
     const rows = new Map<number, HTMLElement[]>();
     for (const card of document.querySelectorAll<HTMLElement>('.gallery .piece')) {
+      if (card.getClientRects().length === 0) continue; // filtered out, so not in any row
       const top = Math.round(card.getBoundingClientRect().top + window.scrollY);
       rows.set(top, [...(rows.get(top) ?? []), card]);
     }
@@ -164,6 +210,8 @@ const detailsLabel = (piece: Artwork) => {
   if (captions.length) {
     equalize();
     window.addEventListener('resize', equalize);
+    // Filtering or re-sorting changes which cards share a row.
+    document.addEventListener('archive-filtered', equalize);
     // The text can change size once the page's fonts have loaded.
     document.fonts?.ready.then(equalize);
     // A change in the gallery's width (a new column count) changes which cards share a row.

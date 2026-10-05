@@ -274,7 +274,7 @@ const intros = defineCollection({
       studio_link: copy.optional(),
       // Shown instead of the gallery or list when there is nothing to show (Art, Audio).
       empty: copy.optional(),
-      // Shown when the filters match nothing (Audio, Development).
+      // Shown when the filters match nothing (Art, Audio, Development).
       no_match: copy.optional(),
       // The 404 page's heading, its button to the home page, and the heading above its list of sections.
       heading: copy.optional(),
@@ -286,7 +286,10 @@ const intros = defineCollection({
         if (entry[field] === undefined) ctx.addIssue({ code: 'custom', message: `The ${entry.id} entry needs "${field}"`, path: [field] });
       };
       if (entry.id === 'home' || entry.id === 'art') need('paragraphs');
-      if (entry.id === 'art') need('empty');
+      if (entry.id === 'art') {
+        need('empty');
+        need('no_match');
+      }
       if (entry.id === 'audio') {
         need('studio_link');
         need('empty');

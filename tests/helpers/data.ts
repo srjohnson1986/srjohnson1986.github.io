@@ -125,6 +125,7 @@ export interface Artwork {
   title: string;
   year?: number;
   date?: string;
+  format?: string;
   story?: string[];
   caption?: string;
   tags?: string[];

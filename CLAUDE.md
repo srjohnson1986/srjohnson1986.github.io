@@ -33,7 +33,7 @@ The Playwright suite is a portfolio piece as well as a safety net. It lives in `
 - `resume.spec.ts` - every resume version renders from the real data, shows exactly its skills, and the print routes follow the label mode
 - `pdfs.spec.ts` - one real PDF per version, with a sensible page count
 - `links.spec.ts` - a crawl from the home page that checks every link, anchor, and asset, and that no page is orphaned
-- `filters.spec.ts`, `art.spec.ts`, `audio.spec.ts`, `navigation.spec.ts` - the interactive behavior (Bandcamp is stubbed for every spec through `tests/helpers/test.ts`, so tests never use the network; import `test` from there, except in the smoke test)
+- `filters.spec.ts`, `art.spec.ts`, `art-filters.spec.ts` (the Art page sort and filters), `audio.spec.ts`, `navigation.spec.ts` - the interactive behavior (Bandcamp is stubbed for every spec through `tests/helpers/test.ts`, so tests never use the network; import `test` from there, except in the smoke test)
 - `not-found.spec.ts`, `social.spec.ts`, `icons.spec.ts`, `theme.spec.ts`, `copy.spec.ts` - the friendly 404 page, the link-preview tags, sitemap, and robots.txt, the site icons, the light and dark theme button, and the page text that comes from `src/data/intros.yaml`
 - `accessibility.spec.ts` - axe scans of every page in light, dark, and phone width, plus the changing states and keyboard checks
 - `smoke.spec.ts` - short checks against the live site, run by the Smoke test workflow after every deploy, weekly, and on demand
