@@ -123,6 +123,8 @@ export interface Release {
 export interface Artwork {
   slug: string;
   title: string;
+  year?: number;
+  date?: string;
   story?: string[];
   caption?: string;
   tags?: string[];
