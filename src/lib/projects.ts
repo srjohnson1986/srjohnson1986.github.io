@@ -12,12 +12,27 @@ export const TYPE_LABELS: Record<ProjectType, string> = {
 };
 
 // Tags are stored as lowercase-kebab-case. Most read fine with the hyphens turned into spaces;
-// these are the ones that need their own capitalization.
+// these are the ones that need their own capitalization, like band and venue names on the Art page.
 const TAG_LABELS: Record<string, string> = {
   'ai-assisted': 'AI-assisted',
   'ci-cd': 'CI/CD',
   pwa: 'PWA',
   vba: 'VBA',
+  // Art: bands
+  breaux: 'Breaux',
+  'desk-rabbitz': 'Desk Rabbitz',
+  'five-hundred-bucks': 'Five Hundred Bucks',
+  'rough-dreams': 'Rough Dreams',
+  seagulls: 'Seagulls',
+  shehehe: 'Shehehe',
+  'signals-midwest': 'Signals Midwest',
+  // Art: venues
+  '529': '529',
+  boggs: 'Boggs',
+  'grog-shop': 'Grog Shop',
+  ortliebs: "Ortlieb's",
+  'star-bar': 'Star Bar',
+  'the-earl': 'The Earl',
 };
 
 export const tagLabel = (tag: string): string => TAG_LABELS[tag] ?? tag.replace(/-/g, ' ');

@@ -195,6 +195,13 @@ const artworks = defineCollection({
   schema: ({ image }) => {
     // Required for every image, and long enough to describe it to someone who cannot see it.
     const alt = copy.refine((s) => s.length >= 12, 'Describe the artwork in the alt text (at least 12 characters)');
+    // A list of labels with no repeats. `what` names the list in the error message.
+    const labels = (what: string) =>
+      // YAML reads an unquoted 529 as a number, so a number is accepted and turned into its text.
+      z
+        .array(z.coerce.string().pipe(kebab))
+        .min(1)
+        .refine((list) => new Set(list).size === list.length, `${what} is listed twice`);
 
     return z.strictObject({
       title: copy,
@@ -213,13 +220,12 @@ const artworks = defineCollection({
       alt,
       // Optional short text, shown under "Read more".
       caption: copy.optional(),
-      // Optional labels for finding pieces later (a filter can be built on them). Not shown on the
-      // site yet. Lowercase-kebab-case, for example: five-hundred-bucks, the-earl, collage.
-      tags: z
-        .array(kebab)
-        .min(1)
-        .refine((tags) => new Set(tags).size === tags.length, 'A tag is listed twice')
-        .optional(),
+      // Optional labels for finding pieces, all lowercase-kebab-case. They are kept in three lists
+      // to make the files easier to edit (bands on the flyer, venues, and anything else such as a
+      // technique), but the Art page shows them together as one Tags group in the Filters panel.
+      bands: labels('A band').optional(),
+      venues: labels('A venue').optional(),
+      tags: labels('A tag').optional(),
       // Optional paragraphs. A piece with a story gets an expand and collapse control.
       story: z.array(copy).min(1).optional(),
       // Optional further images for a series. They open inside the expand and collapse control.
@@ -228,6 +234,13 @@ const artworks = defineCollection({
         .min(1)
         .optional(),
     }).superRefine((piece, ctx) => {
+      // The three lists are shown together, so one name in two of them would be a repeated choice.
+      const everyLabel = [...(piece.bands ?? []), ...(piece.venues ?? []), ...(piece.tags ?? [])];
+      const repeated = everyLabel.filter((label, i) => everyLabel.indexOf(label) !== i);
+      if (repeated.length > 0) {
+        ctx.addIssue({ code: 'custom', message: `"${repeated[0]}" is in more than one of bands, venues, and tags`, path: ['tags'] });
+      }
+
       // The Art page is sorted by the numbers at the start of `date`, so a date the sort cannot read,
       // or one in a different year than `year`, would quietly put the piece in the wrong place.
       if (piece.date === undefined) return;

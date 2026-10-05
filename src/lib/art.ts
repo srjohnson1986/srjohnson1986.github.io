@@ -45,6 +45,16 @@ export async function getArtworks(): Promise<Artwork[]> {
   );
 }
 
+/**
+ * Every band, venue, and tag on a piece as one list (bands first, then venues, then tags). The
+ * data keeps them apart so the files are easy to edit; the page shows them together.
+ */
+export const labelsOf = (piece: Artwork): string[] => [
+  ...(piece.data.bands ?? []),
+  ...(piece.data.venues ?? []),
+  ...(piece.data.tags ?? []),
+];
+
 export interface ArtFacets {
   years: number[];
   formats: { format: keyof typeof FORMAT_LABELS; label: string }[];
@@ -53,8 +63,13 @@ export interface ArtFacets {
 
 /** What the Art filters offer, derived from the pieces so it can never go stale. */
 export function getFacets(pieces: Artwork[]): ArtFacets {
-  const tagCounts = new Map<string, number>();
-  for (const piece of pieces) for (const tag of piece.data.tags ?? []) tagCounts.set(tag, (tagCounts.get(tag) ?? 0) + 1);
+  // Counts per name, kept per list so the options can be ordered bands, venues, then tags.
+  const countsIn = (pick: (piece: Artwork) => string[] | undefined) => {
+    const counts = new Map<string, number>();
+    for (const piece of pieces) for (const label of pick(piece) ?? []) counts.set(label, (counts.get(label) ?? 0) + 1);
+    // Most used first, then alphabetical, like the other pages.
+    return [...counts].map(([tag, count]) => ({ tag, count })).sort((a, b) => b.count - a.count || a.tag.localeCompare(b.tag));
+  };
 
   return {
     years: [...new Set(pieces.flatMap((p) => (p.data.year ? [p.data.year] : [])))].sort((a, b) => b - a),
@@ -62,8 +77,7 @@ export function getFacets(pieces: Artwork[]): ArtFacets {
     formats: (Object.keys(FORMAT_LABELS) as (keyof typeof FORMAT_LABELS)[])
       .filter((format) => pieces.some((p) => p.data.format === format))
       .map((format) => ({ format, label: FORMAT_LABELS[format] })),
-    // Most used first, then alphabetical, like the other pages.
-    tags: [...tagCounts].map(([tag, count]) => ({ tag, count })).sort((a, b) => b.count - a.count || a.tag.localeCompare(b.tag)),
+    tags: [...countsIn((p) => p.data.bands), ...countsIn((p) => p.data.venues), ...countsIn((p) => p.data.tags)],
   };
 }
 

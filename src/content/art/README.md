@@ -18,7 +18,9 @@ image: ../../assets/art/spring-showcase.jpg
 alt: >-
   Describe what the artwork looks like, as you would to someone who cannot see it.
 caption: Optional short text, shown under "Read more".
-tags: [five-hundred-bucks, the-earl, collage]   # optional: labels for filtering later; not shown yet
+bands: [five-hundred-bucks, seagulls]   # optional: the bands on the flyer, for filtering
+venues: [the-earl]          # optional: the venue, for filtering
+tags: [collage]             # optional: anything else, such as the technique, for filtering
 story:                      # optional: paragraphs behind the expand and collapse control
   - First paragraph of the story behind the piece.
   - Second paragraph, if there is one.
@@ -39,18 +41,30 @@ cannot be found, the alt text is missing or too short, the text contains an em d
 double hyphen, or the date is in another format, has an impossible month or day, a range that ends
 before it starts, or a year that differs from `year`. That keeps the page in date order.
 
-## Tags
+## Bands, venues, and tags
 
-`tags` is an optional list of labels on a piece. They become the Tags choices in the Filters panel
-on the Art page, which appears as soon as one piece has a tag (a visitor who picks several tags sees
-only the pieces that have all of them). The tags are not printed on the cards. Each tag is lowercase
-with single hyphens (`five-hundred-bucks`, not `Five Hundred Bucks`), and a piece cannot list the
-same tag twice; the build stops with a readable message otherwise. Reuse a tag exactly as spelled so
-pieces match, since a misspelling makes a second choice in the panel.
+Three optional lists on a piece say what it is about, so the Filters panel can find it:
 
-Useful kinds of tag, so the names stay consistent: the **bands** on the flyer (`seagulls`), the
-**venue** (`the-earl`), the **city** (`atlanta`), and the **technique** (`collage`,
-`hand-lettered`, `photo-parody`).
+- `bands`: the bands on the flyer (`seagulls`, `five-hundred-bucks`)
+- `venues`: where the show was (`boggs`, `the-earl`, `529`)
+- `tags`: anything else, such as the technique (`collage`, `hand-lettered`, `photo-parody`) or the city
+
+They are kept apart so a file is easy to edit: you always know which list a name goes in. On the page
+they appear together as one **Tags** group, and a visitor who picks several sees the pieces that have
+any of them. The group appears as soon as one piece has a name in any of the lists, and the names are
+not printed on the cards.
+
+Each name is lowercase with single hyphens (`five-hundred-bucks`, not `Five Hundred Bucks`). The build
+stops with a readable message if a name is not written that way or is listed twice on one piece, even
+across two lists. Reuse a name exactly as spelled so pieces match, since a misspelling makes a second
+choice in the panel. A number like `529` can be written with or without quotes.
+
+### How a name reads on the page
+
+The Filters panel shows `five-hundred-bucks` as "Five Hundred Bucks". Without any extra work a name
+reads with its hyphens turned into spaces (`the-earl` becomes "the earl"). To show it properly, add a
+line for it in the `TAG_LABELS` list in `src/lib/projects.ts`, for example `ortliebs: "Ortlieb's"`. That
+list is shared with Audio and Development, which is fine because each page only shows its own tags.
 
 ## The Filters panel
 
@@ -61,7 +75,8 @@ built from the pieces, so there is nothing to keep up to date by hand:
 - **Year** lists the `year` of every piece, newest first.
 - **Format** lists the `format` values in use (11x17 poster, Square, Social media). A piece with no
   `format` shows under "Any format" but not under a particular one.
-- **Tags** lists every tag in use, with how many pieces have it (see Tags above).
+- **Tags** lists every band, venue, and tag in use (bands first, then venues, then tags), with how many
+  pieces have it. A piece shows when it has any of the ones picked.
 
 The choices are kept in the web address (`/art/?year=2025&format=square&sort=oldest`), so a
 filtered view can be shared. Without JavaScript the panel is hidden and the whole gallery shows,

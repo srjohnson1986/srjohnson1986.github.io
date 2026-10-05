@@ -4,7 +4,7 @@
 // How it works: every item in the slot carries data-item plus one data-<facet> attribute per
 // facet, holding that item's values separated by spaces (data-year="2026", data-tag="kotlin
 // web"). A select facet shows items whose list includes the chosen value. A tags facet shows
-// items that have every tag that is ticked. An order facet does not filter: it flips the list
+// items that have every tag that is ticked (or, with match: 'any', at least one). An order facet does not filter: it flips the list
 // (see below). The filters sit in a panel that starts closed and is opened with a click. The panel
 // is hidden in the HTML and revealed by the script, so without JavaScript the full list simply shows.
 //
@@ -22,7 +22,7 @@ export interface FilterOption {
 export type Facet =
   | { kind: 'select'; name: string; label: string; allLabel: string; options: FilterOption[] }
   | { kind: 'order'; name: string; label: string; options: [FilterOption, FilterOption] }
-  | { kind: 'tags'; name: string; legend: string; options: FilterOption[] };
+  | { kind: 'tags'; name: string; legend: string; options: FilterOption[]; match?: 'all' | 'any' };
 
 interface Props {
   facets: Facet[];
@@ -76,7 +76,7 @@ const tagGroups = facets.filter((f) => f.kind === 'tags');
     tagGroups.map(
       (facet) =>
         facet.kind === 'tags' && (
-          <fieldset>
+          <fieldset data-match={facet.match ?? 'all'}>
             <legend>{facet.legend}</legend>
             <div class="tag-options">
               {facet.options.map((option) => (
@@ -129,12 +129,18 @@ const tagGroups = facets.filter((f) => f.kind === 'tags');
     const valuesOf = (item: HTMLElement, name: string) => (item.dataset[name] ?? '').split(' ').filter(Boolean);
     const checkedFor = (name: string) => boxes.filter((b) => b.name === name && b.checked).map((b) => b.value);
     const boxNames = [...new Set(boxes.map((b) => b.name))];
+    // A group of tags matches an item that has every ticked tag, or with data-match="any" at least one.
+    const matchesAny = (name: string) => boxes.some((b) => b.name === name && b.closest('fieldset')?.dataset.match === 'any');
 
     const apply = () => {
       let shown = 0;
       for (const item of items) {
         const matchesSelects = selects.every((s) => !s.value || valuesOf(item, s.name).includes(s.value));
-        const matchesTags = boxNames.every((name) => checkedFor(name).every((v) => valuesOf(item, name).includes(v)));
+        const matchesTags = boxNames.every((name) => {
+          const ticked = checkedFor(name);
+          const has = (v: string) => valuesOf(item, name).includes(v);
+          return matchesAny(name) ? ticked.length === 0 || ticked.some(has) : ticked.every(has);
+        });
         const match = matchesSelects && matchesTags;
         item.hidden = !match;
         if (match) shown++;

@@ -38,11 +38,12 @@ test.describe('Art page', () => {
     }
   });
 
-  test('any tags on a piece are lowercase-kebab-case and not repeated', () => {
+  test('bands, venues, and tags on a piece are lowercase-kebab-case and none is repeated', () => {
     const kebab = /^[a-z0-9]+(-[a-z0-9]+)*$/;
     for (const art of artworks) {
-      for (const tag of art.tags ?? []) expect(tag, `${art.title}: "${tag}"`).toMatch(kebab);
-      expect(new Set(art.tags ?? []).size, `${art.title} repeats a tag`).toBe((art.tags ?? []).length);
+      const every = [...(art.bands ?? []), ...(art.venues ?? []), ...(art.tags ?? [])];
+      for (const label of every) expect(label, `${art.title}: "${label}"`).toMatch(kebab);
+      expect(new Set(every).size, `${art.title} repeats a name`).toBe(every.length);
     }
   });
 

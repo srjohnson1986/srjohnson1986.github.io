@@ -3,7 +3,7 @@ import { Image, getImage } from 'astro:assets';
 import { getEntry } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import ArchiveFilters, { type Facet } from '../components/ArchiveFilters.astro';
-import { getArtworks, getFacets, groupByMedium, FORMAT_LABELS, type Artwork } from '../lib/art';
+import { getArtworks, getFacets, groupByMedium, labelsOf, FORMAT_LABELS, type Artwork } from '../lib/art';
 import { tagLabel } from '../lib/projects';
 import { site } from '../data/site';
 import { fill } from '../lib/copy';
@@ -14,7 +14,8 @@ const groups = groupByMedium(pieces);
 const facets = getFacets(pieces);
 
 // The page is built newest first, so that is the first choice (and what shows without JavaScript).
-// The Tags group is left out until at least one piece has a tag, rather than showing an empty box.
+// Bands, venues, and tags are kept apart in the files but shown together as one Tags group, and
+// the group is left out until at least one piece has one, rather than showing an empty box.
 const filterFacets: Facet[] = [
   {
     kind: 'order',
@@ -44,7 +45,8 @@ const filterFacets: Facet[] = [
         {
           kind: 'tags' as const,
           name: 'tag',
-          legend: 'Tags (a piece must have every tag you pick)',
+          legend: 'Tags',
+          match: 'any' as const,
           options: facets.tags.map((t) => ({ value: t.tag, label: `${tagLabel(t.tag)} (${t.count})` })),
         },
       ]
@@ -105,7 +107,7 @@ const detailsLabel = (piece: Artwork) => {
           {groups.length > 1 && <h2 id={`group-${group.medium}`}>{group.label}</h2>}
           <ul class="gallery">
             {group.pieces.map((piece) => (
-              <li data-item data-year={piece.data.year} data-format={piece.data.format} data-tag={piece.data.tags?.join(' ')}>
+              <li data-item data-year={piece.data.year} data-format={piece.data.format} data-tag={labelsOf(piece).join(' ')}>
                 <figure class="piece">
                   <a class="zoom" href={large.get(piece.id)} data-lightbox data-title={piece.data.title} aria-label={`View larger: ${piece.data.title}`}>
                     <Image
