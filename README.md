@@ -15,20 +15,20 @@ The repository is public on purpose. It is also a portfolio piece: the way the s
 | --- | --- |
 | Home | A short introduction and entry points to the rest |
 | Resume | Web versions of the resume, with a PDF download for each |
-| Development | A filterable archive of software projects, each with its own page: problem, what I built, stack, outcome, links |
-| Audio | Recordings from my home studio, with a Bandcamp player for each release, plus studio rates |
-| Art | Show flyers, with the story behind each piece one click away |
+| Development | An archive of software projects, filterable by tag, each with its own page: problem, what I built, stack, outcome, links |
+| Audio | Recordings from my home studio, with a Bandcamp player for each release, filters by year, band, my role, and genre, plus studio rates |
+| Art | Show flyers, newest first, with filters by year, format, band, venue, and tag, a larger view of every image, and the story behind each piece one click away |
 | Events | The charity music festival and shows I help organize |
 | Contact | Email, LinkedIn, and GitHub, with no form |
 
 ## How it is built
 
-- **Astro, static output, almost no client-side JavaScript.** Only two pages ship any: Development (the archive filters) and Audio (the filters). Every other page, including Art, ships none. Without JavaScript the filters hide themselves and every item is simply listed, and the Audio players still show.
+- **Astro, static output, very little client-side JavaScript.** Three things use it: the filters on Development, Audio, and Art (plus the Art sort and larger-image view), the theme button in the header, and a tiny inline script that applies a saved theme before the page paints. Without JavaScript the filters hide themselves and every item is simply listed, the Audio players still show, each Art image is a plain link to its larger version, and the page follows the system theme.
 - **The data is the source of truth.** Everything lives in YAML files read through Astro content collections with strict schemas, so a bad entry fails the build instead of reaching the live site. The schemas enforce the site's own rules: copy uses single hyphens only, no phone numbers, resume bullets start with a past-tense verb, references must resolve, and a bullet must be marked public before it can appear.
 - **One resume data set renders everything.** The web pages, a print layout, and every PDF come from the same roles, bullets, skills, and versions, so they cannot drift apart. Each version is a list of bullet references plus a summary and a mode for organization names (real or alternate).
 - **PDFs are made in the build.** After the site is built, a script prints each print route to a PDF with headless Chromium through Playwright, and fails the build if a PDF is missing, broken, or runs past two pages.
 - **Accessibility by default.** Native `details` and `button` controls instead of scripted ones, real headings and landmarks, a skip link, visible focus, alt text required for every image, light and dark themes that follow the visitor's system setting (with a header button to switch and remember a choice, which is the only part that needs a script), and a phone menu that needs no script.
-- **Plain CSS.** A small stylesheet with custom properties, no framework. Fonts are the system fonts, so nothing is requested from a third party.
+- **Plain CSS.** A small stylesheet with custom properties, no framework. The font is Atkinson Hyperlegible Next, chosen for legibility and installed from the `@fontsource` package so the build bundles it. It is served from this site, so nothing is requested from a third party.
 
 ### Project layout
 
@@ -39,14 +39,15 @@ src/
   layouts/      the base layout
   lib/          loaders that join content collections and enforce cross-collection rules
   styles/       global.css and the print stylesheet for the PDFs
-  data/         site settings and navigation (site.ts), events and studio info (YAML)
+  data/         site settings and navigation (site.ts), page text (intros.yaml), Home cards, events and studio info (YAML)
     resume/     roles, bullets, summaries, skills, education, and resume versions (YAML)
   content/      one YAML file per item: projects/, releases/, art/
   assets/       images for the art page
   content.config.ts   every collection and its schema
-scripts/        PDF generation and the smoke test runner
+scripts/        PDF generation, the icon and link-preview image generators, and the smoke test runner
 tests/          the Playwright suite
-.github/        workflows and issue and pull request templates
+.vscode/        maps each YAML file to its schema, for autocomplete and checking in VS Code
+.github/        workflows, Dependabot settings, and issue and pull request templates
 ```
 
 ## Getting started
@@ -59,8 +60,11 @@ npx playwright install chromium-headless-shell   # once: the browser used for PD
 npm run dev                                      # local dev server
 ```
 
+In VS Code, the YAML files autocomplete and flag mistakes as you type, using schemas that Astro generates into `.astro/collections/` (not committed). On a fresh clone, run `npm run astro -- sync` once to create them; `dev` and `build` also refresh them.
+
 | Command | What it does |
 | --- | --- |
+| `npm run astro -- sync` | Generates the collection schemas that VS Code uses for the YAML files |
 | `npm run dev` | Local development server (PDFs are only made by a full build) |
 | `npm run build` | Builds the site into `dist/` and prints the resume PDFs |
 | `npm run build:site` | Builds the pages only, without the PDFs |
@@ -77,6 +81,10 @@ The Playwright suite runs against the built site and is public on purpose. It re
 - **Links:** a crawl from the home page checks every link, in-page anchor, and image, requires that no page is orphaned, and checks that each page has a title, one heading, a main landmark, and no console errors.
 - **Link previews and the sitemap:** every public page carries Open Graph tags that match its title, description, and address, the preview image exists at 1200 by 630, `robots.txt` points to the sitemap, and the sitemap lists every public page and none of the print routes. There are no Twitter or X tags.
 - **Theme button:** it starts from the system setting, switches and remembers a choice across reloads and pages, works from the keyboard and with storage blocked, is absent without scripts, and never touches the print pages.
+- **Page text:** each page's browser title and description, the lines at the top of each page, and the "nothing here" messages match `src/data/intros.yaml`.
+- **Fonts:** the Atkinson font is bundled, each weight the site uses really loads, and no font comes from another site.
+- **Header:** the name, links, and theme button stay in the same place on every page, whatever the page length or the current link.
+- **Art order and filters:** the gallery runs newest first by date, and the build rejects a date the sort cannot read. The collapsible panel sorts and filters by year, format, and tag, with bands and venues shown as proper names. Results survive a reload or a shared link, and cards in a row still line up after filtering.
 - **Larger view on the Art page:** every image links to a larger version; with scripts on, a click opens it full page, closing with the X, Escape, or a click outside the picture, and focus returns to the image. With scripts off it is a plain link.
 - **Site icons:** every public page links the SVG favicon, the ICO fallback, and the Apple touch icon, and each file exists with the right type and size.
 - **Unknown addresses:** a mistyped address returns a real 404 status and shows the site's own page, with the navigation and links back into the site.
@@ -105,6 +113,7 @@ Run `npm run build` after any change. If an entry breaks a rule, the build stops
 ## Workflow and deployment
 
 - **Issue first.** Every change starts as a GitHub issue, gets its own branch, and reaches `main` through a pull request. The conventions are written down in [CLAUDE.md](CLAUDE.md).
+- **Keep this README current.** Each pull request either updates the README when it changes something the README describes (a page, a feature, a command, a dependency, a test area) or says in its description why no update was needed. The [pull request template](.github/pull_request_template.md) has a checkbox for it.
 - **CI** ([ci.yml](.github/workflows/ci.yml)) builds the site and runs the full test suite on every pull request.
 - **Deploy** ([deploy.yml](.github/workflows/deploy.yml)) builds the site and publishes it to GitHub Pages on every push to `main`.
 - **Smoke test** ([smoke.yml](.github/workflows/smoke.yml)) checks the live site after every deployment, weekly, and on demand. It is a separate workflow so a failure can never block a deployment.
@@ -113,7 +122,7 @@ This site was built with an AI coding agent (Claude Code) working inside that wo
 
 ## Dependencies
 
-The site depends only on Astro and its official sitemap integration (`@astrojs/sitemap`), which writes `sitemap-index.xml` at build time. The link-preview image `public/images/social-preview.jpg` is generated from the Home photo by `node scripts/make-social-image.mjs`; run it again if the photo, the name, or the colors change. The site icons (an "SJ" monogram in the accent color) come from `node scripts/make-icons.mjs`.
+The site depends only on Astro, its official sitemap integration (`@astrojs/sitemap`), which writes `sitemap-index.xml` at build time, and the Atkinson Hyperlegible Next font package (`@fontsource/atkinson-hyperlegible-next`). Playwright (which also prints the PDFs in the build), axe-core, and js-yaml (which lets the tests read the data files) are development tools and are not shipped to visitors. The link-preview image `public/images/social-preview.jpg` is generated from the Home photo by `node scripts/make-social-image.mjs`; run it again if the photo, the name, or the colors change. The site icons (an "SJ" monogram in the accent color) come from `node scripts/make-icons.mjs`.
 
 [Dependabot](.github/dependabot.yml) opens a pull request each week for npm and GitHub Actions updates, so the CI check vets every update before it can merge.
 

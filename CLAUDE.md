@@ -35,6 +35,7 @@ The Playwright suite is a portfolio piece as well as a safety net. It lives in `
 - `links.spec.ts` - a crawl from the home page that checks every link, anchor, and asset, and that no page is orphaned
 - `filters.spec.ts`, `art.spec.ts`, `art-filters.spec.ts` (the Art page sort and filters), `audio.spec.ts`, `navigation.spec.ts` - the interactive behavior (Bandcamp is stubbed for every spec through `tests/helpers/test.ts`, so tests never use the network; import `test` from there, except in the smoke test)
 - `not-found.spec.ts`, `social.spec.ts`, `icons.spec.ts`, `theme.spec.ts`, `copy.spec.ts` - the friendly 404 page, the link-preview tags, sitemap, and robots.txt, the site icons, the light and dark theme button, and the page text that comes from `src/data/intros.yaml`
+- `fonts.spec.ts`, `header.spec.ts` - the bundled Atkinson font (and no outside fonts), and a header that does not move between pages
 - `accessibility.spec.ts` - axe scans of every page in light, dark, and phone width, plus the changing states and keyboard checks
 - `smoke.spec.ts` - short checks against the live site, run by the Smoke test workflow after every deploy, weekly, and on demand
 
@@ -47,7 +48,7 @@ Same flow as the TPD-Addin-XLAM and soundboard repos. `main` deploys on every me
 1. **Issue first.** Every change starts as a GitHub issue with a "Why" and a "Scope" section (and a "Done when" list). One concern per issue. Use a type label (`enhancement`, `bug`, `documentation`, `chore`) plus an area label where one fits (`resume`, `content`, `ci`).
 2. **Branch from an up-to-date `main`**, named `type/short-description` (`feat/`, `fix/`, `docs/`, `chore/`, `ci/`, `refactor/`, `test/`). Example: `feat/resume-data-model`.
 3. **Small commits** with imperative messages that describe the change, not "updated stuff".
-4. **Pull request** with a short title and a body that explains why in prose and how it was checked. The body starts with `Closes #<issue>` so the issue closes on merge.
+4. **Pull request** with a short title and a body that explains why in prose and how it was checked. The body starts with `Closes #<issue>` so the issue closes on merge. **Check the README before opening it:** if the change touches a page, feature, command, dependency, folder, or test area that the README describes, update the README in the same pull request; if not, say in the body that no README update was needed. Tick the README box in the template either way. (Update CLAUDE.md the same way when a convention or command changes.)
 5. **Claude turns on auto-merge** for each pull request (merge commit), so GitHub merges it once the `build` check passes. If auto-merge cannot be enabled, Claude merges by hand once the check has passed. GitHub deletes the branch on the remote when the pull request merges (see the setting below), so Claude only confirms it is gone, then deletes the local copy, switches to `main`, and pulls before starting the next branch.
 
 ## Working agreements
