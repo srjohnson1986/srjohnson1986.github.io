@@ -77,7 +77,25 @@ for (const item of nav) {
 
   <!-- Needs JavaScript, so it stays hidden until the script below shows it. Without JavaScript the
        page follows the visitor's system theme. -->
-  <button class="theme-toggle" type="button" hidden></button>
+  <!-- The icon shows the theme a click switches to: a moon while the page is light, a sun while it is
+       dark. The label gives the same information to screen readers. Icons are from Lucide
+       (https://lucide.dev, ISC license), pasted inline so no icon library is loaded. -->
+  <button class="theme-toggle" type="button" hidden>
+    <svg class="icon-moon" aria-hidden="true" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path>
+    </svg>
+    <svg class="icon-sun" aria-hidden="true" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="4"></circle>
+      <path d="M12 2v2"></path>
+      <path d="M12 20v2"></path>
+      <path d="m4.93 4.93 1.41 1.41"></path>
+      <path d="m17.66 17.66 1.41 1.41"></path>
+      <path d="M2 12h2"></path>
+      <path d="M20 12h2"></path>
+      <path d="m6.34 17.66-1.41 1.41"></path>
+      <path d="m19.07 4.93-1.41 1.41"></path>
+    </svg>
+  </button>
 </header>
 
 <script>
@@ -92,7 +110,7 @@ for (const item of nav) {
 
     const render = () => {
       const next = other();
-      button.textContent = next === 'dark' ? 'Dark' : 'Light';
+      button.dataset.next = next; // the stylesheet shows the moon or the sun from this
       button.setAttribute('aria-label', `Switch to ${next} theme`);
     };
 
@@ -166,18 +184,27 @@ for (const item of nav) {
   }
 
   .theme-toggle {
-    padding: 0.2rem 0.7rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    padding: 0;
     border: 1px solid var(--rule);
     border-radius: 0.4rem;
     background: var(--card);
     color: var(--muted);
-    font: inherit;
-    font-size: 0.9rem;
     cursor: pointer;
   }
 
   .theme-toggle:hover {
     color: var(--fg);
+  }
+
+  /* Moon while the next theme is dark, sun while it is light. */
+  .theme-toggle[data-next='dark'] .icon-sun,
+  .theme-toggle[data-next='light'] .icon-moon {
+    display: none;
   }
 
   /* ---- Phone menu ---- */
