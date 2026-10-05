@@ -29,6 +29,31 @@ test.describe('navigation on a wide screen', () => {
   });
 });
 
+// The header (name, links or Menu button, theme button) must stay on one line at every width, on
+// every page. The current page's link is semibold and so a little wider, which once pushed the theme
+// button onto a second line, so each page is checked on its own. 704px is just inside the wide row,
+// and 703px is just inside the Menu button.
+test.describe('the header stays on one line', () => {
+  const widths = [1100, 900, 768, 704, 703, 600, 375];
+  // /resume/ is a redirect to the first version, so the page itself is listed instead.
+  const paths = [...nav.map((item) => item.href).filter((href) => href !== '/resume/'), '/resume/qa/', '/development/care-communication-board/'];
+
+  for (const width of widths) {
+    test(`on every page at ${width}px wide`, async ({ page }) => {
+      await page.setViewportSize({ width, height: 900 });
+      for (const path of paths) {
+        await page.goto(path);
+        await page.evaluate(() => document.fonts.ready);
+        // One line is about 52px tall (the line plus its padding). A wrapped row is about 90px.
+        const header = await page.locator('.site-header').boundingBox();
+        expect(header!.height, `${path} at ${width}px`).toBeLessThan(70);
+        const overflow = await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth);
+        expect(overflow, `${path} at ${width}px scrolls sideways`).toBe(false);
+      }
+    });
+  }
+});
+
 test.describe('navigation on a phone', () => {
   test.use({ viewport: { width: 375, height: 812 } });
 
