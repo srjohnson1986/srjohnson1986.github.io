@@ -1,4 +1,9 @@
 ---
+// Self-hosted font files (latin subset, three weights). Astro bundles them into the build, so the
+// site never asks Google Fonts or any other third party for a font.
+import '@fontsource/atkinson-hyperlegible-next/latin-400.css';
+import '@fontsource/atkinson-hyperlegible-next/latin-600.css';
+import '@fontsource/atkinson-hyperlegible-next/latin-700.css';
 import '../styles/global.css';
 import SiteHeader from '../components/SiteHeader.astro';
 import SiteFooter from '../components/SiteFooter.astro';
