@@ -29,6 +29,8 @@
   description: Show flyers and other art made in Procreate, with the story behind some of them.
   # Shown instead of the gallery when there are no pieces.
   empty: Artwork is on the way. Show flyers and other Procreate work will appear here.
+  # Shown when the filters match no pieces.
+  no_match: No pieces match these filters. Try removing one.
   # The line under the Art heading.
   lead: >-
     Show flyers and other work made in Procreate.

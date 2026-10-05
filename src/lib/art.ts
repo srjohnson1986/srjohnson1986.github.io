@@ -45,6 +45,28 @@ export async function getArtworks(): Promise<Artwork[]> {
   );
 }
 
+export interface ArtFacets {
+  years: number[];
+  formats: { format: keyof typeof FORMAT_LABELS; label: string }[];
+  tags: { tag: string; count: number }[];
+}
+
+/** What the Art filters offer, derived from the pieces so it can never go stale. */
+export function getFacets(pieces: Artwork[]): ArtFacets {
+  const tagCounts = new Map<string, number>();
+  for (const piece of pieces) for (const tag of piece.data.tags ?? []) tagCounts.set(tag, (tagCounts.get(tag) ?? 0) + 1);
+
+  return {
+    years: [...new Set(pieces.flatMap((p) => (p.data.year ? [p.data.year] : [])))].sort((a, b) => b - a),
+    // In the order of FORMAT_LABELS, leaving out shapes no piece uses.
+    formats: (Object.keys(FORMAT_LABELS) as (keyof typeof FORMAT_LABELS)[])
+      .filter((format) => pieces.some((p) => p.data.format === format))
+      .map((format) => ({ format, label: FORMAT_LABELS[format] })),
+    // Most used first, then alphabetical, like the other pages.
+    tags: [...tagCounts].map(([tag, count]) => ({ tag, count })).sort((a, b) => b.count - a.count || a.tag.localeCompare(b.tag)),
+  };
+}
+
 export interface ArtGroup {
   medium: Medium;
   label: string;

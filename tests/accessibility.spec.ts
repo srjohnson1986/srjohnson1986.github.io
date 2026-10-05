@@ -73,6 +73,14 @@ test.describe('axe scan, states that change the page', () => {
         await expectClean(page, `/development/ filtered (${scheme})`);
       });
 
+      test('Art with the filters open, sorted oldest first and narrowed by year', async ({ page }) => {
+        await page.goto('/art/');
+        await page.locator('[data-filter-panel] > summary').click();
+        await page.locator('select[name="sort"]').selectOption('oldest');
+        await page.locator('select[name="year"]').selectOption({ index: 1 });
+        await expectClean(page, `/art/ filtered and sorted (${scheme})`);
+      });
+
       test('Audio with a filter applied and the players in place', async ({ page }) => {
         await page.goto('/audio/');
         await page.locator('[data-filter-panel] > summary').click();

@@ -41,11 +41,28 @@ before it starts, or a year that differs from `year`. That keeps the page in dat
 
 ## Tags
 
-`tags` is an optional list of labels on a piece, kept in the data so a filter on the Art page can be
-built on them later. They are not shown on the site yet. Each tag is lowercase with single hyphens
-(`five-hundred-bucks`, not `Five Hundred Bucks`), and a piece cannot list the same tag twice; the
-build stops with a readable message otherwise. Reuse a tag exactly as spelled so pieces match.
+`tags` is an optional list of labels on a piece. They become the Tags choices in the Filters panel
+on the Art page, which appears as soon as one piece has a tag (a visitor who picks several tags sees
+only the pieces that have all of them). The tags are not printed on the cards. Each tag is lowercase
+with single hyphens (`five-hundred-bucks`, not `Five Hundred Bucks`), and a piece cannot list the
+same tag twice; the build stops with a readable message otherwise. Reuse a tag exactly as spelled so
+pieces match, since a misspelling makes a second choice in the panel.
 
 Useful kinds of tag, so the names stay consistent: the **bands** on the flyer (`seagulls`), the
 **venue** (`the-earl`), the **city** (`atlanta`), and the **technique** (`collage`,
 `hand-lettered`, `photo-parody`).
+
+## The Filters panel
+
+The Art page has the same collapsible Filters panel as Audio and Development. Everything in it is
+built from the pieces, so there is nothing to keep up to date by hand:
+
+- **Sort by** flips the page between newest first (the default) and oldest first.
+- **Year** lists the `year` of every piece, newest first.
+- **Format** lists the `format` values in use (11x17 poster, Square, Social media). A piece with no
+  `format` shows under "Any format" but not under a particular one.
+- **Tags** lists every tag in use, with how many pieces have it (see Tags above).
+
+The choices are kept in the web address (`/art/?year=2025&format=square&sort=oldest`), so a
+filtered view can be shared. Without JavaScript the panel is hidden and the whole gallery shows,
+newest first.
