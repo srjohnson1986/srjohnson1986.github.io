@@ -158,7 +158,11 @@ for (const item of nav) {
     position: relative;
     display: flex;
     flex-wrap: wrap;
-    align-items: baseline;
+    /* Center the name, the links, and the theme button on one line. (Baseline alignment is not
+       used: the links hold an invisible, zero-height bold copy of their label, and that moves the
+       baseline of the links to their bottom edge, which dropped the name and the button below
+       the link text.) */
+    align-items: center;
     justify-content: space-between;
     gap: 0.5rem 1rem;
     margin-bottom: 2rem;
@@ -401,10 +405,6 @@ for (const item of nav) {
   @media (max-width: 45.99rem) {
     .nav-wide {
       display: none;
-    }
-
-    .site-header {
-      align-items: center;
     }
   }
 </style>

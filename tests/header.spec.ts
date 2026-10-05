@@ -61,3 +61,45 @@ test.describe('the header stays on one line', () => {
     });
   }
 });
+
+// The name, the links (or Menu button), and the theme button must sit level with each other. The links
+// once reported their baseline at their bottom edge, which dropped the name and the button about
+// 8px below the link text. Their vertical centers must agree to within a few pixels. (The links
+// carry a 2px underline under their text, so the button is allowed to sit a little lower.)
+test.describe('the header parts sit level with each other', () => {
+  const centers = (page: import('@playwright/test').Page) =>
+    page.evaluate(() => {
+      const mid = (el: Element) => {
+        const range = document.createRange();
+        range.selectNodeContents(el);
+        const box = range.getBoundingClientRect();
+        return (box.top + box.bottom) / 2;
+      };
+      const box = (el: Element) => {
+        const r = el.getBoundingClientRect();
+        return (r.top + r.bottom) / 2;
+      };
+      const header = document.querySelector('.site-header')!;
+      const wide = header.querySelector('.nav-wide a');
+      const menu = header.querySelector('.nav-menu summary');
+      return {
+        brand: mid(header.querySelector('.brand')!),
+        links: mid((wide && wide.getClientRects().length > 0 ? wide : menu)!), // a hidden row has no boxes
+        toggle: box(header.querySelector('.theme-toggle')!),
+      };
+    });
+
+  for (const width of [1100, 768, 375]) {
+    test(`at ${width}px wide`, async ({ page }) => {
+      await page.setViewportSize({ width, height: 900 });
+      for (const path of ['/', '/contact/', '/development/']) {
+        await page.goto(path);
+        await page.evaluate(() => document.fonts.ready);
+        await expect(page.locator('.theme-toggle')).toBeVisible();
+        const { brand, links, toggle } = await centers(page);
+        expect(Math.abs(brand - links), `${path} name vs links at ${width}px`).toBeLessThan(3);
+        expect(Math.abs(toggle - links), `${path} theme button vs links at ${width}px`).toBeLessThan(4);
+      }
+    });
+  }
+});
