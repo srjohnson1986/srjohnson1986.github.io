@@ -17,6 +17,7 @@ Read `PROJECT_BRIEF.md` (kept in `private/`) for goals, pages, and privacy rules
 ## Commands
 
 - `npm install` - install dependencies
+- `npm run astro -- sync` - generate the collection schemas in `.astro/collections/` that VS Code uses to autocomplete and check the YAML files (see `.vscode/settings.json`); run once on a fresh clone, since `.astro/` is not committed. `dev` and `build` also regenerate them
 - `npm run dev` - local dev server (use `astro dev --background` when started by Claude; manage with `astro dev stop|status|logs`)
 - `npm run build` - build to `dist/`
 - `npm run preview` - serve the built site locally
