@@ -32,7 +32,7 @@ for (const item of nav) {
       {
         nav.map((item) => (
           <li>
-            <a href={item.href} aria-current={isCurrent(item.href) ? 'page' : undefined}>
+            <a href={item.href} data-label={item.label} aria-current={isCurrent(item.href) ? 'page' : undefined}>
               {item.label}
             </a>
           </li>
@@ -203,6 +203,19 @@ for (const item of nav) {
     border-bottom-color: var(--accent);
   }
 
+  /* The current link is semibold, which is wider than regular. Without help, the whole row changes
+     width from page to page and the links shift. Each wide-row link therefore carries an invisible,
+     zero-height copy of its own label in semibold (from data-label), which holds the semibold
+     width at all times. Screen readers skip it because it is generated content with no height. */
+  .nav-wide a::after {
+    content: attr(data-label);
+    display: block;
+    height: 0;
+    overflow: hidden;
+    visibility: hidden;
+    font-weight: 600;
+  }
+
   /* The theme button is a small scene. Light: an orange sun in a soft blue sky. Dark: a pale moon
      among stars. The sun slides across and becomes the moon while the sky fades. The orange is a
      deep one on purpose: a brighter orange on a pastel blue falls below 3:1 contrast, and the sun
@@ -370,11 +383,11 @@ for (const item of nav) {
   /* Wide screens use the single row, phones use the menu. The hidden one is removed from the
      page entirely, so screen readers only meet one navigation.
 
-     The row (name, seven links, theme button) needs about 660px, and the page column is 704px, so
-     the switch is at 44rem (704px) and the row is not allowed to wrap. The current page's link is
-     semibold, which makes it a little wider, so there is some room to spare. If a link is added or
-     the font changes, the header test in tests/navigation.spec.ts shows where it stops fitting. */
-  @media (min-width: 44rem) {
+     The row (name, seven links, theme button) needs about 680px, plus 32px of side padding and about
+     15px for a scrollbar, so it fits from roughly 727px up. The switch is at 46rem (736px) to leave
+     a little room, and the row is not allowed to wrap. If a link is added or the font changes, the
+     header tests in tests/header.spec.ts show where it stops fitting. */
+  @media (min-width: 46rem) {
     .nav-menu {
       display: none;
     }
@@ -385,7 +398,7 @@ for (const item of nav) {
     }
   }
 
-  @media (max-width: 43.99rem) {
+  @media (max-width: 45.99rem) {
     .nav-wide {
       display: none;
     }
