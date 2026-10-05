@@ -85,6 +85,19 @@ test.describe('Art page', () => {
     expect(titles.indexOf('Friends with Jennafits')).toBeGreaterThan(titles.indexOf("A collage from my summer of '25"));
   });
 
+  test('the Grog Shop flyer is the newest piece, with its two social versions under Read more', async ({ page }) => {
+    await page.goto('/art/');
+    const first = page.locator('.piece').first();
+    await expect(first.locator(':scope > figcaption strong')).toHaveText('Grog Shop, August 29');
+    await expect(first.locator(':scope > figcaption .meta')).toContainText('2026.08.29');
+    await expect(first.locator('summary')).toHaveText('Read more and 2 more images');
+    await expect(first.locator('.more img')).toHaveCount(2); // in the page already, hidden until opened
+    await expect(first.locator('.more')).toBeHidden();
+    await first.locator('summary').click();
+    await expect(first.locator('.more')).toBeVisible();
+    await expect(first.locator('.more img')).toHaveCount(2);
+  });
+
   test('the gallery runs newest first by date, from the first piece to the last', async ({ page }) => {
     await page.goto('/art/');
     const titles = await page.locator('.piece > figcaption > strong').allTextContents();
@@ -251,7 +264,8 @@ test.describe('Larger view of an image', () => {
 
   test('opens from the keyboard, and shows the right picture for each image', async ({ page }) => {
     await page.goto('/art/');
-    const second = page.locator('a[data-lightbox]').nth(1);
+    // The second piece's image (an extra image inside a closed Read more is not reachable yet).
+    const second = page.locator('.piece > a[data-lightbox]').nth(1);
     await second.focus();
     await page.keyboard.press('Enter');
     const dialog = page.locator('dialog.lightbox');
