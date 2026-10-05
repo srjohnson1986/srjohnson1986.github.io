@@ -98,29 +98,33 @@ test.describe('Art page', () => {
     await expect(first.locator('.more img')).toHaveCount(2);
   });
 
-  test('the gallery runs newest first by date', async ({ page }) => {
+  test('the gallery runs newest first by date, from the first piece to the last', async ({ page }) => {
     await page.goto('/art/');
     const titles = await page.locator('.piece > figcaption > strong').allTextContents();
     const shown = titles.map((title) => artworks.find((a) => a.title === title)!);
     expect(shown.every(Boolean), 'every title on the page is in the data').toBe(true);
 
-    // Years never go up as you scroll down (a piece with no year comes last).
-    const years = shown.map((a) => a.year ?? 0);
-    expect(years, 'years').toEqual([...years].sort((a, b) => b - a));
+    // Year, month, and day from the date text (2026.02.13, 2025.10, or the start of 2024.08.02-04).
+    // A part the data does not give counts as 0, so a piece with only a year follows the dated pieces
+    // of that year, and a piece with no year comes last.
+    const when = (a: (typeof artworks)[number]) => {
+      const [, , m, d] = a.date?.match(/^(\d{4})(?:\.(\d{2}))?(?:\.(\d{2}))?/) ?? [];
+      return (a.year ?? 0) * 10000 + Number(m ?? 0) * 100 + Number(d ?? 0);
+    };
+    expect(shown.filter((a) => /^\d{4}\.\d{2}\.\d{2}/.test(a.date ?? '')).length, 'pieces with a full date').toBeGreaterThan(5);
+    for (let i = 1; i < shown.length; i++) {
+      const [before, after] = [shown[i - 1], shown[i]];
+      expect(
+        when(before),
+        `"${after.title}" (${after.date ?? after.year ?? 'no date'}) comes after "${before.title}" (${before.date ?? before.year ?? 'no date'}) but is newer`,
+      ).toBeGreaterThanOrEqual(when(after));
+    }
+  });
 
-    // Pieces with a full date (2026.02.13, or the start of a range) are newest first, even when
-    // undated pieces sit between them.
-    const full = shown.flatMap((a) => (a.date && /^\d{4}\.\d{2}\.\d{2}/.test(a.date) ? [a.date.slice(0, 10)] : []));
-    expect(full.length).toBeGreaterThan(5);
-    expect(full, 'dates').toEqual([...full].sort().reverse());
-
-    // A piece with only a year, or a date that is not numeric, comes after the dated pieces of its year.
-    for (const year of new Set(years)) {
-      const group = shown.filter((a) => (a.year ?? 0) === year);
-      const firstUndated = group.findIndex((a) => !a.date || !/^\d{4}\.\d{2}/.test(a.date));
-      if (firstUndated === -1) continue;
-      const datedAfter = group.slice(firstUndated).filter((a) => a.date && /^\d{4}\.\d{2}/.test(a.date));
-      expect(datedAfter.map((a) => a.title), `${year}: dated pieces after an undated one`).toEqual([]);
+  test('every date is in the same year as the piece, so the order can be trusted', () => {
+    for (const art of artworks.filter((a) => a.date)) {
+      expect(art.date, art.title).toMatch(/^\d{4}(\.\d{2}(\.\d{2}(-\d{2})?)?)?$/);
+      expect(Number(art.date!.slice(0, 4)), `${art.title}: date and year`).toBe(art.year);
     }
   });
 
