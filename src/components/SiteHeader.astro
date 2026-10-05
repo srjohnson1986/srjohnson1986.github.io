@@ -77,23 +77,42 @@ for (const item of nav) {
 
   <!-- Needs JavaScript, so it stays hidden until the script below shows it. Without JavaScript the
        page follows the visitor's system theme. -->
-  <!-- The icon shows the theme a click switches to: a moon while the page is light, a sun while it is
-       dark. The label gives the same information to screen readers. Icons are from Lucide
-       (https://lucide.dev, ISC license), pasted inline so no icon library is loaded. -->
+  <!-- A small picture of the theme that is on now: a sun in a blue sky for light, a moon among stars
+       for dark. The aria-label names the theme a click switches to, and the picture is hidden from
+       screen readers. The shapes are drawn here (no icon library), and the stylesheet below moves
+       the sun, grows the moon from it, and fades the sky. -->
   <button class="theme-toggle" type="button" hidden>
-    <svg class="icon-moon" aria-hidden="true" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path>
-    </svg>
-    <svg class="icon-sun" aria-hidden="true" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <circle cx="12" cy="12" r="4"></circle>
-      <path d="M12 2v2"></path>
-      <path d="M12 20v2"></path>
-      <path d="m4.93 4.93 1.41 1.41"></path>
-      <path d="m17.66 17.66 1.41 1.41"></path>
-      <path d="M2 12h2"></path>
-      <path d="M20 12h2"></path>
-      <path d="m6.34 17.66-1.41 1.41"></path>
-      <path d="m19.07 4.93-1.41 1.41"></path>
+    <svg class="scene" aria-hidden="true" focusable="false" viewBox="0 0 58 30" preserveAspectRatio="xMidYMid slice">
+      <defs>
+        <!-- The moon is the sun's disc with a second disc cut out of it. -->
+        <mask id="theme-moon-cut" maskUnits="userSpaceOnUse" x="-14" y="-14" width="28" height="28">
+          <rect x="-14" y="-14" width="28" height="28" fill="#fff"></rect>
+          <circle class="cut" cx="2.6" cy="-1.9" r="6" fill="#000"></circle>
+        </mask>
+      </defs>
+      <rect class="sky" width="58" height="30"></rect>
+      <g class="stars">
+        <circle cx="8" cy="8" r="1"></circle>
+        <circle cx="15" cy="22" r="0.8"></circle>
+        <circle cx="21" cy="9" r="0.7"></circle>
+        <circle cx="12" cy="15" r="0.6"></circle>
+        <circle cx="25" cy="19" r="0.9"></circle>
+      </g>
+      <g transform="translate(15 15)">
+        <g class="knob">
+          <g class="rays">
+            <path d="M0 -9.5V-12"></path>
+            <path d="M0 -9.5V-12" transform="rotate(45)"></path>
+            <path d="M0 -9.5V-12" transform="rotate(90)"></path>
+            <path d="M0 -9.5V-12" transform="rotate(135)"></path>
+            <path d="M0 -9.5V-12" transform="rotate(180)"></path>
+            <path d="M0 -9.5V-12" transform="rotate(225)"></path>
+            <path d="M0 -9.5V-12" transform="rotate(270)"></path>
+            <path d="M0 -9.5V-12" transform="rotate(315)"></path>
+          </g>
+          <circle class="core" r="6.5" mask="url(#theme-moon-cut)"></circle>
+        </g>
+      </g>
     </svg>
   </button>
 </header>
@@ -109,13 +128,14 @@ for (const item of nav) {
     const other = () => (current() === 'dark' ? 'light' : 'dark');
 
     const render = () => {
-      const next = other();
-      button.dataset.next = next; // the stylesheet shows the moon or the sun from this
-      button.setAttribute('aria-label', `Switch to ${next} theme`);
+      // The picture follows the theme that is on now. The label names the one a click switches to.
+      button.dataset.mode = current();
+      button.setAttribute('aria-label', `Switch to ${other()} theme`);
     };
 
-    button.hidden = false;
+    // Set the picture while the button is still hidden, so it does not animate in on page load.
     render();
+    button.hidden = false;
 
     button.addEventListener('click', () => {
       const next = other();
@@ -128,7 +148,7 @@ for (const item of nav) {
       render();
     });
 
-    // While no choice has been made, the label follows a change in the system setting.
+    // While no choice has been made, the button follows a change in the system setting.
     system.addEventListener('change', render);
   }
 </script>
@@ -183,28 +203,110 @@ for (const item of nav) {
     border-bottom-color: var(--accent);
   }
 
+  /* The theme button is a small scene. Light: an orange sun in a soft blue sky. Dark: a pale moon
+     among stars. The sun slides across and becomes the moon while the sky fades. The orange is a
+     deep one on purpose: a brighter orange on a pastel blue falls below 3:1 contrast, and the sun
+     and moon need to stay easy to tell apart. */
   .theme-toggle {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 2.25rem;
-    height: 2.25rem;
+    --sky: #cfe6ff;
+    --body: #d9480f;
+    --edge: #9dc3ee;
+    box-sizing: border-box;
+    align-self: center;
+    width: 3.75rem;
+    height: 2rem;
     padding: 0;
-    border: 1px solid var(--rule);
-    border-radius: 0.4rem;
-    background: var(--card);
-    color: var(--muted);
+    overflow: hidden;
+    border: 1px solid var(--edge);
+    border-radius: 999px;
+    background: var(--sky);
     cursor: pointer;
+    transition:
+      border-color 0.4s,
+      background-color 0.4s;
+  }
+
+  .theme-toggle[data-mode='dark'] {
+    --sky: #2b3040;
+    --body: #e8e2c4;
+    --edge: #4a5070;
   }
 
   .theme-toggle:hover {
-    color: var(--fg);
+    border-color: var(--body);
   }
 
-  /* Moon while the next theme is dark, sun while it is light. */
-  .theme-toggle[data-next='dark'] .icon-sun,
-  .theme-toggle[data-next='light'] .icon-moon {
-    display: none;
+  .theme-toggle:focus-visible {
+    outline-offset: 2px;
+  }
+
+  .scene {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .sky {
+    fill: var(--sky);
+    transition: fill 0.4s;
+  }
+
+  .stars {
+    fill: #f4f1de;
+    opacity: 0;
+    transition: opacity 0.25s;
+  }
+
+  .knob {
+    transition: transform 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .rays {
+    fill: none;
+    stroke: var(--body);
+    stroke-width: 1.6;
+    stroke-linecap: round;
+    transition:
+      transform 0.45s cubic-bezier(0.4, 0, 0.2, 1),
+      opacity 0.3s,
+      stroke 0.4s;
+  }
+
+  .core {
+    fill: var(--body);
+    transition: fill 0.4s;
+  }
+
+  /* The cut-out disc waits off to the side in light, and slides over the sun in dark. */
+  .cut {
+    transform: translate(16px, -16px);
+    transition: transform 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .theme-toggle[data-mode='dark'] .knob {
+    transform: translateX(28px);
+  }
+
+  .theme-toggle[data-mode='dark'] .rays {
+    opacity: 0;
+    transform: rotate(45deg) scale(0.4);
+  }
+
+  .theme-toggle[data-mode='dark'] .cut {
+    transform: none;
+  }
+
+  .theme-toggle[data-mode='dark'] .stars {
+    opacity: 1;
+    transition-delay: 0.2s;
+  }
+
+  /* With reduced motion the scene changes at once. */
+  @media (prefers-reduced-motion: reduce) {
+    .theme-toggle,
+    .theme-toggle * {
+      transition: none;
+    }
   }
 
   /* ---- Phone menu ---- */
