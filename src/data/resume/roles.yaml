@@ -74,3 +74,11 @@
   kind: internship
   start: 2011
   end: 2011
+
+- id: geek-squad
+  title: Store Agent
+  org: Geek Squad
+  kind: job
+  start: 2009
+  end: 2011
+  note: Part-time

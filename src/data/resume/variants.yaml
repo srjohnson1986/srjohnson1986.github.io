@@ -14,13 +14,19 @@
     - qa-consulting-shared
   bullets:
     - vz-led-qa-across-project
+    - vz-managed-test-cases-zephyr-qtest
+    - vz-wrote-test-plans-defined-scope
+    - vz-defined-defect-assignment-escalation-paths
     - vz-owned-end-to-end-testing-site
     - vz-served-launch-war-rooms
+    - vz-ran-man-in-the-middle-cross-site
     - vz-monitored-application-error-logs
     - vz-investigated-defects-through-kibana
+    - vz-inspected-network-logs-session-data
     - vz-enforced-requirements-traceability-linking
     - vz-built-credit-check-test-coverage
     - vz-applied-risk-based-boundary-testing
+    - vz-executed-automated-test-cases-selenium
     - cb-engineered-407-test-suite-runs
     - cb-implemented-ci-coverage-gate
     - cb-wrote-automated-smoke-test
@@ -28,6 +34,8 @@
     - tpd-added-github-actions-workflow
     - tpd-split-business-logic-out
     - ps-automated-accessibility-scanning
+    - gs-diagnosed-desktop-laptop-problems-running
+    - gs-replaced-upgraded-components-customers-computers
 
 - id: consulting
   order: 2
@@ -41,8 +49,11 @@
     - tpd-developed-dual-baseline-smartsheet-schedule
     - tpd-coordinated-cross-functional-delivery-capital
     - tpd-delivered-versioned-releases-driven
+    - tpd-drafted-add-in-initial-design
     - tpd-wrote-user-guide-wiki
     - vz-owned-governance-jira-instance
+    - vz-managed-test-cases-zephyr-qtest
+    - vz-synced-test-cases-across-teams
     - vz-consolidated-jira-labels-thousands
     - vz-created-confluence-guides-recorded
     - vz-published-user-guides-tens-thousands-views
@@ -50,7 +61,10 @@
     - cb-directed-claude-code-through
     - nu-replaced-paper-based-personnel-change-of-status
     - nu-trained-hr-users-developers
+    - nu-developed-vb-net-forms-sharepoint-web-parts
     - ps-established-issue-first-workflow
+    - gs-diagnosed-desktop-laptop-problems-running
+    - gs-replaced-upgraded-components-customers-computers
 
 - id: creative
   order: 3
@@ -59,8 +73,10 @@
   org_labels: real
   bullets:
     - kh-produced-engineered-dozens-recordings
+    - kh-programmed-humanized-midi-parts
     - kh-performed-several-releases-addition
     - kh-designed-studio-signal-routing
+    - kh-produced-engineered-studio-projects-studio-one
     - kh-diagnosed-signal-problems-tracing
     - kh-learned-configured-unfamiliar-effects
     - jp-organized-annual-charity-music
@@ -70,6 +86,8 @@
     - tpd-built-maintained-open-source-vba
     - cb-combined-ai-coding-agent
     - cb-delivered-v1-two-platforms
+    - gs-diagnosed-desktop-laptop-problems-running
+    - gs-replaced-upgraded-components-customers-computers
 
 - id: adoption
   order: 4
@@ -92,3 +110,5 @@
     - cb-tailored-features-real-care
     - cb-gathered-requirements-caregivers-prioritized
     - jp-provided-on-the-spot-technical-support
+    - gs-diagnosed-desktop-laptop-problems-running
+    - gs-replaced-upgraded-components-customers-computers

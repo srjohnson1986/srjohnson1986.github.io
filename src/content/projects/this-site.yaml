@@ -18,6 +18,8 @@ stack:
   - GitHub Pages
   - GitHub Actions
   - Playwright
+  - HTML
+  - CSS
   - Claude Code
 
 problem: >-
@@ -46,6 +48,10 @@ built:
   - >-
     A test suite that reads the same YAML files the site is built from, so a test states what
     a page should contain without a second hand-copied list.
+  - >-
+    Pages written in plain HTML and CSS: Astro components with two hand-written stylesheets
+    (screen and print) and no CSS framework, including light and dark themes that follow the
+    system setting.
   - Built with Claude Code under those guardrails.
 
 outcome:
