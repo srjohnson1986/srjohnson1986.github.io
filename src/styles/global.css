@@ -60,6 +60,9 @@
 
 html {
   -webkit-text-size-adjust: 100%;
+  /* Always leave room for the scrollbar. Without this, pages long enough to scroll are a few pixels
+     narrower than short ones, and everything jumps sideways when you change pages. */
+  scrollbar-gutter: stable;
 }
 
 h1,
