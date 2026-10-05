@@ -10,7 +10,35 @@ const ART = '/art/';
 const FORMAT_LABELS = { 'poster-11x17': '11x17 poster', square: 'Square', social: 'Social media' } as const;
 const years = [...new Set(artworks.flatMap((a) => (a.year ? [a.year] : [])))].sort((a, b) => b - a).map(String);
 const formats = Object.keys(FORMAT_LABELS).filter((f) => artworks.some((a) => a.format === f));
-const tags = [...new Set(artworks.flatMap((a) => a.tags ?? []))];
+// The data keeps bands, venues, and other tags in three lists; the page shows them as one group.
+type Piece = (typeof artworks)[number];
+const labelsOf = (a: Piece) => [...(a.bands ?? []), ...(a.venues ?? []), ...(a.tags ?? [])];
+// Most used first, then alphabetical, within each list; bands, then venues, then tags.
+const inUse = (pick: (a: Piece) => string[] | undefined) => {
+  const counts = new Map<string, number>();
+  for (const a of artworks) for (const label of pick(a) ?? []) counts.set(label, (counts.get(label) ?? 0) + 1);
+  return [...counts].sort((x, y) => y[1] - x[1] || x[0].localeCompare(y[0]));
+};
+const offered = [...inUse((a) => a.bands), ...inUse((a) => a.venues), ...inUse((a) => a.tags)];
+const tags = offered.map(([tag]) => tag);
+// How the pills should read. Anything not listed here reads with its hyphens as spaces, which is
+// the cue to add a proper label to src/lib/projects.ts.
+const PROPER: Record<string, string> = {
+  '529': '529',
+  boggs: 'Boggs',
+  breaux: 'Breaux',
+  'desk-rabbitz': 'Desk Rabbitz',
+  'five-hundred-bucks': 'Five Hundred Bucks',
+  'grog-shop': 'Grog Shop',
+  ortliebs: "Ortlieb's",
+  'rough-dreams': 'Rough Dreams',
+  seagulls: 'Seagulls',
+  shehehe: 'Shehehe',
+  'signals-midwest': 'Signals Midwest',
+  'star-bar': 'Star Bar',
+  'the-earl': 'The Earl',
+};
+const properLabel = (tag: string) => PROPER[tag] ?? tag.replace(/-/g, ' ');
 
 const openFilters = (page: Page) => page.locator('[data-filter-panel] > summary').click();
 const shownTitles = (page: Page) => page.locator('[data-item]:not([hidden]) .piece > figcaption > strong').allTextContents();
@@ -152,7 +180,7 @@ test.describe('Art filters', () => {
     await expect(status(page)).toHaveText(`Showing 0 of ${total} pieces`);
   });
 
-  test('the Tags group appears only once a piece has a tag, and a piece must have every tag picked', async ({ page }) => {
+  test('bands, venues, and tags show together as one Tags group with proper labels', async ({ page }) => {
     await page.goto(ART);
     await openFilters(page);
     const group = page.locator('fieldset', { has: page.locator('input[name="tag"]') });
@@ -160,17 +188,47 @@ test.describe('Art filters', () => {
       await expect(group).toHaveCount(0); // no empty box while nothing is tagged
       return;
     }
+    await expect(group).toHaveCount(1); // one group, not one per list
+    await expect(group.locator('legend')).toHaveText('Tags');
     await expect(group.locator('input[name="tag"]')).toHaveCount(tags.length);
+    // Bands first, then venues, then other tags, each most used first, each with its count.
+    await expect(group.locator('label.tag-option span')).toHaveText(offered.map(([tag, count]) => `${properLabel(tag)} (${count})`));
+    const values = await group.locator('input[name="tag"]').evaluateAll((els) => els.map((el) => (el as HTMLInputElement).value));
+    expect(values).toEqual(tags);
+  });
 
+  test('a piece shows when it has any of the picked names, whichever list they are in', async ({ page }) => {
+    test.skip(tags.length < 2, 'needs two tags');
     const newest = await defaultOrder(page);
     await openFilters(page);
     const pick = (tag: string) => page.locator('label.tag-option', { has: page.locator(`input[name="tag"][value="${tag}"]`) }).click();
+    const has = (a: Piece, wanted: string[]) => wanted.some((t) => labelsOf(a).includes(t));
+
+    // One name: everything that has it.
     await pick(tags[0]);
-    expect(await shownTitles(page)).toEqual(inPageOrder(newest, (a) => (a.tags ?? []).includes(tags[0])));
-    if (tags.length > 1) {
-      await pick(tags[1]);
-      expect(await shownTitles(page)).toEqual(inPageOrder(newest, (a) => (a.tags ?? []).includes(tags[0]) && (a.tags ?? []).includes(tags[1])));
-    }
+    expect(await shownTitles(page)).toEqual(inPageOrder(newest, (a) => has(a, [tags[0]])));
+
+    // A second name widens the result instead of narrowing it.
+    await pick(tags[1]);
+    const both = inPageOrder(newest, (a) => has(a, [tags[0], tags[1]]));
+    expect(await shownTitles(page)).toEqual(both);
+    expect(both.length).toBeGreaterThanOrEqual(inPageOrder(newest, (a) => has(a, [tags[0]])).length);
+
+    // A band and a venue together, which come from different lists in the files.
+    await page.getByRole('button', { name: 'Clear filters' }).click();
+    const band = artworks.flatMap((a) => a.bands ?? [])[0];
+    const venue = artworks.flatMap((a) => a.venues ?? [])[0];
+    test.skip(!band || !venue, 'needs a band and a venue');
+    await pick(band);
+    await pick(venue);
+    expect(await shownTitles(page)).toEqual(inPageOrder(newest, (a) => has(a, [band, venue])));
+    await expect(status(page)).toHaveText(`Showing ${inPageOrder(newest, (a) => has(a, [band, venue])).length} of ${total} pieces`);
+
+    // And it can be shared as a link.
+    const search = new URL(page.url()).searchParams;
+    expect(search.getAll('tag')).toEqual([band, venue]);
+    await page.goto(`${ART}?tag=${encodeURIComponent(band)}&tag=${encodeURIComponent(venue)}`);
+    expect(await shownTitles(page)).toEqual(inPageOrder(newest, (a) => has(a, [band, venue])));
   });
 
   for (const width of [375, 700, 1100, 1600]) {

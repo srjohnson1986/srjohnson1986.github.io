@@ -126,6 +126,8 @@ export interface Artwork {
   year?: number;
   date?: string;
   format?: string;
+  bands?: string[];
+  venues?: string[];
   story?: string[];
   caption?: string;
   tags?: string[];
@@ -135,7 +137,14 @@ export interface Artwork {
 
 export const projects = loadDir<Project>('src/content/projects');
 export const releases = loadDir<Release>('src/content/releases');
-export const artworks = loadDir<Artwork>('src/content/art');
+// A name like 529 can be written without quotes in YAML and is read as a number; the site treats it as text.
+const asText = (list?: unknown[]) => list?.map(String);
+export const artworks = loadDir<Artwork>('src/content/art').map((a) => ({
+  ...a,
+  bands: asText(a.bands),
+  venues: asText(a.venues),
+  tags: asText(a.tags),
+}));
 
 /** The skills a given resume version should show, group by group, in display order. */
 export function expectedSkills(variantId: string): { group: string; items: string[] }[] {
