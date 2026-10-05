@@ -227,6 +227,22 @@ const artworks = defineCollection({
         .array(z.strictObject({ image: image(), alt, caption: copy.optional() }))
         .min(1)
         .optional(),
+    }).superRefine((piece, ctx) => {
+      // The Art page is sorted by the numbers at the start of `date`, so a date the sort cannot read,
+      // or one in a different year than `year`, would quietly put the piece in the wrong place.
+      if (piece.date === undefined) return;
+      const bad = (message: string) => ctx.addIssue({ code: 'custom', message, path: ['date'] });
+      const m = piece.date.match(/^(\d{4})(?:\.(\d{2})(?:\.(\d{2})(?:-(\d{2}))?)?)?$/);
+      if (!m) return bad(`Write the date as 2026, 2026.02, 2026.02.13, or a range like 2026.02.13-15, not "${piece.date}"`);
+      const [, y, month, day, last] = m;
+      if (piece.year === undefined) return bad('A piece with a date also needs a year');
+      if (Number(y) !== piece.year) return bad(`The date is in ${y} but the year is ${piece.year}`);
+      if (month !== undefined && (Number(month) < 1 || Number(month) > 12)) return bad(`${month} is not a month`);
+      const daysInMonth = month === undefined ? 0 : new Date(Number(y), Number(month), 0).getDate();
+      if (day !== undefined && (Number(day) < 1 || Number(day) > daysInMonth)) return bad(`${y}.${month} has no day ${day}`);
+      if (last !== undefined && (Number(last) <= Number(day) || Number(last) > daysInMonth)) {
+        return bad(`The end of the range (${last}) must come after the start (${day}) and fall in the same month`);
+      }
     });
   },
 });
