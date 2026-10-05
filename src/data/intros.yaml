@@ -21,17 +21,17 @@
       turning slow manual processes into automation that people actually use.
     - >-
       I'm also a music and art person. I run a home recording studio, help organize a charity
-      music festival, and make show flyers in Procreate. It all comes down to caring how the
-      finished thing feels to the person on the other end.
+      music festival, and make fliers. It all comes down to caring how the
+      finished product feels to the person on the other end.
 
 - id: art
   title: "Art | {name}"
-  description: Show flyers and other art made in Procreate, with the story behind each piece.
+  description: Show flyers and other art made in Procreate, with the story behind some of them.
   # Shown instead of the gallery when there are no pieces.
   empty: Artwork is on the way. Show flyers and other Procreate work will appear here.
   # The line under the Art heading.
   lead: >-
-    Show flyers and other work made in Procreate. Open a piece to read more about it.
+    Show flyers and other work made in Procreate.
   # The owner's note on how he makes flyers, shown under the lead.
   paragraphs:
     - >-
@@ -52,7 +52,7 @@
 - id: audio
   title: "Audio | {name}"
   description: >-
-    Recordings made at Kingdom Hell, my home studio: production and engineering for other artists,
+    Recordings mostly made at Kingdom Hell, my home studio: production and engineering for other artists,
     with a player for each release.
   # The line pointing down to the studio rates.
   studio_link: Looking to record? [Rates and how to prepare](#studio) are at the bottom of the page.
@@ -62,9 +62,7 @@
   no_match: No releases match these filters. Try removing one.
   # The line under the Audio heading.
   lead: >-
-    Recordings made at Kingdom Hell, my home studio, mostly production and engineering for other
-    artists. The roles shown are the ones credited to me on each release's Bandcamp page, where the
-    full credits are.
+    Recordings mostly made at Kingdom Hell, my home studio.
 
 - id: contact
   title: "Contact | {name}"
@@ -83,7 +81,8 @@
   # The 404 page, shown for an address the site does not have.
   heading: Page not found
   lead: >-
-    That address is not part of this site. It may have been mistyped, or the page may have moved.
+    That address is not part of this site. It may have been mistyped, or the page may have moved. If you were 
+    checking if a 404 page was included in testing, it was!
   # The button that goes to the home page.
   button: Go to the home page
   # The heading above the list of main sections.

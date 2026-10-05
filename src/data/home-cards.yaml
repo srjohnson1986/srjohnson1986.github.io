@@ -5,17 +5,17 @@
 - id: development
   order: 1
   title: Technology and QA
-  blurb: Apps, tools, and sites I have built, with the code and live demos.
+  blurb: Apps, tools, and sites I have built with code, explanations, and live demos.
   href: /development/
 
 - id: audio
   order: 2
   title: Audio
-  blurb: "Kingdom Hell, my home studio: production and engineering for other artists."
+  blurb: "Kingdom Hell, my home studio: audio production, engineering, mixing, and mastering."
   href: /audio/
 
 - id: art
   order: 3
   title: Art
-  blurb: Show flyers and other work made in Procreate.
+  blurb: Mostly show fliers made in Procreate.
   href: /art/

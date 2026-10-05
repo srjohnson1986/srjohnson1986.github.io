@@ -4,21 +4,20 @@
 - id: jabroni
   name: Jabroni Productions
   summary: >-
-    Jabroni Productions puts on an annual charity music festival and about 10 smaller shows a
+    Jabroni Productions puts on an annual charity music festival, called Jabroni Fest, and several smaller shows a
     year, run by three volunteers.
   role: >-
-    I am one of the three volunteer organizers. I own booking, band scheduling, sound and
-    gear, and promotion.
+    I am one of the three volunteer organizers. I own booking, band scheduling, backlining, and promotion.
   facts:
     - value: 11 years
       label: running the festival
-    - value: About 20
+    - value: More than 20
       label: bands at the festival
-    - value: Up to 400
-      label: people in the audience
+    - value: Around 400
+      label: people in attendance
     - value: About $2,000
-      label: raised each year for Y'all Rock Camps
-    - value: About 10
+      label: raised each year for Y'all Rock Camp ATL
+    - value: Up to 20
       label: smaller shows a year
   howItRuns:
     - >-
@@ -35,7 +34,7 @@
       troubleshooting setups between sets.
     - >-
       The booking, scheduling, and promotion processes have been refined over more than a
-      decade of festivals.
+      decade of the festival.
   cause:
-    name: Y'all Rock Camps
+    name: Y'all Rock Camp ATL
     description: an inclusive music camp program
