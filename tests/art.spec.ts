@@ -85,6 +85,32 @@ test.describe('Art page', () => {
     expect(titles.indexOf('Friends with Jennafits')).toBeGreaterThan(titles.indexOf("A collage from my summer of '25"));
   });
 
+  test('the gallery runs newest first by date', async ({ page }) => {
+    await page.goto('/art/');
+    const titles = await page.locator('.piece > figcaption > strong').allTextContents();
+    const shown = titles.map((title) => artworks.find((a) => a.title === title)!);
+    expect(shown.every(Boolean), 'every title on the page is in the data').toBe(true);
+
+    // Years never go up as you scroll down (a piece with no year comes last).
+    const years = shown.map((a) => a.year ?? 0);
+    expect(years, 'years').toEqual([...years].sort((a, b) => b - a));
+
+    // Pieces with a full date (2026.02.13, or the start of a range) are newest first, even when
+    // undated pieces sit between them.
+    const full = shown.flatMap((a) => (a.date && /^\d{4}\.\d{2}\.\d{2}/.test(a.date) ? [a.date.slice(0, 10)] : []));
+    expect(full.length).toBeGreaterThan(5);
+    expect(full, 'dates').toEqual([...full].sort().reverse());
+
+    // A piece with only a year, or a date that is not numeric, comes after the dated pieces of its year.
+    for (const year of new Set(years)) {
+      const group = shown.filter((a) => (a.year ?? 0) === year);
+      const firstUndated = group.findIndex((a) => !a.date || !/^\d{4}\.\d{2}/.test(a.date));
+      if (firstUndated === -1) continue;
+      const datedAfter = group.slice(firstUndated).filter((a) => a.date && /^\d{4}\.\d{2}/.test(a.date));
+      expect(datedAfter.map((a) => a.title), `${year}: dated pieces after an undated one`).toEqual([]);
+    }
+  });
+
   test('under an image there is only the title, date, and format; every caption is under Read more', async ({ page }) => {
     await page.goto('/art/');
     await expect(page.locator('.piece > figcaption .caption')).toHaveCount(0);

@@ -11,7 +11,7 @@ example `spring-showcase`:
 title: Spring Showcase
 year: 2026                  # optional: leave out when the year is not known
 date: 2026.04.11            # optional: text shown instead of the year
-order: 5                    # optional: position among pieces of the same year (lower first)
+order: 5                    # optional: breaks a tie between pieces with the same date (lower first)
 medium: show-flyer          # show-flyer, illustration, or other
 format: poster-11x17        # optional: poster-11x17, square, or social
 image: ../../assets/art/spring-showcase.jpg
@@ -29,7 +29,11 @@ more:                       # optional: further images for a series, shown insid
 ```
 
 A piece with a story or further images gets an expand and collapse control. Pieces are ordered
-newest year first, with pieces that have no year after the dated ones, then by `order`.
+newest first by their date, so a new piece needs no `order` number to land in the right place. The
+date is read from the numbers at the start of `date` (`2026.02.13`, `2025.10`, or a range like
+`2024.08.02-04`, which counts as the 2nd). A piece with only a year, or a date like `Summer 2025`,
+comes after the dated pieces of that year, and a piece with no year comes last. `order` only
+settles pieces that share a date.
 
 The build checks every file. It stops with a readable message if a field is missing, an image
 cannot be found, the alt text is missing or too short, or the text contains an em dash, en dash,
