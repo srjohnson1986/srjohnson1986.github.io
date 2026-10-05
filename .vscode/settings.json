@@ -1,0 +1,18 @@
+{
+  "yaml.schemas": {
+    "./.astro/collections/roles.schema.json": "src/data/resume/roles.yaml",
+    "./.astro/collections/bullets.schema.json": "src/data/resume/bullets.yaml",
+    "./.astro/collections/bulletGroups.schema.json": "src/data/resume/bullet-groups.yaml",
+    "./.astro/collections/summaries.schema.json": "src/data/resume/summaries.yaml",
+    "./.astro/collections/variants.schema.json": "src/data/resume/variants.yaml",
+    "./.astro/collections/skills.schema.json": "src/data/resume/skills.yaml",
+    "./.astro/collections/education.schema.json": "src/data/resume/education.yaml",
+    "./.astro/collections/events.schema.json": "src/data/events.yaml",
+    "./.astro/collections/studio.schema.json": "src/data/studio.yaml",
+    "./.astro/collections/intros.schema.json": "src/data/intros.yaml",
+    "./.astro/collections/homeCards.schema.json": "src/data/home-cards.yaml",
+    "./.astro/collections/artworks.schema.json": "src/content/art/*.yaml",
+    "./.astro/collections/releases.schema.json": "src/content/releases/*.yaml",
+    "./.astro/collections/projects.schema.json": "src/content/projects/*.yaml"
+  }
+}
