@@ -1,6 +1,13 @@
 # Resume bullets. Each bullet: stable id, role (see roles.yaml), theme, tags, public flag, text.
 # Only bullets with public: true are rendered on the site. Text starts with a past-tense verb
 # and uses single hyphens only (both enforced by the schema in src/content.config.ts).
+# Bullets are grouped by role, in the same order as roles.yaml. Add a new bullet at the end of its
+# role's block. The order here does not affect the resume: variants.yaml sets the display order.
+
+# ==================================================
+# == Thermal Process Development (tpd) - 17 bullets
+# ==================================================
+
 - id: tpd-built-maintained-open-source-vba
   role: tpd
   theme: automation-and-tooling
@@ -157,162 +164,9 @@
     Maintained alignment across evolving requirements and multiple external stakeholders to
     ensure on-time delivery.
 
-- id: vz-led-qa-across-project
-  role: verizon
-  theme: leadership-and-delivery
-  tags: [leadership, qa]
-  public: true
-  text: >-
-    Led QA across project teams of up to 20, coordinating onshore and offshore testers
-    through daily handoffs spanning multiple time zones.
-
-- id: vz-streamlined-agile-sdlc-reporting
-  role: verizon
-  theme: leadership-and-delivery
-  tags: [leadership, qa]
-  public: true
-  text: >-
-    Streamlined Agile SDLC reporting, improving story tracking and resource allocation for
-    globally distributed teams.
-
-- id: vz-built-maintained-confluence-repositories
-  role: verizon
-  theme: leadership-and-delivery
-  tags: [confluence, leadership, qa]
-  public: true
-  text: >-
-    Built and maintained Confluence repositories that standardized repeatable testing
-    processes across teams.
-
-- id: vz-owned-end-to-end-testing-site
-  role: verizon
-  theme: scale-and-high-stakes-releases
-  tags: [qa]
-  public: true
-  text: >-
-    Owned end-to-end testing for a site serving 70M monthly visitors plus native iOS and
-    Android apps, across desktop, tablet, and mobile.
-
-- id: vz-served-launch-war-rooms
-  role: verizon
-  theme: scale-and-high-stakes-releases
-  tags: [qa]
-  public: true
-  text: >-
-    Served in launch war rooms for device launches and peak retail events, validating live
-    in production during the highest-revenue windows of the year.
-
-- id: vz-led-testing-redesigns-high-traffic
-  role: verizon
-  theme: scale-and-high-stakes-releases
-  tags: [leadership, qa]
-  public: true
-  text: >-
-    Led testing for redesigns of high-traffic eCommerce purchase flows, improving stability
-    and reducing call center volume.
-
-- id: vz-tested-launched-new-products
-  role: verizon
-  theme: scale-and-high-stakes-releases
-  tags: [qa]
-  public: true
-  text: >-
-    Tested and launched new products, plans, features, and promotional discounts supporting
-    customer acquisition and retention.
-
-- id: vz-owned-governance-jira-instance
-  role: verizon
-  theme: governance
-  tags: [jira, process, qa]
-  public: true
-  text: >-
-    Owned governance for a Jira instance with 10,000+ users, establishing request and
-    approval workflows that cut unauthorized feature additions by 90% within three months.
-
-- id: vz-analyzed-confirmed-fraudulent-transactions
-  role: verizon
-  theme: fraud
-  tags: [fraud, qa]
-  public: true
-  text: >-
-    Analyzed confirmed fraudulent transactions to reverse-engineer attack patterns, then
-    built test cases covering those and adjacent vectors so future releases were validated
-    against known exploits.
-
-- id: vz-validated-fraud-related-fixes-across
-  role: verizon
-  theme: fraud
-  tags: [fraud, qa]
-  public: true
-  text: >-
-    Validated fraud-related fixes across staging, production, and regression cycles.
-
-- id: vz-monitored-application-error-logs
-  role: verizon
-  theme: monitoring-and-log-investigation
-  tags: [monitoring, qa]
-  public: true
-  text: >-
-    Monitored application error logs in Kibana from the war room at every device launch and
-    peak retail event, escalating live production issues to development and operations teams
-    while the launch was still underway.
-
-- id: vz-built-kibana-dashboards-saved
-  role: verizon
-  theme: monitoring-and-log-investigation
-  tags: [monitoring, qa]
-  public: true
-  text: >-
-    Built Kibana dashboards and saved searches the team used for error monitoring and defect
-    investigation.
-
-- id: vz-investigated-defects-through-kibana
-  role: verizon
-  theme: monitoring-and-log-investigation
-  tags: [monitoring, qa]
-  public: true
-  text: >-
-    Investigated defects through Kibana error logs and filed them with log evidence, giving
-    developers concrete detail to act on.
-
-- id: vz-spotted-patterns-across-recurring
-  role: verizon
-  theme: monitoring-and-log-investigation
-  tags: [monitoring, qa]
-  public: true
-  text: >-
-    Spotted patterns across recurring errors and used post-deploy log checks to confirm
-    fixes held in production.
-
-- id: vz-validated-about-20-third-party
-  role: verizon
-  theme: data-and-api-validation
-  tags: [api-testing, sql, qa]
-  public: true
-  text: >-
-    Validated about 20 third-party subscription integrations end to end, using Postman to
-    confirm subscription status and service tier against each partner's API, and SQL to
-    verify the matching subscription and customer IDs stored on Verizon's side.
-
-- id: vz-tested-full-subscription-lifecycle
-  role: verizon
-  theme: data-and-api-validation
-  tags: [sql, qa]
-  public: true
-  text: >-
-    Tested the full subscription lifecycle in SQL, including activation, pause,
-    cancellation, and resubscription with existing or new customer details, confirming that
-    new details correctly generated a new third-party customer ID.
-
-- id: vz-coordinated-partner-teams-resolve
-  role: verizon
-  theme: data-and-api-validation
-  tags: [qa]
-  public: true
-  text: >-
-    Coordinated with partner teams to resolve data discrepancies between Verizon and partner
-    test environments, working around partner sync jobs that lagged by minutes or hours or
-    failed outright, and caught major issues before they reached production.
+# ======================================================
+# == Care Communication Board (care-board) - 28 bullets
+# ======================================================
 
 - id: cb-designed-built-shipped-ad-free
   role: care-board
@@ -577,234 +431,202 @@
     tests, CI, a repeatable signed-release process, and a wiki a script keeps in sync with
     the docs on every release.
 
-- id: jp-organized-annual-charity-music
-  role: jabroni
-  theme: project-management-and-delivery
-  tags: [events]
-  public: true
-  text: >-
-    Organized an annual charity music festival for 11 years as one of three volunteer
-    organizers, raising about $2,000 each year for Y'all Rock Camps, an inclusive music camp
-    program.
+# ===========================================================
+# == Personal portfolio website (portfolio-site) - 4 bullets
+# ===========================================================
 
-- id: jp-managed-venue-booking-band
-  role: jabroni
-  theme: project-management-and-delivery
-  tags: [events]
+- id: ps-built-public-playwright-suite
+  role: portfolio-site
+  theme: portfolio-site-and-test-suite
+  tags: [qa, development]
   public: true
   text: >-
-    Managed venue booking, band selection and scheduling, sound and gear, and promotion for
-    a 20-band festival with audiences up to 400, plus about 10 smaller shows a year.
+    Designed a public Playwright suite that renders every resume version from the site's own data files and checks each one against the skills and bullets it should show.
 
-- id: jp-structured-planning-festival-establishing
-  role: jabroni
-  theme: project-management-and-delivery
-  tags: [events]
+- id: ps-automated-accessibility-scanning
+  role: portfolio-site
+  theme: portfolio-site-and-test-suite
+  tags: [qa]
   public: true
   text: >-
-    Structured planning for the festival by establishing and refining the booking,
-    scheduling, and promotion processes the event has run on for over a decade.
+    Automated accessibility scanning with axe across every page in light, dark, and phone width, plus keyboard checks.
 
-- id: jp-kept-festival-deliberately-low-cost
-  role: jabroni
-  theme: project-management-and-delivery
-  tags: [events]
+- id: ps-configured-github-actions-suite-smoke
+  role: portfolio-site
+  theme: portfolio-site-and-test-suite
+  tags: [qa, development]
   public: true
   text: >-
-    Kept the festival deliberately low-cost to maximize exposure for local bands while still
-    returning surplus to charity.
+    Configured GitHub Actions to run the suite on every pull request and a smoke test against the live site after each deploy and weekly.
 
-- id: jp-set-clear-upfront-expectations
-  role: jabroni
-  theme: stakeholder-management
-  tags: [events]
+- id: ps-established-issue-first-workflow
+  role: portfolio-site
+  theme: portfolio-site-and-test-suite
+  tags: [development, consulting]
   public: true
   text: >-
-    Set clear, upfront expectations with performers: paid out-of-town bands fairly, asked
-    local bands to donate their time, and directed all surplus to the charity.
+    Established an issue-first workflow in which every change ships through a reviewed pull request and merges only after the build check passes.
 
-- id: jp-kept-tight-stage-changeovers
-  role: jabroni
-  theme: operations-and-troubleshooting
-  tags: [project-management, events]
-  public: true
-  text: >-
-    Kept tight stage changeovers on schedule by encouraging gear sharing between bands and
-    helping performers load on and off stage.
+# ===========================================
+# == Verizon Wireless (verizon) - 28 bullets
+# ===========================================
 
-- id: jp-provided-on-the-spot-technical-support
-  role: jabroni
-  theme: operations-and-troubleshooting
-  tags: [events]
+- id: vz-led-qa-across-project
+  role: verizon
+  theme: leadership-and-delivery
+  tags: [leadership, qa]
   public: true
   text: >-
-    Provided on-the-spot technical support for performers unfamiliar with shared gear,
-    troubleshooting setups under time pressure between sets.
+    Led QA across project teams of up to 20, coordinating onshore and offshore testers
+    through daily handoffs spanning multiple time zones.
 
-- id: kh-produced-engineered-dozens-recordings
-  role: kingdom-hell
-  theme: production-and-delivery
-  tags: [audio]
+- id: vz-streamlined-agile-sdlc-reporting
+  role: verizon
+  theme: leadership-and-delivery
+  tags: [leadership, qa]
   public: true
   text: >-
-    Produced and engineered dozens of recordings, mostly for other artists, all released and
-    streamed publicly, from a home studio with a separate live room.
+    Streamlined Agile SDLC reporting, improving story tracking and resource allocation for
+    globally distributed teams.
 
-- id: kh-performed-several-releases-addition
-  role: kingdom-hell
-  theme: production-and-delivery
-  tags: [audio]
+- id: vz-built-maintained-confluence-repositories
+  role: verizon
+  theme: leadership-and-delivery
+  tags: [confluence, leadership, qa]
   public: true
   text: >-
-    Performed on several releases in addition to producing and engineering them.
+    Built and maintained Confluence repositories that standardized repeatable testing
+    processes across teams.
 
-- id: kh-designed-studio-signal-routing
-  role: kingdom-hell
-  theme: systems-and-workflow-design
-  tags: [audio]
+- id: vz-owned-end-to-end-testing-site
+  role: verizon
+  theme: scale-and-high-stakes-releases
+  tags: [qa]
   public: true
   text: >-
-    Designed studio signal routing through a patchbay, preamps, and audio interface, and
-    moved all processing in the box so every session is fully recallable.
+    Owned end-to-end testing for a site serving 70M monthly visitors plus native iOS and
+    Android apps, across desktop, tablet, and mobile.
 
-- id: kh-built-session-templates-scaled
-  role: kingdom-hell
-  theme: systems-and-workflow-design
-  tags: [audio]
+- id: vz-served-launch-war-rooms
+  role: verizon
+  theme: scale-and-high-stakes-releases
+  tags: [qa]
   public: true
   text: >-
-    Built session templates scaled to project scope, and standardized mix prep (effects off,
-    faders at unity, everything panned center) for a consistent, repeatable starting point.
+    Served in launch war rooms for device launches and peak retail events, validating live
+    in production during the highest-revenue windows of the year.
 
-- id: kh-diagnosed-signal-problems-tracing
-  role: kingdom-hell
-  theme: troubleshooting-and-quality
-  tags: [audio]
+- id: vz-led-testing-redesigns-high-traffic
+  role: verizon
+  theme: scale-and-high-stakes-releases
+  tags: [leadership, qa]
   public: true
   text: >-
-    Diagnosed signal problems by tracing weak or degraded audio through the chain to isolate
-    failing cables and components.
+    Led testing for redesigns of high-traffic eCommerce purchase flows, improving stability
+    and reducing call center volume.
 
-- id: kh-performed-guitar-setups-soldering
-  role: kingdom-hell
-  theme: troubleshooting-and-quality
-  tags: [audio]
+- id: vz-tested-launched-new-products
+  role: verizon
+  theme: scale-and-high-stakes-releases
+  tags: [qa]
   public: true
   text: >-
-    Performed guitar setups and soldering repairs to keep instruments and gear in working
-    order.
+    Tested and launched new products, plans, features, and promotional discounts supporting
+    customer acquisition and retention.
 
-- id: kh-learned-configured-unfamiliar-effects
-  role: kingdom-hell
-  theme: learning-and-client-support
-  tags: [audio]
+- id: vz-owned-governance-jira-instance
+  role: verizon
+  theme: governance
+  tags: [jira, process, qa]
   public: true
   text: >-
-    Learned and configured unfamiliar effects on request mid-session, researching and
-    experimenting so artists could keep recording without delays.
+    Owned governance for a Jira instance with 10,000+ users, establishing request and
+    approval workflows that cut unauthorized feature additions by 90% within three months.
 
-- id: nu-replaced-paper-based-personnel-change-of-status
-  role: nucor
-  theme: process-modernization
-  tags: [development, analysis]
+- id: vz-analyzed-confirmed-fraudulent-transactions
+  role: verizon
+  theme: fraud
+  tags: [fraud, qa]
   public: true
   text: >-
-    Replaced a paper-based personnel change-of-status process, which required walking forms
-    around for signatures, with SharePoint digital forms and automated approvals for an HR
-    team serving about 400 employees, cutting turnaround from days to hours.
+    Analyzed confirmed fraudulent transactions to reverse-engineer attack patterns, then
+    built test cases covering those and adjacent vectors so future releases were validated
+    against known exploits.
 
-- id: nu-gathered-feedback-hr-it
-  role: nucor
-  theme: process-modernization
-  tags: [project-management, analysis]
+- id: vz-validated-fraud-related-fixes-across
+  role: verizon
+  theme: fraud
+  tags: [fraud, qa]
   public: true
   text: >-
-    Gathered feedback from HR and IT stakeholders, assessed feasibility, and implemented
-    approved changes, then handed off unfinished features as a documented backlog with the
-    project.
+    Validated fraud-related fixes across staging, production, and regression cycles.
 
-- id: nu-trained-hr-users-developers
-  role: nucor
-  theme: training-and-documentation
-  tags: [documentation-training, analysis]
+- id: vz-monitored-application-error-logs
+  role: verizon
+  theme: monitoring-and-log-investigation
+  tags: [monitoring, qa]
   public: true
   text: >-
-    Trained HR users and developers in person, and wrote both a user guide and a technical
-    guide to support adoption and handoff.
+    Monitored application error logs in Kibana from the war room at every device launch and
+    peak retail event, escalating live production issues to development and operations teams
+    while the launch was still underway.
 
-- id: nu-built-local-replica-company
-  role: nucor
-  theme: environment-and-technical-support
-  tags: [development, analysis]
+- id: vz-built-kibana-dashboards-saved
+  role: verizon
+  theme: monitoring-and-log-investigation
+  tags: [monitoring, qa]
   public: true
   text: >-
-    Built a local replica of the company's SharePoint server on Windows Server to deploy and
-    test web parts, restoring it weekly from a saved image to keep the test environment
-    clean.
+    Built Kibana dashboards and saved searches the team used for error monitoring and defect
+    investigation.
 
-- id: nu-tracked-down-restored-overwritten
-  role: nucor
-  theme: environment-and-technical-support
-  tags: [analysis]
+- id: vz-investigated-defects-through-kibana
+  role: verizon
+  theme: monitoring-and-log-investigation
+  tags: [monitoring, qa]
   public: true
   text: >-
-    Tracked down and restored overwritten source files in a project without real version
-    control, protecting the team's work.
+    Investigated defects through Kibana error logs and filed them with log evidence, giving
+    developers concrete detail to act on.
 
-- id: nu-served-technical-support-6-person
-  role: nucor
-  theme: environment-and-technical-support
-  tags: [analysis]
+- id: vz-spotted-patterns-across-recurring
+  role: verizon
+  theme: monitoring-and-log-investigation
+  tags: [monitoring, qa]
   public: true
   text: >-
-    Served as technical support for a 6-person project team, diagnosing slow machines and
-    incorrectly installed software.
+    Spotted patterns across recurring errors and used post-deploy log checks to confirm
+    fixes held in production.
 
-- id: pg-built-spotfire-dashboard-pulled
-  role: pg
-  theme: analytics-and-tooling
-  tags: [analytics, analysis]
+- id: vz-validated-about-20-third-party
+  role: verizon
+  theme: data-and-api-validation
+  tags: [api-testing, sql, qa]
   public: true
   text: >-
-    Built a Spotfire dashboard that pulled Nielsen Answers data into interactive visuals for
-    tracking list-price changes across multiple variables, helping teams justify pricing
-    decisions.
+    Validated about 20 third-party subscription integrations end to end, using Postman to
+    confirm subscription status and service tier against each partner's API, and SQL to
+    verify the matching subscription and customer IDs stored on Verizon's side.
 
-- id: pg-designed-tool-input-teams
-  role: pg
-  theme: analytics-and-tooling
-  tags: [analytics, analysis]
+- id: vz-tested-full-subscription-lifecycle
+  role: verizon
+  theme: data-and-api-validation
+  tags: [sql, qa]
   public: true
   text: >-
-    Designed the tool with input from teams across North America, South America, and Europe
-    so it could support P&G's global rollout of Nielsen Answers.
+    Tested the full subscription lifecycle in SQL, including activation, pause,
+    cancellation, and resubscription with existing or new customer details, confirming that
+    new details correctly generated a new third-party customer ID.
 
-- id: pg-migrated-25-legacy-reports
-  role: pg
-  theme: analytics-and-tooling
-  tags: [analysis]
+- id: vz-coordinated-partner-teams-resolve
+  role: verizon
+  theme: data-and-api-validation
+  tags: [qa]
   public: true
   text: >-
-    Migrated 25+ legacy reports to a new data source, reducing data mismatches and manual
-    reconciliation.
-
-- id: pg-trained-about-100-users
-  role: pg
-  theme: training-and-enablement
-  tags: [documentation-training, analytics, analysis]
-  public: true
-  text: >-
-    Trained about 100 users across North America, South America, and Europe on Nielsen
-    Answers Builder through live sessions and written guides.
-
-- id: pg-presented-results-leadership-using
-  role: pg
-  theme: communication
-  tags: [analytics, analysis]
-  public: true
-  text: >-
-    Presented results to leadership using Prezi and live Spotfire visualizations of real
-    business data.
+    Coordinated with partner teams to resolve data discrepancies between Verizon and partner
+    test environments, working around partner sync jobs that lagged by minutes or hours or
+    failed outright, and caught major issues before they reached production.
 
 - id: vz-created-confluence-guides-recorded
   role: verizon
@@ -882,38 +704,6 @@
     Applied risk-based boundary testing and a code walkthrough with developers to give a
     documented conditional sign-off when there wasn't time to test every combination.
 
-- id: ps-built-public-playwright-suite
-  role: portfolio-site
-  theme: portfolio-site-and-test-suite
-  tags: [qa, development]
-  public: true
-  text: >-
-    Designed a public Playwright suite that renders every resume version from the site's own data files and checks each one against the skills and bullets it should show.
-
-- id: ps-automated-accessibility-scanning
-  role: portfolio-site
-  theme: portfolio-site-and-test-suite
-  tags: [qa]
-  public: true
-  text: >-
-    Automated accessibility scanning with axe across every page in light, dark, and phone width, plus keyboard checks.
-
-- id: ps-configured-github-actions-suite-smoke
-  role: portfolio-site
-  theme: portfolio-site-and-test-suite
-  tags: [qa, development]
-  public: true
-  text: >-
-    Configured GitHub Actions to run the suite on every pull request and a smoke test against the live site after each deploy and weekly.
-
-- id: ps-established-issue-first-workflow
-  role: portfolio-site
-  theme: portfolio-site-and-test-suite
-  tags: [development, consulting]
-  public: true
-  text: >-
-    Established an issue-first workflow in which every change ships through a reviewed pull request and merges only after the build check passes.
-
 - id: vz-authored-requirements-test-data-retrieval-tool
   role: verizon
   theme: tooling
@@ -940,3 +730,248 @@
   text: >-
     Published user guides that reached tens of thousands of views, reducing repeat questions
     across teams.
+
+# ===========================================
+# == Kingdom Hell (kingdom-hell) - 7 bullets
+# ===========================================
+
+- id: kh-produced-engineered-dozens-recordings
+  role: kingdom-hell
+  theme: production-and-delivery
+  tags: [audio]
+  public: true
+  text: >-
+    Produced and engineered dozens of recordings, mostly for other artists, all released and
+    streamed publicly, from a home studio with a separate live room.
+
+- id: kh-performed-several-releases-addition
+  role: kingdom-hell
+  theme: production-and-delivery
+  tags: [audio]
+  public: true
+  text: >-
+    Performed on several releases in addition to producing and engineering them.
+
+- id: kh-designed-studio-signal-routing
+  role: kingdom-hell
+  theme: systems-and-workflow-design
+  tags: [audio]
+  public: true
+  text: >-
+    Designed studio signal routing through a patchbay, preamps, and audio interface, and
+    moved all processing in the box so every session is fully recallable.
+
+- id: kh-built-session-templates-scaled
+  role: kingdom-hell
+  theme: systems-and-workflow-design
+  tags: [audio]
+  public: true
+  text: >-
+    Built session templates scaled to project scope, and standardized mix prep (effects off,
+    faders at unity, everything panned center) for a consistent, repeatable starting point.
+
+- id: kh-diagnosed-signal-problems-tracing
+  role: kingdom-hell
+  theme: troubleshooting-and-quality
+  tags: [audio]
+  public: true
+  text: >-
+    Diagnosed signal problems by tracing weak or degraded audio through the chain to isolate
+    failing cables and components.
+
+- id: kh-performed-guitar-setups-soldering
+  role: kingdom-hell
+  theme: troubleshooting-and-quality
+  tags: [audio]
+  public: true
+  text: >-
+    Performed guitar setups and soldering repairs to keep instruments and gear in working
+    order.
+
+- id: kh-learned-configured-unfamiliar-effects
+  role: kingdom-hell
+  theme: learning-and-client-support
+  tags: [audio]
+  public: true
+  text: >-
+    Learned and configured unfamiliar effects on request mid-session, researching and
+    experimenting so artists could keep recording without delays.
+
+# =============================================
+# == Jabroni Productions (jabroni) - 7 bullets
+# =============================================
+
+- id: jp-organized-annual-charity-music
+  role: jabroni
+  theme: project-management-and-delivery
+  tags: [events]
+  public: true
+  text: >-
+    Organized an annual charity music festival for 11 years as one of three volunteer
+    organizers, raising about $2,000 each year for Y'all Rock Camps, an inclusive music camp
+    program.
+
+- id: jp-managed-venue-booking-band
+  role: jabroni
+  theme: project-management-and-delivery
+  tags: [events]
+  public: true
+  text: >-
+    Managed venue booking, band selection and scheduling, sound and gear, and promotion for
+    a 20-band festival with audiences up to 400, plus about 10 smaller shows a year.
+
+- id: jp-structured-planning-festival-establishing
+  role: jabroni
+  theme: project-management-and-delivery
+  tags: [events]
+  public: true
+  text: >-
+    Structured planning for the festival by establishing and refining the booking,
+    scheduling, and promotion processes the event has run on for over a decade.
+
+- id: jp-kept-festival-deliberately-low-cost
+  role: jabroni
+  theme: project-management-and-delivery
+  tags: [events]
+  public: true
+  text: >-
+    Kept the festival deliberately low-cost to maximize exposure for local bands while still
+    returning surplus to charity.
+
+- id: jp-set-clear-upfront-expectations
+  role: jabroni
+  theme: stakeholder-management
+  tags: [events]
+  public: true
+  text: >-
+    Set clear, upfront expectations with performers: paid out-of-town bands fairly, asked
+    local bands to donate their time, and directed all surplus to the charity.
+
+- id: jp-kept-tight-stage-changeovers
+  role: jabroni
+  theme: operations-and-troubleshooting
+  tags: [project-management, events]
+  public: true
+  text: >-
+    Kept tight stage changeovers on schedule by encouraging gear sharing between bands and
+    helping performers load on and off stage.
+
+- id: jp-provided-on-the-spot-technical-support
+  role: jabroni
+  theme: operations-and-troubleshooting
+  tags: [events]
+  public: true
+  text: >-
+    Provided on-the-spot technical support for performers unfamiliar with shared gear,
+    troubleshooting setups under time pressure between sets.
+
+# ==============================================
+# == Nucor Steel Tuscaloosa (nucor) - 6 bullets
+# ==============================================
+
+- id: nu-replaced-paper-based-personnel-change-of-status
+  role: nucor
+  theme: process-modernization
+  tags: [development, analysis]
+  public: true
+  text: >-
+    Replaced a paper-based personnel change-of-status process, which required walking forms
+    around for signatures, with SharePoint digital forms and automated approvals for an HR
+    team serving about 400 employees, cutting turnaround from days to hours.
+
+- id: nu-gathered-feedback-hr-it
+  role: nucor
+  theme: process-modernization
+  tags: [project-management, analysis]
+  public: true
+  text: >-
+    Gathered feedback from HR and IT stakeholders, assessed feasibility, and implemented
+    approved changes, then handed off unfinished features as a documented backlog with the
+    project.
+
+- id: nu-trained-hr-users-developers
+  role: nucor
+  theme: training-and-documentation
+  tags: [documentation-training, analysis]
+  public: true
+  text: >-
+    Trained HR users and developers in person, and wrote both a user guide and a technical
+    guide to support adoption and handoff.
+
+- id: nu-built-local-replica-company
+  role: nucor
+  theme: environment-and-technical-support
+  tags: [development, analysis]
+  public: true
+  text: >-
+    Built a local replica of the company's SharePoint server on Windows Server to deploy and
+    test web parts, restoring it weekly from a saved image to keep the test environment
+    clean.
+
+- id: nu-tracked-down-restored-overwritten
+  role: nucor
+  theme: environment-and-technical-support
+  tags: [analysis]
+  public: true
+  text: >-
+    Tracked down and restored overwritten source files in a project without real version
+    control, protecting the team's work.
+
+- id: nu-served-technical-support-6-person
+  role: nucor
+  theme: environment-and-technical-support
+  tags: [analysis]
+  public: true
+  text: >-
+    Served as technical support for a 6-person project team, diagnosing slow machines and
+    incorrectly installed software.
+
+# =====================================
+# == Procter & Gamble (pg) - 5 bullets
+# =====================================
+
+- id: pg-built-spotfire-dashboard-pulled
+  role: pg
+  theme: analytics-and-tooling
+  tags: [analytics, analysis]
+  public: true
+  text: >-
+    Built a Spotfire dashboard that pulled Nielsen Answers data into interactive visuals for
+    tracking list-price changes across multiple variables, helping teams justify pricing
+    decisions.
+
+- id: pg-designed-tool-input-teams
+  role: pg
+  theme: analytics-and-tooling
+  tags: [analytics, analysis]
+  public: true
+  text: >-
+    Designed the tool with input from teams across North America, South America, and Europe
+    so it could support P&G's global rollout of Nielsen Answers.
+
+- id: pg-migrated-25-legacy-reports
+  role: pg
+  theme: analytics-and-tooling
+  tags: [analysis]
+  public: true
+  text: >-
+    Migrated 25+ legacy reports to a new data source, reducing data mismatches and manual
+    reconciliation.
+
+- id: pg-trained-about-100-users
+  role: pg
+  theme: training-and-enablement
+  tags: [documentation-training, analytics, analysis]
+  public: true
+  text: >-
+    Trained about 100 users across North America, South America, and Europe on Nielsen
+    Answers Builder through live sessions and written guides.
+
+- id: pg-presented-results-leadership-using
+  role: pg
+  theme: communication
+  tags: [analytics, analysis]
+  public: true
+  text: >-
+    Presented results to leadership using Prezi and live Spotfire visualizations of real
+    business data.
