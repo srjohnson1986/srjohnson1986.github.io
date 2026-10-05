@@ -32,10 +32,10 @@
     - Burp Suite
     - Kibana
     - Smartsheet
-    - { name: Selenium, training_only: true }
+    - Selenium
     - Playwright
     - Microsoft Office
-    - Google Docs
+    - Google Workspace
     - VS Code
     - Eclipse
     # Backed by the bank (Care Communication Board, TPD add-in, Nucor, P&G).
@@ -57,9 +57,10 @@
     - { name: Prezi, only: [consulting, adoption] }
     # Version-specific tools.
     - { name: Studio One, only: [creative] }
+    - { name: MIDI, only: [creative] }
     - { name: Procreate, only: [creative] }
     - { name: Zephyr, only: [consulting] }
-    - { name: Copilot, only: [qa] }
+    - { name: Copilot, only: [qa, consulting] }
     - { name: Claude, only: [qa] }
 
 - id: technical
@@ -84,8 +85,7 @@
     - HTML
     - CSS
     - Java
-    - Python
-    - "C#"
-    - Visual Basic
+    - { name: Python, training_only: true }
+    - { name: "C#", training_only: true }
+    - VB.NET
     - { name: Kotlin, only: [qa, consulting] }
-    - { name: MIDI, only: [creative] }

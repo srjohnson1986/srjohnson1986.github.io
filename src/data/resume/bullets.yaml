@@ -5,7 +5,7 @@
 # role's block. The order here does not affect the resume: variants.yaml sets the display order.
 
 # ==================================================
-# == Thermal Process Development (tpd) - 17 bullets
+# == Thermal Process Development (tpd) - 18 bullets
 # ==================================================
 
 - id: tpd-built-maintained-open-source-vba
@@ -127,6 +127,15 @@
     Leveraged AI coding agents (Claude Code) to speed up development while keeping ownership
     of design, review, testing, and releases.
 
+- id: tpd-drafted-add-in-initial-design
+  role: tpd
+  theme: ai-assisted-development
+  tags: [ai-assisted, consulting]
+  public: true
+  text: >-
+    Drafted the add-in's initial design with Microsoft Copilot, then moved development
+    to source control and Claude Code.
+
 - id: tpd-developed-dual-baseline-smartsheet-schedule
   role: tpd
   theme: project-controls-and-scheduling
@@ -203,8 +212,8 @@
   tags: [development]
   public: true
   text: >-
-    Expanded from Android to a web version that installs like an app and works offline, so
-    caregivers can use it on any device.
+    Expanded from Android to a progressive web app that installs like an app and works
+    offline, so caregivers can use it on any device.
 
 - id: cb-improved-legibility-accessibility-automatically
   role: care-board
@@ -468,7 +477,7 @@
     Established an issue-first workflow in which every change ships through a reviewed pull request and merges only after the build check passes.
 
 # ===========================================
-# == Verizon Wireless (verizon) - 28 bullets
+# == Verizon Wireless (verizon) - 35 bullets
 # ===========================================
 
 - id: vz-led-qa-across-project
@@ -731,8 +740,70 @@
     Published user guides that reached tens of thousands of views, reducing repeat questions
     across teams.
 
+- id: vz-managed-test-cases-zephyr-qtest
+  role: verizon
+  theme: leadership-and-delivery
+  tags: [qa]
+  public: true
+  text: >-
+    Managed test cases in Zephyr and then qTest, Verizon's primary test case management
+    tool for more than eight years.
+
+- id: vz-synced-test-cases-across-teams
+  role: verizon
+  theme: leadership-and-delivery
+  tags: [qa]
+  public: true
+  text: >-
+    Synced test cases across teams with shared Google Sheets on several projects.
+
+- id: vz-wrote-test-plans-defined-scope
+  role: verizon
+  theme: leadership-and-delivery
+  tags: [qa]
+  public: true
+  text: >-
+    Wrote test plans that defined scope by environment, flow, and platform (web, app, or
+    both) and estimated the resources needed to cover it.
+
+- id: vz-defined-defect-assignment-escalation-paths
+  role: verizon
+  theme: leadership-and-delivery
+  tags: [qa]
+  public: true
+  text: >-
+    Defined defect assignment and escalation paths in the test plans and required
+    traceable, repeatable defects and test cases backed by evidence.
+
+- id: vz-ran-man-in-the-middle-cross-site
+  role: verizon
+  theme: fraud
+  tags: [qa, fraud]
+  public: true
+  text: >-
+    Ran man-in-the-middle and cross-site scripting attacks with Burp Suite as part of
+    fraud testing.
+
+- id: vz-inspected-network-logs-session-data
+  role: verizon
+  theme: monitoring-and-log-investigation
+  tags: [qa, monitoring]
+  public: true
+  text: >-
+    Inspected network logs, session data, cookies, and mobile browser behavior in Chrome
+    DevTools during testing.
+
+- id: vz-executed-automated-test-cases-selenium
+  role: verizon
+  theme: tooling
+  tags: [qa, test-automation]
+  public: true
+  text: >-
+    Executed automated test cases from a Selenium suite through a browser UI to validate
+    flows.
+
 # ===========================================
-# == Kingdom Hell (kingdom-hell) - 7 bullets
+# == Kingdom Hell (kingdom-hell) - 9 bullets
 # ===========================================
 
 - id: kh-produced-engineered-dozens-recordings
@@ -796,6 +867,23 @@
   text: >-
     Learned and configured unfamiliar effects on request mid-session, researching and
     experimenting so artists could keep recording without delays.
+
+- id: kh-programmed-humanized-midi-parts
+  role: kingdom-hell
+  theme: production-and-delivery
+  tags: [audio]
+  public: true
+  text: >-
+    Programmed humanized MIDI parts for VST instruments during recording sessions.
+
+- id: kh-produced-engineered-studio-projects-studio-one
+  role: kingdom-hell
+  theme: systems-and-workflow-design
+  tags: [audio]
+  public: true
+  text: >-
+    Produced and engineered all studio projects in Studio One, my primary DAW since
+    2011.
 
 # =============================================
 # == Jabroni Productions (jabroni) - 7 bullets
@@ -866,7 +954,7 @@
     troubleshooting setups under time pressure between sets.
 
 # ==============================================
-# == Nucor Steel Tuscaloosa (nucor) - 6 bullets
+# == Nucor Steel Tuscaloosa (nucor) - 7 bullets
 # ==============================================
 
 - id: nu-replaced-paper-based-personnel-change-of-status
@@ -926,6 +1014,15 @@
     Served as technical support for a 6-person project team, diagnosing slow machines and
     incorrectly installed software.
 
+- id: nu-developed-vb-net-forms-sharepoint-web-parts
+  role: nucor
+  theme: process-modernization
+  tags: [development, analysis, sql]
+  public: true
+  text: >-
+    Developed VB.NET forms and SharePoint web parts that drove the approval workflow and
+    business logic through SQL procedures.
+
 # =====================================
 # == Procter & Gamble (pg) - 5 bullets
 # =====================================
@@ -975,3 +1072,26 @@
   text: >-
     Presented results to leadership using Prezi and live Spotfire visualizations of real
     business data.
+
+# ======================================
+# == Geek Squad (geek-squad) - 2 bullets
+# ======================================
+
+- id: gs-diagnosed-desktop-laptop-problems-running
+  role: geek-squad
+  theme: hardware-troubleshooting-and-repair
+  tags: [hardware]
+  public: true
+  text: >-
+    Diagnosed desktop and laptop problems by running diagnostic suites to pinpoint
+    failing components.
+
+- id: gs-replaced-upgraded-components-customers-computers
+  role: geek-squad
+  theme: hardware-troubleshooting-and-repair
+  tags: [hardware]
+  public: true
+  text: >-
+    Replaced and upgraded components in customers' computers as requested, including
+    storage drives, RAM, power supplies, optical drives, and laptop keyboards,
+    touchpads, and screens.
