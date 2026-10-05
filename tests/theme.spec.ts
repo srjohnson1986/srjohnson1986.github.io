@@ -6,6 +6,15 @@ const DARK_BG = 'rgb(19, 19, 22)'; // --bg in dark
 const LIGHT_BG = 'rgb(251, 250, 247)'; // --bg in light
 
 const toggle = (page: import('@playwright/test').Page) => page.getByRole('button', { name: /^Switch to (dark|light) theme$/ });
+// The icon shows the theme a click switches to: the moon while the page is light, the sun while dark.
+const showsMoon = async (page: import('@playwright/test').Page) => {
+  await expect(toggle(page).locator('.icon-moon')).toBeVisible();
+  await expect(toggle(page).locator('.icon-sun')).toBeHidden();
+};
+const showsSun = async (page: import('@playwright/test').Page) => {
+  await expect(toggle(page).locator('.icon-sun')).toBeVisible();
+  await expect(toggle(page).locator('.icon-moon')).toBeHidden();
+};
 const background = (page: import('@playwright/test').Page) => page.evaluate(() => getComputedStyle(document.body).backgroundColor);
 
 test.describe('theme button, system set to light', () => {
@@ -16,13 +25,13 @@ test.describe('theme button, system set to light', () => {
     await expect(page.locator('html')).not.toHaveAttribute('data-theme', /.+/);
     expect(await background(page)).toBe(LIGHT_BG);
     await expect(toggle(page)).toHaveAccessibleName('Switch to dark theme');
-    await expect(toggle(page)).toHaveText('Dark');
+    await showsMoon(page);
 
     await toggle(page).click();
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
     expect(await background(page)).toBe(DARK_BG);
     await expect(toggle(page)).toHaveAccessibleName('Switch to light theme');
-    await expect(toggle(page)).toHaveText('Light');
+    await showsSun(page);
 
     await toggle(page).click();
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
@@ -69,10 +78,12 @@ test.describe('theme button, system set to dark', () => {
     await page.goto('/');
     expect(await background(page)).toBe(DARK_BG);
     await expect(toggle(page)).toHaveAccessibleName('Switch to light theme');
+    await showsSun(page);
 
     await toggle(page).click();
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
     expect(await background(page)).toBe(LIGHT_BG);
+    await showsMoon(page);
   });
 });
 
