@@ -125,22 +125,39 @@ const detailsLabel = (piece: Artwork) => {
 
 <script>
   // Cards in a row end at the same place. The title and date under each image can wrap to a different
-  // number of lines, so this measures every card in a row and gives them all the height of the
-  // tallest. It measures the real text, so it works for any font or window width. Without JavaScript
-  // the cards are simply not equalized. Opening Read more still grows only its own card.
+  // number of lines, and so can the Read more label ("Read more and 2 more images" wraps in a narrow
+  // card), so this measures every card in a row and gives them all the height of the tallest. It
+  // measures the real text, so it works for any font or window width. Without JavaScript the cards
+  // are simply not equalized. Opening Read more still grows only its own card: the Read more area is
+  // measured as if closed, and its height is only a minimum.
   const captions = [...document.querySelectorAll<HTMLElement>('.gallery .piece > figcaption')];
+  const footers = [...document.querySelectorAll<HTMLElement>('.gallery .piece > details, .gallery .piece > .read-more-space')];
+
+  // How tall the Read more area is when closed: the label plus the padding under it, but never
+  // less than the minimum the stylesheet sets (which is also what a card without Read more gets).
+  const closedHeight = (footer: HTMLElement) => {
+    const minimum = parseFloat(getComputedStyle(footer).minHeight) || 0;
+    const summary = footer.querySelector('summary');
+    if (!summary) return Math.max(minimum, footer.getBoundingClientRect().height);
+    return Math.max(minimum, summary.getBoundingClientRect().height + parseFloat(getComputedStyle(footer).paddingBottom));
+  };
 
   const equalize = () => {
-    for (const caption of captions) caption.style.minHeight = '';
+    for (const el of [...captions, ...footers]) el.style.minHeight = '';
     const rows = new Map<number, HTMLElement[]>();
-    for (const caption of captions) {
-      const top = Math.round(caption.closest('.piece')!.getBoundingClientRect().top + window.scrollY);
-      rows.set(top, [...(rows.get(top) ?? []), caption]);
+    for (const card of document.querySelectorAll<HTMLElement>('.gallery .piece')) {
+      const top = Math.round(card.getBoundingClientRect().top + window.scrollY);
+      rows.set(top, [...(rows.get(top) ?? []), card]);
     }
     for (const row of rows.values()) {
       if (row.length < 2) continue;
-      const tallest = Math.max(...row.map((caption) => caption.getBoundingClientRect().height));
-      for (const caption of row) caption.style.minHeight = `${tallest}px`;
+      const parts = (selector: string) => row.map((card) => card.querySelector<HTMLElement>(selector)).filter((el): el is HTMLElement => el !== null);
+      const titles = parts(':scope > figcaption');
+      const tallestTitle = Math.max(...titles.map((el) => el.getBoundingClientRect().height));
+      const ends = parts(':scope > details, :scope > .read-more-space');
+      const tallestEnd = Math.max(...ends.map(closedHeight));
+      for (const el of titles) el.style.minHeight = `${tallestTitle}px`;
+      for (const el of ends) el.style.minHeight = `${tallestEnd}px`;
     }
   };
 
