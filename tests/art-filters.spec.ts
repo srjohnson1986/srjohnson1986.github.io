@@ -26,7 +26,8 @@ const tags = offered.map(([tag]) => tag);
 const PROPER: Record<string, string> = {
   '529': '529',
   boggs: 'Boggs',
-  breaux: 'Breaux',
+  'a-few-good-losers': 'A Few Good Losers',
+  breaux: 'breaux!',
   'desk-rabbitz': 'Desk Rabbitz',
   'five-hundred-bucks': 'Five Hundred Bucks',
   'grog-shop': 'Grog Shop',
@@ -39,6 +40,8 @@ const PROPER: Record<string, string> = {
   seagulls: 'Seagulls',
   shehehe: 'Shehehe',
   'signals-midwest': 'Signals Midwest',
+  squadron: 'Squadron',
+  'the-catastrophes': 'The Catastrophes',
   'star-bar': 'Star Bar',
   'the-earl': 'The Earl',
 };

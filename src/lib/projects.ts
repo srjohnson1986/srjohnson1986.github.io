@@ -19,7 +19,8 @@ const TAG_LABELS: Record<string, string> = {
   pwa: 'PWA',
   vba: 'VBA',
   // Art: bands
-  breaux: 'Breaux',
+  'a-few-good-losers': 'A Few Good Losers',
+  breaux: 'breaux!',
   'desk-rabbitz': 'Desk Rabbitz',
   'five-hundred-bucks': 'Five Hundred Bucks',
   homedays: 'Homedays',
@@ -29,6 +30,8 @@ const TAG_LABELS: Record<string, string> = {
   seagulls: 'Seagulls',
   shehehe: 'Shehehe',
   'signals-midwest': 'Signals Midwest',
+  squadron: 'Squadron',
+  'the-catastrophes': 'The Catastrophes',
   // Art: venues
   '529': '529',
   boggs: 'Boggs',
