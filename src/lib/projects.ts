@@ -22,6 +22,9 @@ const TAG_LABELS: Record<string, string> = {
   breaux: 'Breaux',
   'desk-rabbitz': 'Desk Rabbitz',
   'five-hundred-bucks': 'Five Hundred Bucks',
+  homedays: 'Homedays',
+  'house-crimes': 'House Crimes',
+  'little-low': 'Little Low',
   'rough-dreams': 'Rough Dreams',
   seagulls: 'Seagulls',
   shehehe: 'Shehehe',
@@ -33,6 +36,8 @@ const TAG_LABELS: Record<string, string> = {
   ortliebs: "Ortlieb's",
   'star-bar': 'Star Bar',
   'the-earl': 'The Earl',
+  // Art: tags
+  'hand-drawn': 'Hand Drawn',
 };
 
 export const tagLabel = (tag: string): string => TAG_LABELS[tag] ?? tag.replace(/-/g, ' ');
