@@ -194,6 +194,7 @@ test('Development filters by tag only, and each card still shows its year and ty
   await page.goto('/development/');
   await expect(page.locator('select')).toHaveCount(0);
   await expect(page.locator('fieldset input[type="checkbox"]').first()).toBeAttached();
+  await expect(page.locator('fieldset legend')).toHaveText('Tags');
   for (const project of projects) {
     const card = page.locator('[data-item]', { has: page.getByRole('heading', { name: project.title, exact: true }) });
     await expect(card).toContainText(`${project.year} ·`);
