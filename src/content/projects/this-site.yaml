@@ -7,6 +7,8 @@ type: website
 tags:
   - astro
   - playwright
+  - test-automation
+  - web
   - ci-cd
   - accessibility
   - ai-assisted
