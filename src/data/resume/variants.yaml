@@ -27,10 +27,11 @@
     - vz-built-credit-check-test-coverage
     - vz-applied-risk-based-boundary-testing
     - vz-executed-automated-test-cases-selenium
-    - cb-engineered-407-test-suite-runs
+    - cb-engineered-413-test-suite-runs
     - cb-implemented-ci-coverage-gate
     - cb-wrote-automated-smoke-test
     - cb-diagnosed-fixed-race-condition
+    - cb-diagnosed-intermittent-ci-hangs-browser
     - tpd-added-github-actions-workflow
     - tpd-split-business-logic-out
     - ps-automated-accessibility-scanning
@@ -48,7 +49,9 @@
     - tpd-built-maintained-open-source-vba
     - tpd-developed-dual-baseline-smartsheet-schedule
     - tpd-coordinated-cross-functional-delivery-capital
-    - tpd-delivered-versioned-releases-driven
+    - tpd-delivered-11-versioned-releases
+    - tpd-released-add-in-open-source-mit
+    - tpd-built-python-generator-fabricated-sample-workbooks
     - tpd-drafted-add-in-initial-design
     - tpd-wrote-user-guide-wiki
     - vz-owned-governance-jira-instance
@@ -59,6 +62,7 @@
     - vz-published-user-guides-tens-thousands-views
     - cb-gathered-requirements-caregivers-prioritized
     - cb-directed-claude-code-through
+    - cb-automated-releases-end-to-end
     - nu-replaced-paper-based-personnel-change-of-status
     - nu-trained-hr-users-developers
     - nu-developed-vb-net-forms-sharepoint-web-parts
@@ -106,6 +110,7 @@
     - nu-replaced-paper-based-personnel-change-of-status
     - tpd-wrote-user-guide-wiki
     - cb-removed-every-barrier-adoption
+    - cb-kept-documentation-current-without-manual
     - cb-improved-legibility-accessibility-automatically
     - cb-tailored-features-real-care
     - cb-gathered-requirements-caregivers-prioritized

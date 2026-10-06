@@ -40,6 +40,8 @@
     - Eclipse
     # Backed by the bank (Care Communication Board, TPD add-in, Nucor, P&G).
     - Git and GitHub
+    - { name: GitHub Releases, only: [consulting] }
+    - { name: Open-source licensing, only: [consulting] }
     - { name: GitHub Actions CI/CD, only: [qa, consulting] }
     - { name: JUnit, only: [qa] }
     - { name: Robolectric, only: [qa] }
@@ -85,7 +87,7 @@
     - HTML
     - CSS
     - Java
-    - { name: Python, training_only: true }
+    - Python
     - { name: "C#", training_only: true }
     - VB.NET
     - { name: Kotlin, only: [qa, consulting] }
