@@ -8,7 +8,7 @@ example `spring-showcase`:
 2. A data file here, `src/content/art/spring-showcase.yaml`:
 
 ```yaml
-title: Spring Showcase
+title: Spring Showcase          # keep it short enough for two lines on a card (a test checks)
 year: 2026                  # optional: leave out when the year is not known
 date: 2026.04.11            # optional: shown instead of the year, and sets the order (needs year)
 order: 5                    # optional: breaks a tie between pieces with the same date (lower first)

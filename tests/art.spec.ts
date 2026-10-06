@@ -50,17 +50,12 @@ test.describe('Art page', () => {
   test('the control says Read more, never "the story behind"', async ({ page }) => {
     await page.goto('/art/');
     await expect(page.getByText(/story behind/i)).toHaveCount(0);
-    const storyOnly = withStory.find((a) => (a.story || a.caption) && !a.more);
-    if (storyOnly) {
-      const piece = page.locator('.piece', { has: page.getByText(storyOnly.title, { exact: true }) });
-      await expect(piece.locator('summary')).toHaveText('Read more');
+    // Every control says just "Read more", whether it holds text, extra images, or both.
+    for (const art of withStory) {
+      const piece = page.locator('.piece', { has: page.getByText(art.title, { exact: true }) });
+      await expect(piece.locator('summary'), art.title).toHaveText('Read more');
     }
-    // A piece with both text and extra images says so, when the data has one.
-    const both = withStory.find((a) => (a.story || a.caption) && a.more);
-    if (both) {
-      const piece = page.locator('.piece', { has: page.getByText(both.title, { exact: true }) });
-      await expect(piece.locator('summary')).toHaveText(`Read more and ${both.more!.length} more image${both.more!.length === 1 ? '' : 's'}`);
-    }
+    await expect(page.locator('summary', { hasText: /more image/i })).toHaveCount(0);
   });
 
   test('each Signals Midwest and Friends with Jennafits flier is its own piece in the gallery', async ({ page }) => {
@@ -91,7 +86,7 @@ test.describe('Art page', () => {
     const first = page.locator('.piece').first();
     await expect(first.locator(':scope > figcaption strong')).toHaveText('Grog Shop, August 29');
     await expect(first.locator(':scope > figcaption .meta')).toContainText('2026.08.29');
-    await expect(first.locator('summary')).toHaveText('Read more and 2 more images');
+    await expect(first.locator('summary')).toHaveText('Read more');
     await expect(first.locator('.more img')).toHaveCount(2); // in the page already, hidden until opened
     await expect(first.locator('.more')).toBeHidden();
     await first.locator('summary').click();
@@ -175,7 +170,7 @@ test.describe('Art page', () => {
     for (const art of series) {
       const piece = page.locator('.piece', { has: page.getByText(art.title, { exact: true }) });
       const count = art.more!.length;
-      await expect(piece.locator('summary')).toContainText(`${count} more image${count === 1 ? '' : 's'}`);
+      await expect(piece.locator('summary')).toHaveText('Read more');
 
       await piece.locator('summary').click();
       await expect(piece.locator('.more img')).toHaveCount(count);
@@ -304,6 +299,44 @@ test.describe('Larger view of an image', () => {
 });
 
 test.describe('Gallery alignment', () => {
+  for (const width of [320, 375, 430, 500, 620, 768, 1100, 1600]) {
+    test(`titles fit in two lines, and the date and Read more sit at the same height in every tile (${width}px)`, async ({ page }) => {
+      await page.setViewportSize({ width, height: 900 });
+      await page.goto('/art/');
+      const tiles = await page.locator('.piece').evaluateAll((cards) =>
+        cards.map((card) => {
+          // Count the lines of text the title really takes, from where each line sits.
+          const lines = (el: Element) => {
+            const range = document.createRange();
+            range.selectNodeContents(el);
+            return new Set([...range.getClientRects()].map((r) => Math.round(r.top))).size;
+          };
+          const top = card.getBoundingClientRect().top;
+          const offset = (el: Element | null) => (el ? Math.round((el.getBoundingClientRect().top - top) * 10) / 10 : NaN);
+          return {
+            title: card.querySelector('strong')!.textContent!,
+            titleLines: lines(card.querySelector('strong')!),
+            date: offset(card.querySelector('.meta')),
+            readMore: offset(card.querySelector(':scope > details > summary') ?? card.querySelector(':scope > .read-more-space')),
+          };
+        }),
+      );
+      expect(tiles.length).toBeGreaterThan(0);
+
+      // A title that needs three lines is too long for the card: shorten it in its yaml file.
+      const tooLong = tiles.filter((t) => t.titleLines > 2).map((t) => t.title);
+      expect(tooLong, 'titles longer than two lines').toEqual([]);
+
+      // The date and the Read more control are at the same distance from the top of every tile,
+      // in every row, whatever the title says.
+      const first = tiles[0];
+      for (const tile of tiles) {
+        expect(tile.date, `date of "${tile.title}"`).toBeCloseTo(first.date, 0);
+        expect(tile.readMore, `Read more of "${tile.title}"`).toBeCloseTo(first.readMore, 0);
+      }
+    });
+  }
+
   for (const [name, width] of [
     ['phone, small', 320],
     ['phone', 375],

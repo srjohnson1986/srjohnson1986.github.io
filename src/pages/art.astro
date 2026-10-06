@@ -70,14 +70,6 @@ for (const piece of pieces) {
   for (const [i, extra] of (piece.data.more ?? []).entries()) large.set(`${piece.id}#${i}`, await largeOf(extra.image));
 }
 
-// What the expand and collapse control says, depending on what is inside it.
-const detailsLabel = (piece: Artwork) => {
-  const extra = piece.data.more?.length ?? 0;
-  const hasText = Boolean(piece.data.story || piece.data.caption);
-  if (hasText && extra) return `Read more and ${extra} more image${extra === 1 ? '' : 's'}`;
-  if (extra) return `${extra} more image${extra === 1 ? '' : 's'}`;
-  return 'Read more';
-};
 ---
 
 <BaseLayout
@@ -126,7 +118,7 @@ const detailsLabel = (piece: Artwork) => {
                   {!(piece.data.story || piece.data.more || piece.data.caption) && <div class="read-more-space" aria-hidden="true" />}
                   {(piece.data.story || piece.data.more || piece.data.caption) && (
                     <details>
-                      <summary>{detailsLabel(piece)}</summary>
+                      <summary>Read more</summary>
                       {piece.data.caption && <p class="caption">{piece.data.caption}</p>}
                       {piece.data.story?.map((paragraph) => <p>{paragraph}</p>)}
                       {piece.data.more && (
@@ -171,8 +163,7 @@ const detailsLabel = (piece: Artwork) => {
 
 <script>
   // Cards in a row end at the same place. The title and date under each image can wrap to a different
-  // number of lines, and so can the Read more label ("Read more and 2 more images" wraps in a narrow
-  // card), so this measures every card in a row and gives them all the height of the tallest. It
+  // number of lines, so this measures every card in a row and gives them all the height of the tallest. It
   // measures the real text, so it works for any font or window width. Without JavaScript the cards
   // are simply not equalized. Opening Read more still grows only its own card: the Read more area is
   // measured as if closed, and its height is only a minimum. It runs again whenever the filters or
@@ -434,8 +425,13 @@ const detailsLabel = (piece: Artwork) => {
     padding: 0.75rem 0.9rem;
   }
 
-  /* The title and date block is made the same height across a row by the script below, which
-     measures the real text rather than guessing how many lines a title needs in any given font. */
+  /* Every title gets room for two lines, so the date and Read more below it sit at the same height
+     in every tile. A title of one line leaves a blank line; a title of three lines is too long and
+     is caught by a test (the script below still evens out a row if one ever slips through). */
+  .piece > figcaption strong {
+    min-height: 2lh;
+  }
+
   .piece > figcaption .meta {
     min-height: 1.55em;
   }
