@@ -66,7 +66,7 @@ built:
     with missing audio reset themselves instead of failing silently, and cleanup never
     deletes audio a saved board still uses.
   - >-
-    A 407-test suite that runs on the JVM, in headless Chrome, and on an Android emulator,
+    A suite of 413+ tests that runs on the JVM, in headless Chrome, and on an Android emulator,
     backed by a 90% coverage gate, screenshot regression tests, and branch protection on
     every merge.
 
@@ -106,7 +106,7 @@ facts:
     label: idea to first release
   - value: 13 days
     label: to v1.0 on Android and the web
-  - value: "407"
+  - value: 413+
     label: automated tests
   - value: 90%
     label: line coverage gate

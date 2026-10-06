@@ -5,7 +5,7 @@
 # role's block. The order here does not affect the resume: variants.yaml sets the display order.
 
 # ==================================================
-# == Thermal Process Development (tpd) - 18 bullets
+# == Thermal Process Development (tpd) - 24 bullets
 # ==================================================
 
 - id: tpd-built-maintained-open-source-vba
@@ -52,8 +52,8 @@
   tags: [ci-cd, consulting]
   public: true
   text: >-
-    Added a GitHub Actions workflow that checks every change for broken ribbon callbacks and
-    missing coding-standard declarations before merge.
+    Added a GitHub Actions workflow that checks every code change for broken ribbon
+    callbacks and missing coding-standard declarations before merge.
 
 - id: tpd-created-pre-release-source-drift-check
   role: tpd
@@ -73,14 +73,14 @@
     Split business logic out of Excel-dependent code and added 20 Rubberduck unit tests for
     the column-selection, numbering, and settings-fallback logic.
 
-- id: tpd-delivered-versioned-releases-driven
+- id: tpd-delivered-11-versioned-releases
   role: tpd
   theme: engineering-process-and-quality
   tags: [consulting]
   public: true
   text: >-
-    Delivered versioned releases driven by feedback from the project team, with every change
-    tracked through GitHub issues and reviewed pull requests.
+    Delivered 11+ versioned releases, tracking work through 70+ GitHub issues and 98+
+    pull requests.
 
 - id: tpd-refactored-codebase-small-reviewable
   role: tpd
@@ -109,14 +109,15 @@
     Wrote the user guide and wiki, plus a developer architecture guide, changelog, and
     release process, so the add-in can be handed off and supported.
 
-- id: tpd-published-add-in-public-open-source
+- id: tpd-released-add-in-open-source-mit
   role: tpd
   theme: documentation-and-enablement
-  tags: [documentation-training, consulting]
+  tags: [documentation-training, open-source, consulting]
   public: true
   text: >-
-    Published the add-in as a public open-source GitHub repository with contributor
-    documentation.
+    Released the add-in as open source under the MIT License with the client's approval,
+    keeping the company name and logo out of the license and adding a security policy
+    with private vulnerability reporting and a code of conduct.
 
 - id: tpd-leveraged-ai-coding-agents
   role: tpd
@@ -173,8 +174,65 @@
     Maintained alignment across evolving requirements and multiple external stakeholders to
     ensure on-time delivery.
 
+- id: tpd-stored-user-settings-windows-registry
+  role: tpd
+  theme: automation-and-tooling
+  tags: [development, consulting]
+  public: true
+  text: >-
+    Stored user settings in the Windows registry after finding that Excel never saves an
+    add-in when it closes, which had been silently losing settings between sessions.
+
+- id: tpd-built-python-generator-fabricated-sample-workbooks
+  role: tpd
+  theme: engineering-process-and-quality
+  tags: [test-automation, development, consulting]
+  public: true
+  text: >-
+    Built a Python generator that creates seeded, fully fabricated sample workbooks, so
+    the public repository can be tested end to end without exposing any customer data.
+
+- id: tpd-designed-test-fixtures-inputs-most-likely
+  role: tpd
+  theme: engineering-process-and-quality
+  tags: [test-automation, qa]
+  public: true
+  text: >-
+    Designed the test fixtures around the inputs most likely to break the tools:
+    parent/child row groups, wrapped multi-line text, and vendor names that collide when
+    used as sheet names.
+
+- id: tpd-wrote-manual-smoke-test-checklist
+  role: tpd
+  theme: engineering-process-and-quality
+  tags: [qa, test-automation]
+  public: true
+  text: >-
+    Wrote a manual smoke-test checklist with expected results for every ribbon tool, run
+    against the sample workbooks before each release.
+
+- id: tpd-defined-repeatable-release-process
+  role: tpd
+  theme: engineering-process-and-quality
+  tags: [ci-cd, consulting]
+  public: true
+  text: >-
+    Defined a repeatable release process: a release pull request, a passing CI run, a
+    scripted build, a source-drift check, a smoke test, then a tagged GitHub release
+    with the user guide and wiki updated.
+
+- id: tpd-replaced-confidential-customer-workbooks-synthetic
+  role: tpd
+  theme: data-privacy
+  tags: [consulting, privacy]
+  public: true
+  text: >-
+    Replaced confidential customer workbooks with synthetic test data that mirrors the
+    structure of real exports, checking the generated files for leaked identifiers, so
+    the add-in could be open-sourced for a client without exposing customer data.
+
 # ======================================================
-# == Care Communication Board (care-board) - 28 bullets
+# == Care Communication Board (care-board) - 38 bullets
 # ======================================================
 
 - id: cb-designed-built-shipped-ad-free
@@ -187,14 +245,14 @@
     family member, reaching first release in 4 days and v1.0 in 13 days while directing an
     AI coding agent and owning all architecture and review decisions.
 
-- id: cb-engineered-407-test-suite-runs
+- id: cb-engineered-413-test-suite-runs
   role: care-board
   theme: base-entry
   tags: [ci-cd, test-automation, development]
   public: true
   text: >-
-    Engineered a 407-test suite that runs on the JVM, in headless Chrome and on an Android
-    emulator, backed by a 90% coverage gate and branch protection on every merge.
+    Engineered a suite of 413+ tests that runs on the JVM, in headless Chrome and on an
+    Android emulator, backed by a 90% coverage gate and required checks on every merge.
 
 - id: cb-removed-every-barrier-adoption
   role: care-board
@@ -360,8 +418,9 @@
   tags: [ci-cd, qa, development]
   public: true
   text: >-
-    Configured GitHub Actions CI with branch protection and parallel Android and web jobs,
-    requiring lint, tests, coverage and the build to pass before any merge.
+    Configured GitHub Actions CI with branch protection and parallel Android and web
+    jobs, requiring lint, tests, coverage, a documentation check and the build to pass
+    before any merge.
 
 - id: cb-converted-caregiver-feedback-tracked
   role: care-board
@@ -437,8 +496,107 @@
   public: true
   text: >-
     Delivered a maintainable handoff: user documentation, architecture docs, automated
-    tests, CI, a repeatable signed-release process, and a wiki a script keeps in sync with
-    the docs on every release.
+    tests, CI, a fully automated signed-release pipeline, and a wiki that a workflow
+    keeps in sync with the docs on every merge.
+
+- id: cb-kept-documentation-current-without-manual
+  role: care-board
+  theme: adoption-ux
+  tags: [documentation-training, ci-cd]
+  public: true
+  text: >-
+    Kept documentation current without manual effort: the wiki mirrors the docs and
+    README on every merge, and a bot flags any pull request that changes what users see
+    without updating the user guide.
+
+- id: cb-released-project-open-source-apache
+  role: care-board
+  theme: adoption-ux
+  tags: [documentation-training, open-source]
+  public: true
+  text: >-
+    Released the project as open source under Apache-2.0 with license and attribution
+    notices for bundled audio, fonts and icons, plus contributing, security and code-of-
+    conduct guides and issue templates.
+
+- id: cb-diagnosed-intermittent-ci-hangs-browser
+  role: care-board
+  theme: qa-testing
+  tags: [qa, test-automation, ci-cd]
+  public: true
+  text: >-
+    Diagnosed intermittent CI hangs in the browser test suite, tracing them to a UI test
+    clock that stepped one frame at a time and an animation that kept re-arming itself,
+    then fixed the test harness so a 16-run stress test went from 6 hung runs to 16 of
+    16 passing.
+
+- id: cb-traced-intermittent-offline-failure-smoke
+  role: care-board
+  theme: qa-testing
+  tags: [qa, test-automation]
+  public: true
+  text: >-
+    Traced an intermittent offline failure in the live-site smoke test to a real caching
+    gap in the web app, then fixed the app as well as the test.
+
+- id: cb-added-documentation-check-required-ci
+  role: care-board
+  theme: qa-testing
+  tags: [ci-cd, documentation-training]
+  public: true
+  text: >-
+    Added a documentation check to the required CI gate that fails on any broken link,
+    anchor or file path the docs name (107 paths verified at launch).
+
+- id: cb-built-safeguards-automated-release-pipeline
+  role: care-board
+  theme: qa-testing
+  tags: [ci-cd, qa]
+  public: true
+  text: >-
+    Built safeguards into the automated release pipeline (version and tag match,
+    signing-certificate pinning, a stop on missing secrets) and proved them with dry
+    runs before the first automated release.
+
+- id: cb-automated-releases-end-to-end
+  role: care-board
+  theme: release-engineering-ci-cd
+  tags: [ci-cd, development]
+  public: true
+  text: >-
+    Automated releases end to end: pushing one version tag builds, signs, verifies and
+    publishes the Android app to GitHub Releases and the web app to GitHub Pages, with
+    v1.0.1 shipped entirely by the pipeline.
+
+- id: cb-automated-dependency-maintenance-dependabot
+  role: care-board
+  theme: release-engineering-ci-cd
+  tags: [ci-cd, development]
+  public: true
+  text: >-
+    Automated dependency maintenance: Dependabot groups updates by release train each
+    week, and they merge only after the required checks pass. 9+ updates have landed
+    with no manual merges.
+
+- id: cb-extended-app-ios-native-audio
+  role: care-board
+  theme: ai-assisted-development-implementation-consulting
+  tags: [development, ai-assisted]
+  public: true
+  text: >-
+    Extended the app to iOS with native audio, recording, speech and file storage on one
+    shared Kotlin codebase (about 89% of each app's code is shared), compiled and tested
+    on the iPhone simulator in CI.
+
+- id: cb-wrote-agents-md-brief-tells
+  role: care-board
+  theme: ai-assisted-development-implementation-consulting
+  tags: [ai-assisted, documentation-training]
+  public: true
+  text: >-
+    Wrote an AGENTS.md brief that tells any AI assistant or human contributor where code
+    goes, how to keep three platforms in step, the required workflow, and known
+    pitfalls, so every new session follows the project's rules from the start.
 
 # ===========================================================
 # == Personal portfolio website (portfolio-site) - 4 bullets
