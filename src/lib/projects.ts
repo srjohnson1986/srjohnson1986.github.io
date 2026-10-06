@@ -20,7 +20,7 @@ const TAG_LABELS: Record<string, string> = {
   vba: 'VBA',
   // Art: bands
   'a-few-good-losers': 'A Few Good Losers',
-  breaux: 'Breaux!',
+  breaux: 'breaux!',
   'desk-rabbitz': 'Desk Rabbitz',
   'five-hundred-bucks': 'Five Hundred Bucks',
   homedays: 'Homedays',

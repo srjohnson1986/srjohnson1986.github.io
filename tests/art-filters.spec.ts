@@ -27,7 +27,7 @@ const PROPER: Record<string, string> = {
   '529': '529',
   boggs: 'Boggs',
   'a-few-good-losers': 'A Few Good Losers',
-  breaux: 'Breaux!',
+  breaux: 'breaux!',
   'desk-rabbitz': 'Desk Rabbitz',
   'five-hundred-bucks': 'Five Hundred Bucks',
   'grog-shop': 'Grog Shop',
