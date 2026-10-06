@@ -36,6 +36,7 @@ const TAG_LABELS: Record<string, string> = {
   'carnivorous-flower': 'Carnivorous Flower',
   daimora: 'Daimora',
   'delta-hate': 'Delta Hate',
+  errth: 'errth', // lowercase on purpose, like the band writes it
   downhaul: 'Downhaul',
   'fever-sleep': 'Fever Sleep',
   'freezing-cold': 'Freezing Cold',

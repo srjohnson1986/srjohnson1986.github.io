@@ -48,6 +48,7 @@ const PROPER: Record<string, string> = {
   'carnivorous-flower': 'Carnivorous Flower',
   daimora: 'Daimora',
   'delta-hate': 'Delta Hate',
+  errth: 'errth',
   downhaul: 'Downhaul',
   'fever-sleep': 'Fever Sleep',
   'freezing-cold': 'Freezing Cold',
