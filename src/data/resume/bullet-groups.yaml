@@ -9,4 +9,5 @@
     - vz-authored-requirements-test-data-retrieval-tool
     - vz-verified-discounting-launches-separating-defects
     - ps-built-public-playwright-suite
+    - ps-proved-suite-could-fail
     - ps-configured-github-actions-suite-smoke
