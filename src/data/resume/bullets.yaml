@@ -251,8 +251,8 @@
   tags: [ci-cd, test-automation, development]
   public: true
   text: >-
-    Engineered a suite of 413+ tests that runs on the JVM, in headless Chrome and on an
-    Android emulator, backed by a 90% coverage gate and required checks on every merge.
+    Engineered a suite of 413+ tests that runs on the JVM with JUnit and Robolectric, in
+    headless Chrome, and on an Android emulator, backed by a 90% coverage gate and required checks on every merge.
 
 - id: cb-removed-every-barrier-adoption
   role: care-board
@@ -599,7 +599,7 @@
     pitfalls, so every new session follows the project's rules from the start.
 
 # ===========================================================
-# == Personal portfolio website (portfolio-site) - 4 bullets
+# == Personal portfolio website (portfolio-site) - 5 bullets
 # ===========================================================
 
 - id: ps-built-public-playwright-suite
@@ -608,7 +608,16 @@
   tags: [qa, development]
   public: true
   text: >-
-    Designed a public Playwright suite that renders every resume version from the site's own data files and checks each one against the skills and bullets it should show.
+    Designed a public Playwright and TypeScript suite of 290+ tests that renders every resume version from the site's own data files and checks each one against the skills and bullets it should show.
+
+- id: ps-proved-suite-could-fail
+  role: portfolio-site
+  theme: portfolio-site-and-test-suite
+  tags: [qa]
+  public: true
+  text: >-
+    Proved the suite could fail by deliberately breaking the site with a dead link, a missing
+    heading, a truncated PDF, and pale text, then confirming the right tests caught each one.
 
 - id: ps-automated-accessibility-scanning
   role: portfolio-site
@@ -653,8 +662,8 @@
   tags: [leadership, qa]
   public: true
   text: >-
-    Streamlined Agile SDLC reporting, improving story tracking and resource allocation for
-    globally distributed teams.
+    Streamlined Agile SDLC reporting, improving story tracking, status visibility, and resource
+    allocation for globally distributed teams.
 
 - id: vz-built-maintained-confluence-repositories
   role: verizon
