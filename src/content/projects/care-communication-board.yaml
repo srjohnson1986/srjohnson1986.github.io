@@ -72,10 +72,10 @@ built:
 
 outcome:
   - >-
-    Idea to first release in 4 days, and v1.0 on Android and the web in 13 days, across 127
-    issues, 133 pull requests, 161 commits, and 6 releases.
+    Idea to first release in 4 days, and v1.0 on Android and the web in 13 days, with 151+
+    issues, 159+ pull requests, 186+ commits, and 7+ releases to date.
   - >-
-    About 15,000 lines of code and tests, with a CI coverage gate that fails the build if
+    About 16,000 lines of code and tests, with a CI coverage gate that fails the build if
     core code drops below 90% line coverage (currently 91-99.5%).
   - >-
     Found that half the UI test suite was failing unnoticed because CI never ran it,
@@ -110,9 +110,9 @@ facts:
     label: automated tests
   - value: 90%
     label: line coverage gate
-  - value: About 15,000
+  - value: About 16,000
     label: lines of code and tests
-  - value: "133"
+  - value: 159+
     label: pull requests
 
 links:
