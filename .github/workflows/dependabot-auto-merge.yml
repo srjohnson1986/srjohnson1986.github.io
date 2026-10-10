@@ -1,0 +1,26 @@
+name: Dependabot auto-merge
+
+# When Dependabot opens (or updates) a pull request, this asks GitHub to merge it once the required
+# `build` check passes. GitHub does the merge, not this job: a red build never merges, and a fix
+# pushed to the branch later (by the Claude repair routine, say) is picked up without doing anything
+# here. A merge to `main` deploys the site, which is why the full test suite must be green first.
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, reopened, synchronize, ready_for_review]
+
+# Dependabot's token is read-only unless the workflow asks for more.
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  auto-merge:
+    if: github.actor == 'dependabot[bot]' && github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    steps:
+      - name: Queue the merge for when the build check passes
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+        run: gh pr merge --auto --merge "$PR_URL"

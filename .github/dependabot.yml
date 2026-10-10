@@ -1,10 +1,20 @@
-# Dependency updates arrive as pull requests, so the CI check vets each one before it can merge.
+# Dependency updates (#207): Dependabot opens them, dependabot-auto-merge.yml queues the merge,
+# and the required `build` check decides whether it lands. A bump that goes red is left for the
+# weekly Claude routine `website-dependency-repair` (it runs in the Claude cloud, not in this
+# repository) to repair, or to label `needs-human`.
 version: 2
 updates:
   - package-ecosystem: npm
     directory: /
     schedule:
       interval: weekly
+      day: monday
+      time: "05:00"
+      timezone: America/New_York
+    # Wait 3 days after a release before proposing it: a bad release is usually pulled or patched
+    # within that time, and nothing here is reviewed by a person before it merges.
+    cooldown:
+      default-days: 3
     open-pull-requests-limit: 5
     # Minor and patch updates arrive together in one pull request. A major update stays separate.
     groups:
@@ -14,3 +24,8 @@ updates:
     directory: /
     schedule:
       interval: weekly
+      day: monday
+      time: "05:00"
+      timezone: America/New_York
+    cooldown:
+      default-days: 3
