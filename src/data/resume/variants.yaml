@@ -18,9 +18,9 @@
     - vz-wrote-test-plans-defined-scope
     - vz-defined-defect-assignment-escalation-paths
     - vz-owned-end-to-end-testing-site
+    - vz-explored-features-hands-on-alongside
     - vz-served-launch-war-rooms
     - vz-ran-man-in-the-middle-cross-site
-    - vz-monitored-application-error-logs
     - vz-investigated-defects-through-kibana
     - vz-inspected-network-logs-session-data
     - vz-enforced-requirements-traceability-linking
@@ -34,6 +34,7 @@
     - cb-diagnosed-intermittent-ci-hangs-browser
     - tpd-added-github-actions-workflow
     - tpd-split-business-logic-out
+    - ps-proved-suite-could-fail
     - ps-automated-accessibility-scanning
     - gs-diagnosed-desktop-laptop-problems-running
     - gs-replaced-upgraded-components-customers-computers
@@ -113,6 +114,7 @@
     - cb-kept-documentation-current-without-manual
     - cb-improved-legibility-accessibility-automatically
     - cb-tailored-features-real-care
+    - cb-turned-caretaker-feedback-text-to-speech
     - cb-gathered-requirements-caregivers-prioritized
     - jp-provided-on-the-spot-technical-support
     - gs-diagnosed-desktop-laptop-problems-running

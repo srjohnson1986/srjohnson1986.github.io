@@ -251,8 +251,8 @@
   tags: [ci-cd, test-automation, development]
   public: true
   text: >-
-    Engineered a suite of 413+ tests that runs on the JVM with JUnit and Robolectric, in
-    headless Chrome, and on an Android emulator, backed by a 90% coverage gate and required checks on every merge.
+    Engineered a suite of 413+ tests that runs on the JVM, in headless Chrome and on an
+    Android emulator, backed by a 90% coverage gate and required checks on every merge.
 
 - id: cb-removed-every-barrier-adoption
   role: care-board
@@ -316,8 +316,8 @@
   tags: [development]
   public: true
   text: >-
-    Delivered v1.0 on two platforms in 13 days across 127 issues, 133 pull requests and 6
-    releases, turning caregiver feedback into more than 130 shipped changes.
+    Delivered v1.0 on two platforms in 13 days and kept shipping to 151+ issues, 159+ pull
+    requests and 7+ releases, turning caregiver feedback into more than 130 shipped changes.
 
 - id: cb-tailored-features-real-care
   role: care-board
@@ -391,8 +391,9 @@
   tags: [ci-cd, test-automation, qa, development]
   public: true
   text: >-
-    Uncovered that half the UI test suite was failing unnoticed because CI never ran it,
-    repaired it, and added emulator-based UI testing to CI.
+    Audited which tests CI actually ran, using Claude Code to look for gaps, and uncovered
+    that half the UI test suite was failing unnoticed because CI never ran it, then repaired
+    the tests and added emulator-based UI testing to CI.
 
 - id: cb-diagnosed-fixed-race-condition
   role: care-board
@@ -441,6 +442,25 @@
     changes, tiles with missing audio reset themselves instead of failing silently, and
     cleanup never deletes audio a saved board still uses.
 
+- id: cb-explored-app-found-landscape-layout
+  role: care-board
+  theme: qa-testing
+  tags: [qa, development]
+  public: true
+  text: >-
+    Explored the app hands-on and found layout breaks in landscape mode, fixed the header
+    height, tile layout, and sticky rows, and tested both orientations from then on.
+
+- id: cb-turned-caretaker-feedback-text-to-speech
+  role: care-board
+  theme: adoption-ux
+  tags: [adoption, development, requirements]
+  public: true
+  text: >-
+    Turned a caretaker's feedback on a demo (no way to say a phrase that wasn't pre-recorded)
+    into on-the-fly text-to-speech, custom voice clips for tiles, and a full-screen Show mode
+    for loud or quiet environments.
+
 - id: cb-directed-claude-code-through
   role: care-board
   theme: ai-assisted-development-implementation-consulting
@@ -448,8 +468,8 @@
   public: true
   text: >-
     Directed Claude Code through a governed workflow (issue to feature branch to pull
-    request to CI gate) to ship a cross-platform Kotlin app, about 15,000 lines of code and
-    tests across 161 commits, in 13 days.
+    request to CI gate) to ship a cross-platform Kotlin app, about 16,000 lines of code and
+    tests across 186+ commits, with v1.0 in 13 days.
 
 - id: cb-led-4-phase-migration-kotlin
   role: care-board
@@ -608,7 +628,7 @@
   tags: [qa, development]
   public: true
   text: >-
-    Designed a public Playwright and TypeScript suite of 290+ tests that renders every resume version from the site's own data files and checks each one against the skills and bullets it should show.
+    Designed a public Playwright suite that renders every resume version from the site's own data files and checks each one against the skills and bullets it should show.
 
 - id: ps-proved-suite-could-fail
   role: portfolio-site
@@ -616,8 +636,9 @@
   tags: [qa]
   public: true
   text: >-
-    Proved the suite could fail by deliberately breaking the site with a dead link, a missing
-    heading, a truncated PDF, and pale text, then confirming the right tests caught each one.
+    Proved the portfolio site's test suite could fail by deliberately breaking the site, with a
+    dead link, a missing heading, a truncated PDF, pale text, and players that load on their
+    own, then confirming the right tests caught each one.
 
 - id: ps-automated-accessibility-scanning
   role: portfolio-site
@@ -662,8 +683,8 @@
   tags: [leadership, qa]
   public: true
   text: >-
-    Streamlined Agile SDLC reporting, improving story tracking, status visibility, and resource
-    allocation for globally distributed teams.
+    Streamlined Agile SDLC reporting, improving story tracking and resource allocation for
+    globally distributed teams.
 
 - id: vz-built-maintained-confluence-repositories
   role: verizon
@@ -674,6 +695,35 @@
     Built and maintained Confluence repositories that standardized repeatable testing
     processes across teams.
 
+- id: vz-explored-features-hands-on-alongside
+  role: verizon
+  theme: exploratory-testing-and-requirements-feedback
+  tags: [qa, requirements]
+  public: true
+  text: >-
+    Explored features hands-on alongside scripted test cases, catching wording, grammar, and
+    name and address display problems that met the spec as written, filing defects as they
+    surfaced and raising them in stand-ups so the requirements were updated and fixes shipped.
+
+- id: vz-reviewed-on-screen-copy-teams
+  role: verizon
+  theme: exploratory-testing-and-requirements-feedback
+  tags: [qa]
+  public: true
+  text: >-
+    Reviewed on-screen copy produced by teams of varying English proficiency, catching
+    wording and grammar errors and filing them as defects.
+
+- id: vz-flagged-cultural-differences-names-addresses
+  role: verizon
+  theme: exploratory-testing-and-requirements-feedback
+  tags: [qa, requirements]
+  public: true
+  text: >-
+    Flagged cultural differences in how customer names and addresses should display, opening
+    defects and raising them in stand-ups until the requirement owner updated the
+    requirement.
+
 - id: vz-owned-end-to-end-testing-site
   role: verizon
   theme: scale-and-high-stakes-releases
@@ -681,7 +731,8 @@
   public: true
   text: >-
     Owned end-to-end testing for a site serving 70M monthly visitors plus native iOS and
-    Android apps, across desktop, tablet, and mobile.
+    Android apps, across multiple browsers (Chrome, Firefox, and Edge, with Internet Explorer
+    as needed) in desktop, tablet, and mobile.
 
 - id: vz-served-launch-war-rooms
   role: verizon
@@ -735,7 +786,7 @@
   tags: [fraud, qa]
   public: true
   text: >-
-    Validated fraud-related fixes across staging, production, and regression cycles.
+    Validated fraud-related fixes across test environments, production, and regression cycles.
 
 - id: vz-monitored-application-error-logs
   role: verizon
@@ -895,8 +946,10 @@
   tags: [qa]
   public: true
   text: >-
-    Verified discounting on launches, separating true code defects from configuration errors
-    and requirement gaps.
+    Validated discount stacking on launches in a discount configuration tool, finding gaps
+    between how testers read a discount and how it was actually configured, often showing the
+    discount was set up correctly and the requirement was misunderstood, which cut false
+    defects.
 
 - id: vz-published-user-guides-tens-thousands-views
   role: verizon
