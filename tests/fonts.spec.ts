@@ -2,7 +2,7 @@ import { test, expect } from './helpers/test';
 
 // The site font, Atkinson Hyperlegible Next, is served from this site (bundled by the build). These
 // checks make sure it really loads and that no font comes from a third party.
-const pages = ['/', '/resume/qa/', '/development/'];
+const pages = ['/', '/resume/qa/', '/development-qa/'];
 
 for (const path of pages) {
   test(`${path} loads the bundled Atkinson font and no outside fonts`, async ({ page }) => {

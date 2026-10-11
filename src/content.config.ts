@@ -290,7 +290,7 @@ const intros = defineCollection({
   schema: z
     .strictObject({
       // Which page the text is for.
-      id: z.enum(['home', 'art', 'audio', 'contact', 'jabroni-fest', 'creative', 'development', 'not-found']),
+      id: z.enum(['home', 'art', 'audio', 'contact', 'jabroni-fest', 'creative', 'development-qa', 'not-found']),
       // The page's title in the browser tab and in link previews, and its description.
       title: copy,
       description: copy,
@@ -308,7 +308,7 @@ const intros = defineCollection({
       studio_link: copy.optional(),
       // Shown instead of the gallery or list when there is nothing to show (Art, Audio).
       empty: copy.optional(),
-      // Shown when the filters match nothing (Art, Audio, Development).
+      // Shown when the filters match nothing (Art, Audio, Development & QA).
       no_match: copy.optional(),
       // The 404 page's heading, its button to the home page, and the heading above its list of sections.
       heading: copy.optional(),
@@ -330,7 +330,7 @@ const intros = defineCollection({
         need('empty');
         need('no_match');
       }
-      if (entry.id === 'development') need('no_match');
+      if (entry.id === 'development-qa') need('no_match');
       if (entry.id === 'contact') {
         need('email_note');
         need('closing');
@@ -418,14 +418,14 @@ const releases = defineCollection({
 });
 
 // ---------------------------------------------------------------------------
-// Development projects (src/content/projects/<project>.yaml)
+// Development & QA projects (src/content/projects/<project>.yaml)
 // ---------------------------------------------------------------------------
 
 const projects = defineCollection({
   loader: glob({ pattern: '*.yaml', base: './src/content/projects' }),
   schema: z.strictObject({
     title: copy,
-    // A short name for the header list under Development and the phone menu, such as "This site".
+    // A short name for the header list under Development & QA and the phone menu, such as "This site".
     // Short enough to sit in a small dropdown.
     navTitle: copy.refine((s) => s.length <= 30, 'Keep the short name to 30 characters or fewer'),
     // One sentence, shown on the archive card and as the page description.

@@ -178,9 +178,10 @@ export function expectedSkills(variantId: string): { group: string; items: strin
  * Pages that only forward the visitor to another page. They are built, but they are not real pages:
  * they are not in the sitemap, not scanned, and (for the retired ones) nothing links to them.
  * "/resume/" forwards to the first resume version and the navigation links to it. "/events/" is the
- * old address of the Jabroni Fest page, kept so old links still work, and nothing links to it.
+ * old address of the Jabroni Fest page, and "/development/" with a page for each project under it is
+ * the old address of Development & QA. They are kept so old links still work, and nothing links to them.
  */
-export const retiredPages = ['/events/'];
+export const retiredPages = ['/events/', '/development/', ...projects.map((p) => `/development/${p.slug}/`)];
 export const redirectPages = ['/resume/', ...retiredPages];
 
 /** Every page in the built site as a URL path, such as "/" or "/resume/qa/". */

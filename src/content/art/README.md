@@ -64,11 +64,11 @@ choice in the panel. A number like `529` can be written with or without quotes.
 The Filters panel shows `five-hundred-bucks` as "Five Hundred Bucks". Without any extra work a name
 reads with its hyphens turned into spaces (`the-earl` becomes "the earl"). To show it properly, add a
 line for it in the `TAG_LABELS` list in `src/lib/projects.ts`, for example `ortliebs: "Ortlieb's"`. That
-list is shared with Audio and Development, which is fine because each page only shows its own tags.
+list is shared with Audio and Development & QA, which is fine because each page only shows its own tags.
 
 ## The Filters panel
 
-The Art page has the same collapsible Filters panel as Audio and Development. Everything in it is
+The Art page has the same collapsible Filters panel as Audio and Development & QA. Everything in it is
 built from the pieces, so there is nothing to keep up to date by hand:
 
 - **Sort by** flips the page between newest first (the default) and oldest first.

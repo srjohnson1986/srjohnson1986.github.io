@@ -2,11 +2,11 @@
 # blurb, and the page it opens. Leave out `href` while the page is not built yet, and the card shows
 # "Coming soon". The build checks the same copy rules as everywhere else (single hyphens only).
 
-- id: development
+- id: development-qa
   order: 1
-  title: Technology and QA
+  title: Development & QA
   blurb: Things I’ve built and tested, with the code, the story, and live demos.
-  href: /development/
+  href: /development-qa/
 
 - id: audio
   order: 2

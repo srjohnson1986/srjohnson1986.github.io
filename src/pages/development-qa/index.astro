@@ -6,7 +6,7 @@ import { getEntry } from 'astro:content';
 import { site } from '../../data/site';
 import { fill } from '../../lib/copy';
 
-const intro = (await getEntry('intros', 'development'))!.data;
+const intro = (await getEntry('intros', 'development-qa'))!.data;
 const projects = await getProjects();
 const facets = getFacets(projects);
 
@@ -24,7 +24,7 @@ const filterFacets: Facet[] = [
   title={fill(intro.title)}
   description={fill(intro.description)}
 >
-  <h1>Development</h1>
+  <h1>Development & QA</h1>
   <p class="lead">{intro.lead}</p>
 
   <ArchiveFilters
@@ -41,7 +41,7 @@ const filterFacets: Facet[] = [
             data-tag={project.data.tags.join(' ')}
           >
             <h2>
-              <a href={`/development/${project.id}/`}>{project.data.title}</a>
+              <a href={`/development-qa/${project.id}/`}>{project.data.title}</a>
             </h2>
             <p class="meta">
               {project.data.year} &middot; {TYPE_LABELS[project.data.type]}

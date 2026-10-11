@@ -14,8 +14,8 @@ const { project } = Astro.props;
 const { title, summary, year, type, stack, problem, built, outcome, facts, links } = project.data;
 ---
 
-<BaseLayout title={`${title} | Development | ${site.name}`} description={summary}>
-  <p class="back"><a href="/development/">&larr; All projects</a></p>
+<BaseLayout title={`${title} | Development & QA | ${site.name}`} description={summary}>
+  <p class="back"><a href="/development-qa/">&larr; All projects</a></p>
 
   <header>
     <h1>{title}</h1>

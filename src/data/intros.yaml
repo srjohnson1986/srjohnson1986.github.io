@@ -1,4 +1,4 @@
-# The words on the Home, Art, Audio, Creative, Contact, Jabroni Fest, Development, and 404 pages: each page's
+# The words on the Home, Art, Audio, Creative, Contact, Jabroni Fest, Development & QA, and 404 pages: each page's
 # browser title and description, its lead line, and the other small pieces of text noted below. The
 # wording is the owner's own. The build checks the same copy rules as everywhere else (single hyphens
 # only, no phone numbers).
@@ -117,8 +117,8 @@
       blurb: An annual charity music festival run by three volunteers, raising money for Y'all Rock Camp ATL.
       href: /jabroni-fest/
 
-- id: development
-  title: "Development | {name}"
+- id: development-qa
+  title: "Development & QA | {name}"
   description: >-
     Every software project I have built: apps, tools, and sites, with the problem, the build, the
     stack, and the outcome.

@@ -1,7 +1,7 @@
 import { test, expect, type Page } from './helpers/test';
 import { artworks, intros } from './helpers/data';
 
-// The Art page uses the same Filters panel as Audio and Development (those are tested in
+// The Art page uses the same Filters panel as Audio and Development & QA (those are tested in
 // filters.spec.ts), plus a sort order. Everything is checked against the real art data.
 
 const ART = '/art/';

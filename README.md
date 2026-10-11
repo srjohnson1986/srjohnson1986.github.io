@@ -5,7 +5,7 @@
 My personal site, built with [Astro](https://astro.build) and hosted on GitHub Pages. It has two jobs:
 
 1. **Help me get hired.** The Home and Resume pages are written for employers, and the resume is available as a web page and as downloadable PDFs for several kinds of role.
-2. **Be a complete, organized record of my work** in software, audio, and art. Development, Audio, and Art are full archives, not highlight reels, so they can be filtered and each item can be opened for the story behind it.
+2. **Be a complete, organized record of my work** in software, audio, and art. Development & QA, Audio, and Art are full archives, not highlight reels, so they can be filtered and each item can be opened for the story behind it.
 
 The repository is public on purpose. It is also a portfolio piece: the way the site is built, tested, and shipped is meant to be read.
 
@@ -15,7 +15,7 @@ The repository is public on purpose. It is also a portfolio piece: the way the s
 | --- | --- |
 | Home | A short introduction and entry points to the rest |
 | Resume | Web versions of the resume, with a PDF download for each |
-| Development | An archive of software projects, filterable by tag, each with its own page: problem, what I built, stack, outcome, links |
+| Development & QA | An archive of software projects, filterable by tag, each with its own page: problem, what I built, stack, outcome, links |
 | Audio | Recordings from my home studio, with a Bandcamp player for each release, filters by year, band, my role, and genre, plus studio rates |
 | Art | Show flyers, newest first, with filters by year, format, band, venue, and tag, a larger view of every image, and the story behind each piece one click away |
 | Creative | A short introduction to the creative side of the site, with a card for each page under it (Audio, Art, Jabroni Fest). Copy only for now |
@@ -24,18 +24,18 @@ The repository is public on purpose. It is also a portfolio piece: the way the s
 
 ## How it is built
 
-- **Astro, static output, very little client-side JavaScript.** Four things use it: the filters on Development, Audio, and Art (plus the Art sort and larger-image view), the theme button in the header, the Escape key that closes the Creative and Development lists in the header (the lists themselves open with CSS alone), and a tiny inline script that applies a saved theme before the page paints. Without JavaScript the filters hide themselves and every item is simply listed, the Audio players still show, each Art image is a plain link to its larger version, and the page follows the system theme.
+- **Astro, static output, very little client-side JavaScript.** Four things use it: the filters on Development & QA, Audio, and Art (plus the Art sort and larger-image view), the theme button in the header, the Escape key that closes the Creative and Development & QA lists in the header (the lists themselves open with CSS alone), and a tiny inline script that applies a saved theme before the page paints. Without JavaScript the filters hide themselves and every item is simply listed, the Audio players still show, each Art image is a plain link to its larger version, and the page follows the system theme.
 - **The data is the source of truth.** Everything lives in YAML files read through Astro content collections with strict schemas, so a bad entry fails the build instead of reaching the live site. The schemas enforce the site's own rules: copy uses single hyphens only, no phone numbers, resume bullets start with a past-tense verb, references must resolve, and a bullet must be marked public before it can appear.
 - **One resume data set renders everything.** The web pages, a print layout, and every PDF come from the same roles, bullets, skills, and versions, so they cannot drift apart. Each version is a list of bullet references plus a summary and a mode for organization names (real or alternate).
 - **PDFs are made in the build.** After the site is built, a script prints each print route to a PDF with headless Chromium through Playwright, and fails the build if a PDF is missing, broken, or runs past two pages.
-- **Accessibility by default.** Native `details` and `button` controls instead of scripted ones, real headings and landmarks, a skip link, visible focus, alt text required for every image, light and dark themes that follow the visitor's system setting (with a header button to switch and remember a choice, which is the only part that needs a script), Creative and Development lists in the header that open on hover or keyboard focus and close with Escape, and a phone menu that needs no script.
+- **Accessibility by default.** Native `details` and `button` controls instead of scripted ones, real headings and landmarks, a skip link, visible focus, alt text required for every image, light and dark themes that follow the visitor's system setting (with a header button to switch and remember a choice, which is the only part that needs a script), Creative and Development & QA lists in the header that open on hover or keyboard focus and close with Escape, and a phone menu that needs no script.
 - **Plain CSS.** A small stylesheet with custom properties, no framework. The font is Atkinson Hyperlegible Next, chosen for legibility and installed from the `@fontsource` package so the build bundles it. It is served from this site, so nothing is requested from a third party.
 
 ### Project layout
 
 ```
 src/
-  pages/        one file per page (resume and development use dynamic routes)
+  pages/        one file per page (resume and development-qa use dynamic routes)
   components/   header, footer, the shared archive filters, the resume document, facts strip
   layouts/      the base layout
   lib/          loaders that join content collections and enforce cross-collection rules
@@ -89,7 +89,7 @@ The Playwright suite runs against the built site and is public on purpose. It re
 - **Larger view on the Art page:** every image links to a larger version; with scripts on, a click opens it full page, closing with the X, Escape, or a click outside the picture, and focus returns to the image. With scripts off it is a plain link.
 - **Site icons:** every public page links the SVG favicon, the ICO fallback, and the Apple touch icon, and each file exists with the right type and size.
 - **Unknown addresses:** a mistyped address returns a real 404 status and shows the site's own page, with the navigation and links back into the site.
-- **Interactive behavior:** the filters, the art stories and series, the audio players (Bandcamp is stubbed, so the tests never use the network), and the wide and phone navigation, including the Creative and Development lists (hover, keyboard, and Escape, with the projects in the same order as the Development page) and the old `/events/` forward.
+- **Interactive behavior:** the filters, the art stories and series, the audio players (Bandcamp is stubbed, so the tests never use the network), and the wide and phone navigation, including the Creative and Development & QA lists (hover, keyboard, and Escape, with the projects in the same order as the Development & QA page) and the old `/events/` and `/development/` forwards.
 - **Accessibility:** axe-core scans of every page in light, dark, and phone width, plus the pages' changing states and keyboard checks for the skip link and focus.
 - **The README itself:** `tests/readme.spec.ts` checks that every npm command the README names exists in `package.json` (and the reverse), that its links and the project files it names exist, and that every spec file is described. It cannot judge whether a sentence is still true, so the pull request checklist covers that.
 - **Smoke test:** a handful of checks against the deployed site.
@@ -102,13 +102,13 @@ A passing suite only means something if it can fail, so each area was checked by
 | --- | --- |
 | A resume bullet, role, skill, or version | The YAML files in `src/data/resume/` |
 | A bullet shared by several versions | Add it to a group in `src/data/resume/bullet-groups.yaml`; a version pulls the group in with `include` |
-| A software project | A new YAML file in `src/content/projects/`, following the existing ones. Give it a short `navTitle` (30 characters or fewer): it is the name in the header list under Development and the phone menu, and the project appears there on its own |
+| A software project | A new YAML file in `src/content/projects/`, following the existing ones. Give it a short `navTitle` (30 characters or fewer): it is the name in the header list under Development & QA and the phone menu, and the project appears there on its own |
 | A piece of art | See [src/content/art/README.md](src/content/art/README.md) |
 | An audio release | See [src/content/releases/README.md](src/content/releases/README.md) |
 | Page titles and descriptions, the lines at the top of each page, the 404 text, and the small messages (nothing here, no results). Write `{name}` and `{area}` to fill them from `site.ts`, and `[words](/page/)` for a link to a page or section of this site | `src/data/intros.yaml` |
 | A card under "Explore" on the Home page | `src/data/home-cards.yaml` |
 | Jabroni Fest or studio information | `src/data/events.yaml` and `src/data/studio.yaml` |
-| A page in the navigation, or under Creative in the header list and phone menu | `src/data/site.ts` (an item with `children` is a section). The pages under Development are the projects, so they are not listed there |
+| A page in the navigation, or under Creative in the header list and phone menu | `src/data/site.ts` (an item with `children` is a section). The pages under Development & QA are the projects, so they are not listed there |
 
 Run `npm run build` after any change. If an entry breaks a rule, the build stops and says which file and which field.
 

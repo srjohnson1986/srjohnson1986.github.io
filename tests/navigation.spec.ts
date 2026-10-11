@@ -115,33 +115,33 @@ for (const section of sections) {
   });
 }
 
-test.describe('the Development list', () => {
-  const development = nav.find((item) => item.href === '/development/')!;
+test.describe('the Development & QA list', () => {
+  const development = nav.find((item) => item.href === '/development-qa/')!;
 
-  test('has one entry per project, in the order the Development page lists them, under their short names', async ({ page }) => {
-    await page.goto('/development/');
+  test('has one entry per project, in the order the Development & QA page lists them, under their short names', async ({ page }) => {
+    await page.goto('/development-qa/');
     const onPage = await page.locator('.project h2 a').evaluateAll((links) => links.map((a) => a.getAttribute('href')));
-    expect(onPage).toEqual(projectsInArchiveOrder.map((p) => `/development/${p.slug}/`)); // the order the tests assume is the real one
+    expect(onPage).toEqual(projectsInArchiveOrder.map((p) => `/development-qa/${p.slug}/`)); // the order the tests assume is the real one
     expect(development.children!.map((c) => c.href)).toEqual(onPage);
     expect(development.children!.map((c) => c.label)).toEqual(projectsInArchiveOrder.map((p) => p.navTitle));
 
-    await page.getByRole('navigation', { name: 'Main' }).getByRole('link', { name: 'Development', exact: true }).hover();
-    const shown = page.locator('.has-menu', { has: page.getByRole('link', { name: 'Development', exact: true }) }).locator('.submenu a');
+    await page.getByRole('navigation', { name: 'Main' }).getByRole('link', { name: 'Development & QA', exact: true }).hover();
+    const shown = page.locator('.has-menu', { has: page.getByRole('link', { name: 'Development & QA', exact: true }) }).locator('.submenu a');
     await expect(shown).toHaveText(projectsInArchiveOrder.map((p) => p.navTitle));
     await expect(shown).toHaveCount(projectsInArchiveOrder.length);
   });
 
-  test('on a project page, Development is the current section and the project is the current page', async ({ page }) => {
+  test('on a project page, Development & QA is the current section and the project is the current page', async ({ page }) => {
     const project = projectsInArchiveOrder[0];
-    await page.goto(`/development/${project.slug}/`);
+    await page.goto(`/development-qa/${project.slug}/`);
     const main = page.getByRole('navigation', { name: 'Main' });
-    const link = main.getByRole('link', { name: 'Development', exact: true });
+    const link = main.getByRole('link', { name: 'Development & QA', exact: true });
     await expect(link).toHaveAttribute('aria-current', 'true');
     await link.hover();
     await expect(page.locator('.submenu [aria-current="page"]')).toHaveText(project.navTitle);
-    // On the Development page itself it is the current page.
-    await page.goto('/development/');
-    await expect(main.getByRole('link', { name: 'Development', exact: true })).toHaveAttribute('aria-current', 'page');
+    // On the Development & QA page itself it is the current page.
+    await page.goto('/development-qa/');
+    await expect(main.getByRole('link', { name: 'Development & QA', exact: true })).toHaveAttribute('aria-current', 'page');
   });
 });
 
@@ -313,5 +313,35 @@ test.describe('Jabroni Fest, which used to be called Events', () => {
   test('no navigation link is still called Events', async ({ page }) => {
     await page.goto('/');
     await expect(page.getByRole('navigation', { name: 'Main' }).getByRole('link', { name: 'Events' })).toHaveCount(0);
+  });
+});
+
+test.describe('Development & QA, which used to be called Development', () => {
+  test('the page, the header, and a project page all use the new name', async ({ page }) => {
+    await page.goto('/development-qa/');
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Development & QA');
+    await expect(page).toHaveTitle(/^Development & QA \|/);
+    await expect(page.getByRole('navigation', { name: 'Main' }).getByRole('link', { name: 'Development & QA', exact: true })).toHaveAttribute('href', '/development-qa/');
+    await expect(page.getByRole('navigation', { name: 'Main' }).getByRole('link', { name: 'Development', exact: true })).toHaveCount(0);
+
+    await page.goto(`/development-qa/${projectsInArchiveOrder[0].slug}/`);
+    await expect(page).toHaveTitle(new RegExp(`\| Development & QA \| ${site.name}$`));
+  });
+
+  test('the Home card is called Development & QA and opens the new page', async ({ page }) => {
+    await page.goto('/');
+    const card = page.getByRole('region', { name: 'Explore' }).getByRole('link', { name: /Development & QA/ });
+    await expect(card).toHaveAttribute('href', '/development-qa/');
+    await expect(card.locator('h3')).toHaveText('Development & QA');
+  });
+
+  test('the old /development/ address and every old project address forward to the new one and stay out of search', async ({ page }) => {
+    for (const slug of ['', ...projectsInArchiveOrder.map((p) => `${p.slug}/`)]) {
+      await page.goto(`/development/${slug}`);
+      await expect(page, `/development/${slug}`).toHaveURL(new URL(`/development-qa/${slug}`, page.url()).href);
+      const html = await (await page.request.get(`/development/${slug}`)).text();
+      expect(html).toContain(`url=/development-qa/${slug}`);
+      expect(html).toContain('name="robots" content="noindex"');
+    }
   });
 });
