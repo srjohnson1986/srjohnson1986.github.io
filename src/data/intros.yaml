@@ -1,4 +1,4 @@
-# The words on the Home, Art, Audio, Contact, Events, Development, and 404 pages: each page's
+# The words on the Home, Art, Audio, Creative, Contact, Jabroni Fest, Development, and 404 pages: each page's
 # browser title and description, its lead line, and the other small pieces of text noted below. The
 # wording is the owner's own. The build checks the same copy rules as everywhere else (single hyphens
 # only, no phone numbers).
@@ -87,11 +87,35 @@
   # The heading above the list of main sections.
   links_heading: Or try one of these
 
-- id: events
-  title: "Events | {name}"
+- id: jabroni-fest
+  title: "Jabroni Fest | {name}"
   # Used when the events data has no summary of its own to show.
-  description: Live music events I help organize.
+  description: Jabroni Fest, the annual charity music festival I help organize, and the smaller shows around it.
   lead: Live music I help put on, run by volunteers.
+
+- id: creative
+  title: "Creative | {name}"
+  description: >-
+    The creative side of {name}'s work: audio production, show flyers and other art, and the Jabroni Fest charity
+    music festival.
+  lead: Music, art, and shows - the things I make and help put on outside of work.
+  # Draft wording, ready for the owner to rewrite.
+  paragraphs:
+    - >-
+      I play in bands and record other people's at Kingdom Hell, my home studio. I make show fliers in Procreate,
+      and I help organize Jabroni Fest, an annual charity music festival. Three practices, one habit: care about
+      the details until the finished thing feels right.
+  # The cards that link to the pages under Creative, in the order they appear.
+  cards:
+    - title: Audio
+      blurb: "Kingdom Hell, my home studio: audio production, engineering, mixing, and mastering."
+      href: /audio/
+    - title: Art
+      blurb: Mostly show fliers made in mostly Procreate.
+      href: /art/
+    - title: Jabroni Fest
+      blurb: An annual charity music festival run by three volunteers, raising money for Y'all Rock Camp ATL.
+      href: /jabroni-fest/
 
 - id: development
   title: "Development | {name}"

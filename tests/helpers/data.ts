@@ -74,6 +74,7 @@ interface Intro {
   empty?: string;
   no_match?: string;
   paragraphs?: string[];
+  cards?: { title: string; blurb: string; href: string }[];
   email_note?: string;
   heading?: string;
   button?: string;
@@ -158,6 +159,15 @@ export function expectedSkills(variantId: string): { group: string; items: strin
     }))
     .filter((g) => g.items.length > 0);
 }
+
+/**
+ * Pages that only forward the visitor to another page. They are built, but they are not real pages:
+ * they are not in the sitemap, not scanned, and (for the retired ones) nothing links to them.
+ * "/resume/" forwards to the first resume version and the navigation links to it. "/events/" is the
+ * old address of the Jabroni Fest page, kept so old links still work, and nothing links to it.
+ */
+export const retiredPages = ['/events/'];
+export const redirectPages = ['/resume/', ...retiredPages];
 
 /** Every page in the built site as a URL path, such as "/" or "/resume/qa/". */
 export function builtPages(): string[] {

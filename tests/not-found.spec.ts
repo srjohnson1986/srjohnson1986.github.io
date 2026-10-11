@@ -1,5 +1,5 @@
 import { test, expect } from './helpers/test';
-import { nav } from '../src/data/site';
+import { navPages } from '../src/data/site';
 import { intros } from './helpers/data';
 
 // An address the site does not have must answer with a real 404 status and show the site's own
@@ -19,7 +19,7 @@ test('the friendly page links home and to every main section, and each link work
   const main = page.getByRole('main');
   await expect(main.getByRole('link', { name: intros['not-found'].button! })).toHaveAttribute('href', '/');
 
-  for (const item of nav.filter((n) => n.href !== '/')) {
+  for (const item of navPages.filter((n) => n.href !== '/')) {
     const link = main.getByRole('link', { name: item.label, exact: true });
     await expect(link).toHaveAttribute('href', item.href);
     expect((await request.get(item.href)).status()).toBe(200);

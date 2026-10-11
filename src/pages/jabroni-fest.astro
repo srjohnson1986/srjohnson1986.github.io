@@ -6,12 +6,12 @@ import { site } from '../data/site';
 import { fill } from '../lib/copy';
 
 const organizations = (await getCollection('events')).sort((a, b) => a.id.localeCompare(b.id));
-const intro = (await getEntry('intros', 'events'))!.data;
+const intro = (await getEntry('intros', 'jabroni-fest'))!.data;
 const description = organizations[0]?.data.summary ?? fill(intro.description);
 ---
 
 <BaseLayout title={fill(intro.title)} description={description}>
-  <h1>Events</h1>
+  <h1>Jabroni Fest</h1>
   <p class="lead">{intro.lead}</p>
 
   {

@@ -1,14 +1,14 @@
 import { test, expect } from './helpers/test';
 import fs from 'node:fs';
 import path from 'node:path';
-import { builtPages, dist } from './helpers/data';
+import { builtPages, dist, redirectPages } from './helpers/data';
 import { site } from '../src/data/site';
 
 // Link previews (LinkedIn, GitHub, Instagram and others) read Open Graph tags. Twitter or X tags
 // are deliberately not used.
 const SITE = site.url;
 const isPrint = (p: string) => p.startsWith('/resume/print/');
-const publicPages = builtPages().filter((p) => !isPrint(p) && p !== '/resume/');
+const publicPages = builtPages().filter((p) => !isPrint(p) && !redirectPages.includes(p));
 
 test.describe('link previews', () => {
   for (const url of publicPages) {
@@ -67,9 +67,9 @@ test.describe('sitemap and robots.txt', () => {
     for (const f of files) expect(fs.existsSync(path.join(dist, f)), `${f} should exist`).toBe(true);
   });
 
-  test('the sitemap lists every public page and none of the print routes, the 404 page, or the redirect', () => {
+  test('the sitemap lists every public page and none of the print routes, the 404 page, or the redirects', () => {
     const listed = locs(read('sitemap-0.xml')).map((u) => u.replace(SITE, ''));
     expect(listed.sort()).toEqual([...publicPages].sort());
-    expect(listed.filter((u) => isPrint(u) || u.includes('404') || u === '/resume/')).toEqual([]);
+    expect(listed.filter((u) => isPrint(u) || u.includes('404') || redirectPages.includes(u))).toEqual([]);
   });
 });

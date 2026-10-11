@@ -9,7 +9,8 @@ const pages: Record<string, string> = {
   art: '/art/',
   audio: '/audio/',
   contact: '/contact/',
-  events: '/events/',
+  creative: '/creative/',
+  'jabroni-fest': '/jabroni-fest/',
   development: '/development/',
   'not-found': '/this-page-does-not-exist/',
 };
@@ -20,15 +21,15 @@ test.describe('page titles and descriptions come from the file', () => {
       await page.goto(path);
       await expect(page).toHaveTitle(fill(intros[id].title));
       const description = await page.locator('meta[name="description"]').getAttribute('content');
-      if (id === 'events') expect(description).toBeTruthy(); // taken from the events data when it has a summary
+      if (id === 'jabroni-fest') expect(description).toBeTruthy(); // taken from the events data when it has a summary
       else expect(description).toBe(fill(intros[id].description));
       // Placeholders never reach a visitor.
       expect(`${await page.title()} ${description}`).not.toMatch(/[{}]/);
     });
   }
 
-  test('the Events and Development leads come from the file', async ({ page }) => {
-    for (const id of ['events', 'development']) {
+  test('the Creative, Jabroni Fest, and Development leads come from the file', async ({ page }) => {
+    for (const id of ['creative', 'jabroni-fest', 'development']) {
       await page.goto(pages[id]);
       await expect(page.locator('p.lead')).toHaveText(intros[id].lead.replace(/\s+/g, ' ').trim());
     }
