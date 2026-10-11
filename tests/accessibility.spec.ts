@@ -66,11 +66,11 @@ test.describe('axe scan, states that change the page', () => {
         await expectClean(page, `/art/ with everything open (${scheme})`);
       });
 
-      test('Development with filters applied', async ({ page }) => {
-        await page.goto('/development/');
+      test('Development & QA with filters applied', async ({ page }) => {
+        await page.goto('/development-qa/');
         await page.locator('[data-filter-panel] > summary').click();
         await page.locator('label.tag-option').first().click();
-        await expectClean(page, `/development/ filtered (${scheme})`);
+        await expectClean(page, `/development-qa/ filtered (${scheme})`);
       });
 
       test('Art with the filters open, sorted oldest first and narrowed by year', async ({ page }) => {
@@ -102,7 +102,7 @@ test.describe('axe scan, states that change the page', () => {
         await expectClean(page, `/art/ larger view (${scheme})`);
       });
 
-      for (const section of ['Creative', 'Development']) {
+      for (const section of ['Creative', 'Development & QA']) {
         test(`the ${section} list in the header, open`, async ({ page }) => {
           await page.goto('/');
           const link = page.getByRole('navigation', { name: 'Main' }).getByRole('link', { name: section, exact: true });
@@ -134,7 +134,7 @@ test.describe('keyboard', () => {
   });
 
   test('focused links and controls have a visible outline', async ({ page }) => {
-    await page.goto('/development/');
+    await page.goto('/development-qa/');
     const problems: string[] = [];
     for (let i = 0; i < 12; i++) {
       await page.keyboard.press('Tab');

@@ -4,7 +4,7 @@ import { variants, releases, projects, navPages } from './helpers/data';
 // Short checks that the real, public site is alive and serving what it should. They run against
 // the deployed site (see playwright.config.ts) and deliberately do few things, quickly.
 
-const mainPages = ['/', '/resume/qa/', '/development/', '/audio/', '/art/', '/creative/', '/jabroni-fest/', '/contact/'];
+const mainPages = ['/', '/resume/qa/', '/development-qa/', '/audio/', '/art/', '/creative/', '/jabroni-fest/', '/contact/'];
 
 test('the home page is served with its title and heading', async ({ page, baseURL }) => {
   const response = await page.goto('/');
@@ -37,7 +37,7 @@ test('each resume version and its PDF are served', async ({ page, request }) => 
 });
 
 test('the project archive lists the projects and a project page loads', async ({ page }) => {
-  await page.goto('/development/');
+  await page.goto('/development-qa/');
   await expect(page.locator('[data-item]')).toHaveCount(projects.length);
   await page.getByRole('link', { name: projects[0].title }).click();
   await expect(page.getByRole('heading', { level: 1, name: projects[0].title })).toBeVisible();

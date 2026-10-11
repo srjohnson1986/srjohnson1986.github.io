@@ -2,7 +2,7 @@ import { test, expect, type Page } from './helpers/test';
 import { projects, releases } from './helpers/data';
 import { bandsOf, bandSlug } from '../src/lib/band';
 
-// The Development and Audio archives share one filter component, so both are tested the same way.
+// The Development & QA and Audio archives share one filter component, so both are tested the same way.
 interface Item {
   title: string;
   facets: Record<string, string[]>;
@@ -18,8 +18,8 @@ interface Archive {
 
 const archives: Archive[] = [
   {
-    name: 'Development',
-    path: '/development/',
+    name: 'Development & QA',
+    path: '/development-qa/',
     noun: 'projects',
     selects: [],
     tagFacet: 'tag',
@@ -190,8 +190,8 @@ for (const archive of archives) {
   });
 }
 
-test('Development filters by tag only, and each card still shows its year and type', async ({ page }) => {
-  await page.goto('/development/');
+test('Development & QA filters by tag only, and each card still shows its year and type', async ({ page }) => {
+  await page.goto('/development-qa/');
   await expect(page.locator('select')).toHaveCount(0);
   await expect(page.locator('fieldset input[type="checkbox"]').first()).toBeAttached();
   await expect(page.locator('fieldset legend')).toHaveText('Tags');

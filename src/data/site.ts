@@ -30,13 +30,13 @@ export const site = {
 
 // Main navigation. Add an entry when a page ships; never link a page that is not built.
 // An item with `children` is a section: its own page, plus the pages under it. (The projects under
-// Development are not listed here: withProjectPages below adds them from the project files.) On wide screens the
+// Development & QA are not listed here: withProjectPages below adds them from the project files.) On wide screens the
 // section opens a list of its pages on hover or focus, and in the phone menu its pages are listed
 // under it. On phones the links move into a Menu button, because the row would otherwise wrap.
 export const nav: NavItem[] = [
   { label: 'Home', href: '/' },
   { label: 'Resume', href: '/resume/' },
-  { label: 'Development', href: '/development/' },
+  { label: 'Development & QA', href: '/development-qa/' },
   {
     label: 'Creative',
     href: '/creative/',
@@ -53,12 +53,12 @@ export const nav: NavItem[] = [
 export const flattenNav = (items: NavItem[]): NavItem[] => items.flatMap((item) => [item, ...(item.children ?? [])]);
 
 /**
- * The navigation with a page for each project under Development. The projects come from the project
- * files (their `navTitle`), in the order the Development page lists them, so a new project shows up
+ * The navigation with a page for each project under Development & QA. The projects come from the project
+ * files (their `navTitle`), in the order the Development & QA page lists them, so a new project shows up
  * in the header and the phone menu with no change here. The header, the 404 page, and the tests all
  * build the navigation through this one function.
  */
 export const withProjectPages = (items: NavItem[], projects: { id: string; navTitle: string }[]): NavItem[] =>
   items.map((item) =>
-    item.href === '/development/' ? { ...item, children: projects.map((p) => ({ label: p.navTitle, href: `/development/${p.id}/` })) } : item,
+    item.href === '/development-qa/' ? { ...item, children: projects.map((p) => ({ label: p.navTitle, href: `/development-qa/${p.id}/` })) } : item,
   );

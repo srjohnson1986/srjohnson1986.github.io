@@ -6,8 +6,8 @@ const nav = await getNav();
 const path = Astro.url.pathname;
 // Home matches only "/"; every other entry also matches its sub-pages (/resume/qa/ is "Resume").
 const isCurrent = (href: string) => (href === '/' ? path === '/' : path.startsWith(href));
-// A section link (Creative, Development) is the current page on its own page. On one of the pages
-// under it (a project page is under /development/, so it starts with the section's address too), the
+// A section link (Creative, Development & QA) is the current page on its own page. On one of the pages
+// under it (a project page is under /development-qa/, so it starts with the section's address too), the
 // section is marked as the current section instead ("true") and the page itself is marked "page".
 // The pages under a section are checked first for that reason.
 const current = (item: NavItem) => (item.children?.some((child) => isCurrent(child.href)) ? 'true' : isCurrent(item.href) ? 'page' : undefined);
@@ -16,7 +16,7 @@ const current = (item: NavItem) => (item.children?.some((child) => isCurrent(chi
 <header class="site-header no-print">
   <a class="brand" href="/">{site.name}</a>
 
-  <!-- Wide screens: every link in one row. A section (Creative, Development) is a link to its own page that also
+  <!-- Wide screens: every link in one row. A section (Creative, Development & QA) is a link to its own page that also
        shows the pages under it on hover or keyboard focus. The list is plain nested links, so it
        works with a keyboard and a screen reader, and the section page repeats them for touch. -->
   <nav class="nav-wide" aria-label="Main">
@@ -117,7 +117,7 @@ const current = (item: NavItem) => (item.children?.some((child) => isCurrent(chi
 </header>
 
 <script>
-  // The lists under Creative and Development open by hover or focus with no script. This only adds
+  // The lists under Creative and Development & QA open by hover or focus with no script. This only adds
   // the Escape key, which closes an open list without having to move the pointer or the focus away
   // (WCAG "dismissible"). A list comes back the next time the pointer or the focus leaves and returns.
   const sections = document.querySelectorAll<HTMLElement>('.nav-wide .has-menu');
@@ -244,7 +244,7 @@ const current = (item: NavItem) => (item.children?.some((child) => isCurrent(chi
     font-weight: 600;
   }
 
-  /* ---- The list under a section: Creative, Development (wide screens) ----
+  /* ---- The list under a section: Creative, Development & QA (wide screens) ----
      Hidden with display: none until the section is hovered or something inside it has focus, so
      its links are skipped by the Tab key and by screen readers while it is closed. It starts right
      at the bottom edge of the link, with no gap, so moving the pointer down onto it does not close

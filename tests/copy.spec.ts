@@ -11,7 +11,7 @@ const pages: Record<string, string> = {
   contact: '/contact/',
   creative: '/creative/',
   'jabroni-fest': '/jabroni-fest/',
-  development: '/development/',
+  'development-qa': '/development-qa/',
   'not-found': '/this-page-does-not-exist/',
 };
 
@@ -28,8 +28,8 @@ test.describe('page titles and descriptions come from the file', () => {
     });
   }
 
-  test('the Creative, Jabroni Fest, and Development leads come from the file', async ({ page }) => {
-    for (const id of ['creative', 'jabroni-fest', 'development']) {
+  test('the Creative, Jabroni Fest, and Development & QA leads come from the file', async ({ page }) => {
+    for (const id of ['creative', 'jabroni-fest', 'development-qa']) {
       await page.goto(pages[id]);
       await expect(page.locator('p.lead')).toHaveText(intros[id].lead.replace(/\s+/g, ' ').trim());
     }
@@ -67,7 +67,7 @@ test.describe('"no results" messages come from the file', () => {
 
   for (const [id, lists] of [
     ['audio', releases.map((r) => r.tags)],
-    ['development', projects.map((p) => p.tags)],
+    ['development-qa', projects.map((p) => p.tags)],
   ] as const) {
     test(`${id}: no match shows the message from the file`, async ({ page }) => {
       const [a, b] = neverTogether(lists as unknown as string[][]);

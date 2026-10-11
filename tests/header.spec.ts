@@ -31,7 +31,7 @@ test.describe('the header does not move between pages', () => {
   test('a short page and a long page line up (the scrollbar space is always kept)', async ({ page }) => {
     await page.goto('/contact/');
     const shortPage = await places(page);
-    await page.goto('/development/');
+    await page.goto('/development-qa/');
     const longPage = await places(page);
     expect(longPage).toEqual(shortPage);
   });
@@ -44,7 +44,7 @@ test.describe('the header does not move between pages', () => {
 test.describe('the header stays on one line', () => {
   const widths = [1100, 900, 768, 736, 735, 600, 375];
   // /resume/ is a redirect to the first version, so the page itself is listed instead.
-  const paths = [...navPages.map((item) => item.href).filter((href) => href !== '/resume/'), '/resume/qa/', '/development/care-communication-board/'];
+  const paths = [...navPages.map((item) => item.href).filter((href) => href !== '/resume/'), '/resume/qa/', '/development-qa/care-communication-board/'];
 
   for (const width of widths) {
     test(`on every page at ${width}px wide`, async ({ page }) => {
@@ -92,7 +92,7 @@ test.describe('the header parts sit level with each other', () => {
   for (const width of [1100, 768, 375]) {
     test(`at ${width}px wide`, async ({ page }) => {
       await page.setViewportSize({ width, height: 900 });
-      for (const path of ['/', '/contact/', '/development/']) {
+      for (const path of ['/', '/contact/', '/development-qa/']) {
         await page.goto(path);
         await page.evaluate(() => document.fonts.ready);
         await expect(page.locator('.theme-toggle')).toBeVisible();
