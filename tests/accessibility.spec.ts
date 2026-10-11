@@ -102,12 +102,15 @@ test.describe('axe scan, states that change the page', () => {
         await expectClean(page, `/art/ larger view (${scheme})`);
       });
 
-      test('the Creative list in the header, open', async ({ page }) => {
-        await page.goto('/');
-        await page.getByRole('navigation', { name: 'Main' }).getByRole('link', { name: 'Creative', exact: true }).hover();
-        await expect(page.locator('.submenu')).toBeVisible();
-        await expectClean(page, `Creative list open (${scheme})`);
-      });
+      for (const section of ['Creative', 'Development']) {
+        test(`the ${section} list in the header, open`, async ({ page }) => {
+          await page.goto('/');
+          const link = page.getByRole('navigation', { name: 'Main' }).getByRole('link', { name: section, exact: true });
+          await link.hover();
+          await expect(page.locator('.has-menu', { has: page.getByRole('link', { name: section, exact: true }) }).locator('.submenu')).toBeVisible();
+          await expectClean(page, `${section} list open (${scheme})`);
+        });
+      }
 
       test('the phone menu, open', async ({ page }) => {
         await page.setViewportSize({ width: 375, height: 812 });

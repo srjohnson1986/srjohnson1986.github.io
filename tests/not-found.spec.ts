@@ -1,6 +1,5 @@
 import { test, expect } from './helpers/test';
-import { navPages } from '../src/data/site';
-import { intros } from './helpers/data';
+import { intros, navPages } from './helpers/data';
 
 // An address the site does not have must answer with a real 404 status and show the site's own
 // page, with the navigation, instead of the host's generic error page.

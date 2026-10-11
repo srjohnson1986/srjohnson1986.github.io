@@ -1,4 +1,5 @@
 title: Care Communication Board
+navTitle: Communication Board
 summary: >-
   A cross-platform communication board for Android and the web: tap a tile to play a
   recorded voice clip or speak text aloud. Built for my mom, with Claude Code.

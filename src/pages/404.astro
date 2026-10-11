@@ -1,13 +1,14 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { getEntry } from 'astro:content';
-import { navPages, site } from '../data/site';
+import { flattenNav, site } from '../data/site';
+import { getNav } from '../lib/nav';
 import { fill } from '../lib/copy';
 
 const text = (await getEntry('intros', 'not-found'))!.data;
 
 // GitHub Pages serves this file, with a 404 status, for any address the site does not have.
-const sections = navPages.filter((item) => item.href !== '/');
+const sections = flattenNav(await getNav()).filter((item) => item.href !== '/');
 ---
 
 <BaseLayout

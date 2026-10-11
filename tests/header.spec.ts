@@ -1,5 +1,5 @@
 import { test, expect } from './helpers/test';
-import { navPages } from '../src/data/site';
+import { navPages } from './helpers/data';
 
 // Headless Chromium hides scrollbars unless told otherwise. They are turned back on here, because the
 // scrollbar is what makes a long page narrower than a short one on a real desktop. (This setting has
