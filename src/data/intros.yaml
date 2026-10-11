@@ -8,21 +8,17 @@
 #   [words](/page/)    makes a link, to a page on this site (/resume/) or a section (#studio) only.
 
 - id: home
-  title: "{name} | QA and process professional"
+  title: "{name} | QA, automation, process improvement, and audio"
   description: >-
-    {name}: QA and process professional and digital transformation consultant in the {area}.
+    {name}: QA, automation, process improvement, audio engineer, and digital transformation consultant in the {area}.
     Resume, projects, audio, and art.
   # The line under the name.
-  lead: I find what breaks before your customers do, and I build tools so it breaks less.
+  lead: Find it, understand it, fix it, automate it.
   paragraphs:
     - >-
-      I started in quality assurance and spent over ten years at Verizon making sure big launches
-      went out clean. These days I'm a digital transformation consultant and project manager,
-      turning slow manual processes into automation that people actually use.
-    - >-
-      I'm also a music and art person. I run a home recording studio, help organize a charity
-      music festival, and make show flyers in Procreate. It all comes down to caring how the
-      finished thing feels to the person on the other end.
+      Quality has been my thing for over ten years, first at Verizon and now as a consultant building automation and running projects.
+      Outside of work I play in and record bands at my home studio, help organize a charity music festival, and make fliers in Procreate.
+      Different practices, same idea - sweat the details so the finished product feels great.
 
 - id: art
   title: "Art | {name}"
@@ -72,7 +68,7 @@
   title: "Contact | {name}"
   description: How to reach {name}.
   # The closing line under the contact details.
-  closing: Looking for my background? See the [resume](/resume/), with a PDF download for each version.
+  closing: Looking for my background? See the [resume](/resume/).
   # Shown first, and only when an email address is published (see src/data/site.ts).
   email_note: Email is the best way to reach me.
   # The line under the Contact heading. {area} is replaced with the area set in src/data/site.ts,
