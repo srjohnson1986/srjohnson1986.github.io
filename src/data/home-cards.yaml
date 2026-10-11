@@ -5,7 +5,7 @@
 - id: development
   order: 1
   title: Technology and QA
-  blurb: Apps, tools, and sites I have built with code, explanations, and live demos.
+  blurb: Things I’ve built and tested, with the code, the story, and live demos.
   href: /development/
 
 - id: audio
@@ -17,5 +17,5 @@
 - id: art
   order: 3
   title: Art
-  blurb: Mostly show fliers made in Procreate.
+  blurb: Mostly show fliers made in mostly Procreate.
   href: /art/

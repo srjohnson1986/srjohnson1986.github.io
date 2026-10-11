@@ -34,9 +34,10 @@ stack:
 
 problem: >-
   I built this for my mom and her caregivers. The commercial communication apps I evaluated
-  were mostly ad-supported novelty software, unsuitable for care use. What was needed was
+  were either expensive, sketchy, or ad-supported novelty software, unsuitable for what we wanted. What was needed was
   something focused: tap a tile to play a recorded voice clip or speak text aloud, with no
-  ads, no data collection, nothing to set up, and full function offline.
+  ads, no data collection, nothing to set up, and full function offline. As a bonus, my mom didn't end up needing to use it,
+  but I'll still add features as I think of them. Show has definitely seen use in loud environments to order drinks and converse.
 
 built:
   - >-
