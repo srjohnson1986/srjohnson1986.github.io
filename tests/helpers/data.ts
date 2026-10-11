@@ -4,6 +4,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import * as yaml from 'js-yaml';
+import { nav as baseNav, flattenNav, withProjectPages } from '../../src/data/site';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 export const root = path.resolve(here, '..', '..');
@@ -105,7 +106,9 @@ const loadDir = <T>(dir: string): (T & { slug: string })[] =>
 export interface Project {
   slug: string;
   title: string;
+  navTitle: string;
   year: number;
+  featured?: boolean;
   type: string;
   tags: string[];
 }
@@ -137,6 +140,17 @@ export interface Artwork {
 }
 
 export const projects = loadDir<Project>('src/content/projects');
+/** The projects in the order the Development page lists them: newest year first, featured first within a year, then by title. (A test checks the page really uses this order.) */
+export const projectsInArchiveOrder = [...projects].sort(
+  (a, b) => b.year - a.year || Number(Boolean(b.featured)) - Number(Boolean(a.featured)) || a.title.localeCompare(b.title),
+);
+/** The whole navigation as the site builds it: the pages in site.ts, with a page for each project under Development. */
+export const nav = withProjectPages(
+  baseNav,
+  projectsInArchiveOrder.map((p) => ({ id: p.slug, navTitle: p.navTitle })),
+);
+/** The navigation as one flat list: each section followed by its pages. */
+export const navPages = flattenNav(nav);
 export const releases = loadDir<Release>('src/content/releases');
 // A name like 529 can be written without quotes in YAML and is read as a number; the site treats it as text.
 const asText = (list?: unknown[]) => list?.map(String);

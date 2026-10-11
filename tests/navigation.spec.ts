@@ -1,6 +1,6 @@
 import { test, expect, type Page } from './helpers/test';
-import { nav, navPages, site } from '../src/data/site';
-import { intros, homeCards } from './helpers/data';
+import { site } from '../src/data/site';
+import { intros, homeCards, nav, navPages, projectsInArchiveOrder } from './helpers/data';
 
 const topLevel = nav.map((item) => item.label);
 // Items that have pages under them (Creative). On a wide screen their pages open in a list.
@@ -42,19 +42,21 @@ for (const section of sections) {
   test.describe(`the "${section.label}" list on a wide screen`, () => {
     const main = (page: Page) => page.getByRole('navigation', { name: 'Main' });
     const link = (page: Page) => main(page).getByRole('link', { name: section.label, exact: true });
+    // Each section has its own list, so the list is found through its section's link.
+    const submenu = (page: Page) => page.locator('.has-menu', { has: page.getByRole('link', { name: section.label, exact: true }) }).locator('.submenu');
 
     test('is closed until the link is hovered, then lists its pages in order', async ({ page }) => {
       await page.goto('/');
-      await expect(page.locator('.submenu')).toBeHidden();
+      await expect(submenu(page)).toBeHidden();
       await link(page).hover();
-      await expect(page.locator('.submenu').getByRole('link')).toHaveText(names);
+      await expect(submenu(page).getByRole('link')).toHaveText(names);
     });
 
     test('stays open while the pointer moves down from the link onto an item', async ({ page }) => {
       await page.goto('/');
       await link(page).hover();
       const box = (await link(page).boundingBox())!;
-      const first = page.locator('.submenu').getByRole('link').first();
+      const first = submenu(page).getByRole('link').first();
       const target = (await first.boundingBox())!;
       // Slow steps, so a gap between the link and the list would close it on the way down.
       await page.mouse.move(box.x + box.width / 2, target.y + target.height / 2, { steps: 15 });
@@ -64,25 +66,25 @@ for (const section of sections) {
     test('opens from the keyboard, can be walked through with Tab, and closes with Escape', async ({ page }) => {
       await page.goto('/');
       await link(page).focus();
-      await expect(page.locator('.submenu')).toBeVisible();
+      await expect(submenu(page)).toBeVisible();
       for (const name of names) {
         await page.keyboard.press('Tab');
-        await expect(page.locator('.submenu').getByRole('link', { name, exact: true })).toBeFocused();
+        await expect(submenu(page).getByRole('link', { name, exact: true })).toBeFocused();
       }
       await page.keyboard.press('Escape');
-      await expect(page.locator('.submenu')).toBeHidden();
+      await expect(submenu(page)).toBeHidden();
       await expect(link(page)).toBeFocused(); // focus is not lost when the list closes
     });
 
     test('Escape closes a list opened by the pointer, and it opens again when the pointer returns', async ({ page }) => {
       await page.goto('/');
       await link(page).hover();
-      await expect(page.locator('.submenu')).toBeVisible();
+      await expect(submenu(page)).toBeVisible();
       await page.keyboard.press('Escape');
-      await expect(page.locator('.submenu')).toBeHidden();
+      await expect(submenu(page)).toBeHidden();
       await page.mouse.move(5, 400);
       await link(page).hover();
-      await expect(page.locator('.submenu')).toBeVisible();
+      await expect(submenu(page)).toBeVisible();
     });
 
     test('is marked as the current section, not the current page, while one of its pages is open', async ({ page }) => {
@@ -90,7 +92,14 @@ for (const section of sections) {
       await expect(link(page)).toHaveAttribute('aria-current', 'true');
       await expect(page.locator('.nav-wide > ul > li > a[aria-current="page"]')).toHaveCount(0);
       await link(page).hover();
-      await expect(page.locator('.submenu [aria-current="page"]')).toHaveText(children[0].label);
+      await expect(submenu(page).locator('[aria-current="page"]')).toHaveText(children[0].label);
+    });
+
+    test('only the list that is hovered is open', async ({ page }) => {
+      await page.goto('/');
+      await link(page).hover();
+      await expect(submenu(page)).toBeVisible();
+      await expect(page.locator('.submenu:visible')).toHaveCount(1);
     });
 
     test('has a page of its own that links to every page under it', async ({ page }) => {
@@ -98,12 +107,43 @@ for (const section of sections) {
       await link(page).click();
       await expect(page).toHaveURL((url) => url.pathname === section.href);
       await expect(main(page).locator('[aria-current="page"]')).toHaveText(section.label);
+      // Found by address, since a card or heading may carry a longer name than the short one in the header.
       for (const child of children) {
-        await expect(page.getByRole('main').getByRole('link', { name: new RegExp(child.label) })).toHaveAttribute('href', child.href);
+        await expect(page.getByRole('main').locator(`a[href="${child.href}"]`).first()).toBeVisible();
       }
     });
   });
 }
+
+test.describe('the Development list', () => {
+  const development = nav.find((item) => item.href === '/development/')!;
+
+  test('has one entry per project, in the order the Development page lists them, under their short names', async ({ page }) => {
+    await page.goto('/development/');
+    const onPage = await page.locator('.project h2 a').evaluateAll((links) => links.map((a) => a.getAttribute('href')));
+    expect(onPage).toEqual(projectsInArchiveOrder.map((p) => `/development/${p.slug}/`)); // the order the tests assume is the real one
+    expect(development.children!.map((c) => c.href)).toEqual(onPage);
+    expect(development.children!.map((c) => c.label)).toEqual(projectsInArchiveOrder.map((p) => p.navTitle));
+
+    await page.getByRole('navigation', { name: 'Main' }).getByRole('link', { name: 'Development', exact: true }).hover();
+    const shown = page.locator('.has-menu', { has: page.getByRole('link', { name: 'Development', exact: true }) }).locator('.submenu a');
+    await expect(shown).toHaveText(projectsInArchiveOrder.map((p) => p.navTitle));
+    await expect(shown).toHaveCount(projectsInArchiveOrder.length);
+  });
+
+  test('on a project page, Development is the current section and the project is the current page', async ({ page }) => {
+    const project = projectsInArchiveOrder[0];
+    await page.goto(`/development/${project.slug}/`);
+    const main = page.getByRole('navigation', { name: 'Main' });
+    const link = main.getByRole('link', { name: 'Development', exact: true });
+    await expect(link).toHaveAttribute('aria-current', 'true');
+    await link.hover();
+    await expect(page.locator('.submenu [aria-current="page"]')).toHaveText(project.navTitle);
+    // On the Development page itself it is the current page.
+    await page.goto('/development/');
+    await expect(main.getByRole('link', { name: 'Development', exact: true })).toHaveAttribute('aria-current', 'page');
+  });
+});
 
 test.describe('navigation on a phone', () => {
   test.use({ viewport: { width: 375, height: 812 } });

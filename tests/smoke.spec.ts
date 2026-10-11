@@ -1,6 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { variants, releases, projects } from './helpers/data';
-import { navPages } from '../src/data/site';
+import { variants, releases, projects, navPages } from './helpers/data';
 
 // Short checks that the real, public site is alive and serving what it should. They run against
 // the deployed site (see playwright.config.ts) and deliberately do few things, quickly.

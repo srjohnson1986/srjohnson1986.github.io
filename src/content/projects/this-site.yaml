@@ -1,4 +1,5 @@
 title: This site and its Playwright test suite
+navTitle: This site
 summary: >-
   How this portfolio is built: Astro on GitHub Pages, one data set behind the web resume and
   every PDF, and a build that checks itself on every pull request.

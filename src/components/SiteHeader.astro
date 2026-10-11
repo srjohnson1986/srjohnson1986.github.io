@@ -1,18 +1,22 @@
 ---
-import { nav, site, type NavItem } from '../data/site';
+import { site, type NavItem } from '../data/site';
+import { getNav } from '../lib/nav';
 
+const nav = await getNav();
 const path = Astro.url.pathname;
 // Home matches only "/"; every other entry also matches its sub-pages (/resume/qa/ is "Resume").
 const isCurrent = (href: string) => (href === '/' ? path === '/' : path.startsWith(href));
-// A section link (Creative) is the current page on its own page. On one of the pages under it, it is
-// marked as the current section instead ("true"), so only the page itself is ever marked "page".
-const current = (item: NavItem) => (isCurrent(item.href) ? 'page' : item.children?.some((child) => isCurrent(child.href)) ? 'true' : undefined);
+// A section link (Creative, Development) is the current page on its own page. On one of the pages
+// under it (a project page is under /development/, so it starts with the section's address too), the
+// section is marked as the current section instead ("true") and the page itself is marked "page".
+// The pages under a section are checked first for that reason.
+const current = (item: NavItem) => (item.children?.some((child) => isCurrent(child.href)) ? 'true' : isCurrent(item.href) ? 'page' : undefined);
 ---
 
 <header class="site-header no-print">
   <a class="brand" href="/">{site.name}</a>
 
-  <!-- Wide screens: every link in one row. A section (Creative) is a link to its own page that also
+  <!-- Wide screens: every link in one row. A section (Creative, Development) is a link to its own page that also
        shows the pages under it on hover or keyboard focus. The list is plain nested links, so it
        works with a keyboard and a screen reader, and the section page repeats them for touch. -->
   <nav class="nav-wide" aria-label="Main">
@@ -113,23 +117,28 @@ const current = (item: NavItem) => (isCurrent(item.href) ? 'page' : item.childre
 </header>
 
 <script>
-  // The list under Creative opens by hover or focus with no script. This only adds the Escape key,
-  // which closes it without having to move the pointer or the focus away (WCAG "dismissible"). The
-  // list comes back the next time the pointer or the focus leaves and returns.
-  const section = document.querySelector<HTMLElement>('.nav-wide .has-menu');
-  if (section) {
-    // On the document, because Escape should work when the pointer opened the list too, and then
-    // the focus is somewhere else on the page.
-    document.addEventListener('keydown', (event) => {
-      if (event.key !== 'Escape' || !section.matches(':hover, :focus-within')) return;
-      section.classList.add('dismissed');
-      // Focus inside the list would be lost when it hides, so it goes back to the section link.
-      if (section.contains(document.activeElement)) section.querySelector<HTMLElement>(':scope > a')?.focus();
-    });
+  // The lists under Creative and Development open by hover or focus with no script. This only adds
+  // the Escape key, which closes an open list without having to move the pointer or the focus away
+  // (WCAG "dismissible"). A list comes back the next time the pointer or the focus leaves and returns.
+  const sections = document.querySelectorAll<HTMLElement>('.nav-wide .has-menu');
+  for (const section of sections) {
     const reset = () => section.classList.remove('dismissed');
     section.addEventListener('mouseleave', reset);
     section.addEventListener('focusout', (event) => {
       if (!section.contains(event.relatedTarget as Node | null)) reset();
+    });
+  }
+  // On the document, because Escape should work when the pointer opened the list too, and then the
+  // focus is somewhere else on the page.
+  if (sections.length > 0) {
+    document.addEventListener('keydown', (event) => {
+      if (event.key !== 'Escape') return;
+      for (const section of sections) {
+        if (!section.matches(':hover, :focus-within')) continue;
+        section.classList.add('dismissed');
+        // Focus inside the list would be lost when it hides, so it goes back to the section link.
+        if (section.contains(document.activeElement)) section.querySelector<HTMLElement>(':scope > a')?.focus();
+      }
     });
   }
 
@@ -235,7 +244,7 @@ const current = (item: NavItem) => (isCurrent(item.href) ? 'page' : item.childre
     font-weight: 600;
   }
 
-  /* ---- The list under Creative (wide screens) ----
+  /* ---- The list under a section: Creative, Development (wide screens) ----
      Hidden with display: none until the section is hovered or something inside it has focus, so
      its links are skipped by the Tab key and by screen readers while it is closed. It starts right
      at the bottom edge of the link, with no gap, so moving the pointer down onto it does not close

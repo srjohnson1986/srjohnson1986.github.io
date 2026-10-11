@@ -425,6 +425,9 @@ const projects = defineCollection({
   loader: glob({ pattern: '*.yaml', base: './src/content/projects' }),
   schema: z.strictObject({
     title: copy,
+    // A short name for the header list under Development and the phone menu, such as "This site".
+    // Short enough to sit in a small dropdown.
+    navTitle: copy.refine((s) => s.length <= 30, 'Keep the short name to 30 characters or fewer'),
     // One sentence, shown on the archive card and as the page description.
     summary: copy,
     year,
