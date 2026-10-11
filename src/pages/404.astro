@@ -1,14 +1,14 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { getEntry } from 'astro:content';
-import { flattenNav, site } from '../data/site';
 import { getNav } from '../lib/nav';
 import { fill } from '../lib/copy';
 
 const text = (await getEntry('intros', 'not-found'))!.data;
 
 // GitHub Pages serves this file, with a 404 status, for any address the site does not have.
-const sections = flattenNav(await getNav()).filter((item) => item.href !== '/');
+// Grouped the way the header groups them: a section, then the pages under it. Home is left out, since the button above goes there.
+const sections = (await getNav()).filter((item) => item.href !== '/');
 ---
 
 <BaseLayout
@@ -25,7 +25,22 @@ const sections = flattenNav(await getNav()).filter((item) => item.href !== '/');
 
   <h2>{text.links_heading}</h2>
   <ul class="sections">
-    {sections.map((item) => <li><a href={item.href}>{item.label}</a></li>)}
+    {
+      sections.map((item) => (
+        <li>
+          <a href={item.href}>{item.label}</a>
+          {item.children && (
+            <ul>
+              {item.children.map((child) => (
+                <li>
+                  <a href={child.href}>{child.label}</a>
+                </li>
+              ))}
+            </ul>
+          )}
+        </li>
+      ))
+    }
   </ul>
 </BaseLayout>
 
@@ -45,7 +60,8 @@ const sections = flattenNav(await getNav()).filter((item) => item.href !== '/');
     font-size: 1.2rem;
   }
 
-  .sections {
+  .sections,
+  .sections ul {
     margin: 0;
     padding-left: 1.2rem;
   }

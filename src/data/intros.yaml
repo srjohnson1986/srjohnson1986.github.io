@@ -84,8 +84,8 @@
     That address is not part of this site. It may have been mistyped, or the page may have moved.
   # The button that goes to the home page.
   button: Go to the home page
-  # The heading above the list of main sections.
-  links_heading: Or try one of these
+  # The heading above the list of every page, grouped by section.
+  links_heading: Browse all pages
 
 - id: jabroni-fest
   title: "Jabroni Fest | {name}"
