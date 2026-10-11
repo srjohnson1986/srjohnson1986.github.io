@@ -4,72 +4,67 @@ import { nav, site, type NavItem } from '../data/site';
 const path = Astro.url.pathname;
 // Home matches only "/"; every other entry also matches its sub-pages (/resume/qa/ is "Resume").
 const isCurrent = (href: string) => (href === '/' ? path === '/' : path.startsWith(href));
-
-// The phone menu keeps ungrouped links where they are and lists items that share a group
-// together, under the group's name, at the position of the group's first item.
-type Entry = { kind: 'link'; item: NavItem } | { kind: 'group'; label: string; items: NavItem[] };
-const entries: Entry[] = [];
-for (const item of nav) {
-  if (!item.group) {
-    entries.push({ kind: 'link', item });
-    continue;
-  }
-  let group = entries.find((e): e is Extract<Entry, { kind: 'group' }> => e.kind === 'group' && e.label === item.group);
-  if (!group) {
-    group = { kind: 'group', label: item.group, items: [] };
-    entries.push(group);
-  }
-  group.items.push(item);
-}
+// A section link (Creative) is the current page on its own page. On one of the pages under it, it is
+// marked as the current section instead ("true"), so only the page itself is ever marked "page".
+const current = (item: NavItem) => (isCurrent(item.href) ? 'page' : item.children?.some((child) => isCurrent(child.href)) ? 'true' : undefined);
 ---
 
 <header class="site-header no-print">
   <a class="brand" href="/">{site.name}</a>
 
-  <!-- Wide screens: every link in one row. -->
+  <!-- Wide screens: every link in one row. A section (Creative) is a link to its own page that also
+       shows the pages under it on hover or keyboard focus. The list is plain nested links, so it
+       works with a keyboard and a screen reader, and the section page repeats them for touch. -->
   <nav class="nav-wide" aria-label="Main">
     <ul>
       {
         nav.map((item) => (
-          <li>
-            <a href={item.href} data-label={item.label} aria-current={isCurrent(item.href) ? 'page' : undefined}>
+          <li class:list={{ 'has-menu': item.children }}>
+            <a href={item.href} data-label={item.label} aria-current={current(item)}>
               {item.label}
             </a>
+            {item.children && (
+              <ul class="submenu">
+                {item.children.map((child) => (
+                  <li>
+                    <a href={child.href} aria-current={current(child)}>
+                      {child.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            )}
           </li>
         ))
       }
     </ul>
   </nav>
 
-  <!-- Phones: one Menu button. The native details element gives keyboard and screen reader
-       support with no script. -->
+  <!-- Phones: one Menu button, with the pages under a section listed beneath it. The native details
+       element gives keyboard and screen reader support with no script. -->
   <details class="nav-menu">
     <summary>Menu</summary>
     <nav aria-label="Main">
       <ul>
         {
-          entries.map((entry) =>
-            entry.kind === 'link' ? (
-              <li>
-                <a href={entry.item.href} aria-current={isCurrent(entry.item.href) ? 'page' : undefined}>
-                  {entry.item.label}
-                </a>
-              </li>
-            ) : (
-              <li class="group">
-                <span class="group-label">{entry.label}</span>
+          nav.map((item) => (
+            <li class:list={{ group: item.children }}>
+              <a href={item.href} aria-current={current(item)}>
+                {item.label}
+              </a>
+              {item.children && (
                 <ul>
-                  {entry.items.map((item) => (
+                  {item.children.map((child) => (
                     <li>
-                      <a href={item.href} aria-current={isCurrent(item.href) ? 'page' : undefined}>
-                        {item.label}
+                      <a href={child.href} aria-current={current(child)}>
+                        {child.label}
                       </a>
                     </li>
                   ))}
                 </ul>
-              </li>
-            ),
-          )
+              )}
+            </li>
+          ))
         }
       </ul>
     </nav>
@@ -118,6 +113,26 @@ for (const item of nav) {
 </header>
 
 <script>
+  // The list under Creative opens by hover or focus with no script. This only adds the Escape key,
+  // which closes it without having to move the pointer or the focus away (WCAG "dismissible"). The
+  // list comes back the next time the pointer or the focus leaves and returns.
+  const section = document.querySelector<HTMLElement>('.nav-wide .has-menu');
+  if (section) {
+    // On the document, because Escape should work when the pointer opened the list too, and then
+    // the focus is somewhere else on the page.
+    document.addEventListener('keydown', (event) => {
+      if (event.key !== 'Escape' || !section.matches(':hover, :focus-within')) return;
+      section.classList.add('dismissed');
+      // Focus inside the list would be lost when it hides, so it goes back to the section link.
+      if (section.contains(document.activeElement)) section.querySelector<HTMLElement>(':scope > a')?.focus();
+    });
+    const reset = () => section.classList.remove('dismissed');
+    section.addEventListener('mouseleave', reset);
+    section.addEventListener('focusout', (event) => {
+      if (!section.contains(event.relatedTarget as Node | null)) reset();
+    });
+  }
+
   // The theme button switches between light and dark and remembers the choice. Until it is used,
   // the page follows the system setting.
   const button = document.querySelector<HTMLButtonElement>('.theme-toggle');
@@ -183,7 +198,7 @@ for (const item of nav) {
     list-style: none;
   }
 
-  .nav-wide ul {
+  .nav-wide > ul {
     display: flex;
     flex-wrap: wrap;
     gap: 0.25rem 1rem;
@@ -201,7 +216,7 @@ for (const item of nav) {
     color: var(--fg);
   }
 
-  a[aria-current='page'] {
+  a[aria-current] {
     color: var(--accent);
     font-weight: 600;
     border-bottom-color: var(--accent);
@@ -211,13 +226,68 @@ for (const item of nav) {
      width from page to page and the links shift. Each wide-row link therefore carries an invisible,
      zero-height copy of its own label in semibold (from data-label), which holds the semibold
      width at all times. Screen readers skip it because it is generated content with no height. */
-  .nav-wide a::after {
+  .nav-wide > ul > li > a::after {
     content: attr(data-label);
     display: block;
     height: 0;
     overflow: hidden;
     visibility: hidden;
     font-weight: 600;
+  }
+
+  /* ---- The list under Creative (wide screens) ----
+     Hidden with display: none until the section is hovered or something inside it has focus, so
+     its links are skipped by the Tab key and by screen readers while it is closed. It starts right
+     at the bottom edge of the link, with no gap, so moving the pointer down onto it does not close
+     it. The Escape key closes it too (see the script above), through the .dismissed class. */
+  .has-menu {
+    position: relative;
+  }
+
+  /* A small down-pointing arrow, drawn with borders, so the link is not read as "Creative arrow". */
+  .has-menu > a {
+    position: relative;
+    padding-right: 1.1rem;
+  }
+
+  .has-menu > a::before {
+    content: '';
+    position: absolute;
+    right: 0.15rem;
+    top: 50%;
+    width: 0.35rem;
+    height: 0.35rem;
+    border-right: 2px solid currentColor;
+    border-bottom: 2px solid currentColor;
+    transform: translateY(-75%) rotate(45deg);
+  }
+
+  .submenu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: -0.9rem;
+    z-index: 5;
+    min-width: 10.5rem;
+    padding: 0.4rem 0.9rem;
+    border: 1px solid var(--rule);
+    border-radius: 0.5rem;
+    background: var(--card);
+    box-shadow: 0 6px 18px rgb(0 0 0 / 0.12);
+  }
+
+  .has-menu:hover > .submenu,
+  .has-menu:focus-within > .submenu {
+    display: block;
+  }
+
+  .has-menu.dismissed > .submenu {
+    display: none;
+  }
+
+  .submenu a {
+    display: block;
+    white-space: nowrap;
   }
 
   /* The theme button is a small scene. Light: an orange sun in a soft blue sky. Dark: a pale moon
@@ -370,16 +440,7 @@ for (const item of nav) {
     margin: 0.15rem 0;
   }
 
-  .group-label {
-    display: block;
-    margin-top: 0.4rem;
-    color: var(--muted);
-    font-size: 0.75rem;
-    font-weight: 600;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-  }
-
+  /* The pages under a section are indented beneath its link. */
   .group ul {
     margin-left: 0.75rem;
   }
@@ -387,17 +448,18 @@ for (const item of nav) {
   /* Wide screens use the single row, phones use the menu. The hidden one is removed from the
      page entirely, so screen readers only meet one navigation.
 
-     The row (name, seven links, theme button) needs about 680px, plus 32px of side padding and about
-     15px for a scrollbar, so it fits from roughly 727px up. The switch is at 46rem (736px) to leave
-     a little room, and the row is not allowed to wrap. If a link is added or the font changes, the
-     header tests in tests/header.spec.ts show where it stops fitting. */
+     The row used to hold seven links and needed about 680px, plus 32px of side padding and about
+     15px for a scrollbar, so it fit from roughly 727px up. It now holds five (the other three are
+     under Creative), so it has more room than that, and the switch is still at 46rem (736px). The
+     row is not allowed to wrap. If a link is added or the font changes, the header tests in
+     tests/header.spec.ts show where it stops fitting. */
   @media (min-width: 46rem) {
     .nav-menu {
       display: none;
     }
 
     .site-header,
-    .nav-wide ul {
+    .nav-wide > ul {
       flex-wrap: nowrap;
     }
   }

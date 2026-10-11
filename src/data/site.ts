@@ -4,8 +4,9 @@
 export interface NavItem {
   label: string;
   href: string;
-  /** Items that share a group are listed together under its name in the phone menu. */
-  group?: string;
+  /** Pages that belong under this one. On wide screens they open in a list when the link is hovered
+   *  or focused, and in the phone menu they are listed under it. The item's own page still exists. */
+  children?: NavItem[];
 }
 
 export const site = {
@@ -28,15 +29,24 @@ export const site = {
 };
 
 // Main navigation. Add an entry when a page ships; never link a page that is not built.
-// With seven items the bar would wrap on phones, so there the links move into a Menu button, with
-// the items that have a `group` listed together under that group's name. On wider screens every
-// item stays in one row.
+// An item with `children` is a section: its own page, plus the pages under it. On wide screens the
+// section opens a list of its pages on hover or focus, and in the phone menu its pages are listed
+// under it. On phones the links move into a Menu button, because the row would otherwise wrap.
 export const nav: NavItem[] = [
   { label: 'Home', href: '/' },
   { label: 'Resume', href: '/resume/' },
   { label: 'Development', href: '/development/' },
-  { label: 'Audio', href: '/audio/', group: 'Creative' },
-  { label: 'Art', href: '/art/', group: 'Creative' },
-  { label: 'Events', href: '/events/', group: 'Creative' },
+  {
+    label: 'Creative',
+    href: '/creative/',
+    children: [
+      { label: 'Audio', href: '/audio/' },
+      { label: 'Art', href: '/art/' },
+      { label: 'Jabroni Fest', href: '/jabroni-fest/' },
+    ],
+  },
   { label: 'Contact', href: '/contact/' },
 ];
+
+/** Every page in the navigation as one flat list: each section followed by its pages. */
+export const navPages: NavItem[] = nav.flatMap((item) => [item, ...(item.children ?? [])]);

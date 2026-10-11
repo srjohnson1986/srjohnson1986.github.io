@@ -1,5 +1,5 @@
 import { test, expect } from './helpers/test';
-import { nav } from '../src/data/site';
+import { navPages } from '../src/data/site';
 
 // Headless Chromium hides scrollbars unless told otherwise. They are turned back on here, because the
 // scrollbar is what makes a long page narrower than a short one on a real desktop. (This setting has
@@ -12,7 +12,7 @@ test.describe('the header does not move between pages', () => {
   const places = async (page: import('@playwright/test').Page) => {
     await page.evaluate(() => document.fonts.ready);
     return page.evaluate(() =>
-      [...document.querySelectorAll('.site-header .brand, .site-header .nav-wide a, .site-header .theme-toggle')].map((el) => {
+      [...document.querySelectorAll('.site-header .brand, .site-header .nav-wide > ul > li > a, .site-header .theme-toggle')].map((el) => {
         const box = el.getBoundingClientRect();
         return `${(el.textContent || 'theme').trim()}: x ${Math.round(box.left * 10) / 10}, width ${Math.round(box.width * 10) / 10}`;
       }),
@@ -22,7 +22,7 @@ test.describe('the header does not move between pages', () => {
   test('every page has the same link positions as Home', async ({ page }) => {
     await page.goto('/');
     const home = await places(page);
-    for (const path of nav.map((item) => item.href).filter((href) => href !== '/' && href !== '/resume/').concat('/resume/qa/')) {
+    for (const path of navPages.map((item) => item.href).filter((href) => href !== '/' && href !== '/resume/').concat('/resume/qa/')) {
       await page.goto(path);
       expect(await places(page), path).toEqual(home);
     }
@@ -44,7 +44,7 @@ test.describe('the header does not move between pages', () => {
 test.describe('the header stays on one line', () => {
   const widths = [1100, 900, 768, 736, 735, 600, 375];
   // /resume/ is a redirect to the first version, so the page itself is listed instead.
-  const paths = [...nav.map((item) => item.href).filter((href) => href !== '/resume/'), '/resume/qa/', '/development/care-communication-board/'];
+  const paths = [...navPages.map((item) => item.href).filter((href) => href !== '/resume/'), '/resume/qa/', '/development/care-communication-board/'];
 
   for (const width of widths) {
     test(`on every page at ${width}px wide`, async ({ page }) => {
@@ -80,7 +80,7 @@ test.describe('the header parts sit level with each other', () => {
         return (r.top + r.bottom) / 2;
       };
       const header = document.querySelector('.site-header')!;
-      const wide = header.querySelector('.nav-wide a');
+      const wide = header.querySelector('.nav-wide > ul > li > a');
       const menu = header.querySelector('.nav-menu summary');
       return {
         brand: mid(header.querySelector('.brand')!),

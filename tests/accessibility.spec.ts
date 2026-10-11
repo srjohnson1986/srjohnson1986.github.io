@@ -1,6 +1,6 @@
 import { test, expect, type Page } from './helpers/test';
 import AxeBuilder from '@axe-core/playwright';
-import { builtPages } from './helpers/data';
+import { builtPages, redirectPages } from './helpers/data';
 
 // WCAG 2.0 and 2.1, levels A and AA, plus axe's own best-practice rules (heading order, landmarks).
 const RULE_SETS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'best-practice'];
@@ -28,10 +28,10 @@ const expectClean = async (page: Page, where: string) => {
   expect(found, `${where}\n${found.join('\n')}`).toEqual([]);
 };
 
-// /resume/ is a one-line page that redirects at once to the first version, so the browser
-// navigates away while a scan is running. The page it leads to is scanned like any other.
+// /resume/ and /events/ are one-line pages that redirect at once, so the browser navigates away
+// while a scan is running. The pages they lead to are scanned like any other.
 // The friendly 404 page is built as /404.html, which the page list (index.html files) does not include.
-const pages = [...builtPages().filter((p) => p !== '/resume/'), '/404.html'];
+const pages = [...builtPages().filter((p) => !redirectPages.includes(p)), '/404.html'];
 
 for (const scheme of ['light', 'dark'] as const) {
   test.describe(`axe scan, ${scheme} theme`, () => {
@@ -100,6 +100,13 @@ test.describe('axe scan, states that change the page', () => {
         await page.locator('a[data-lightbox]').first().click();
         await expect(page.locator('dialog.lightbox')).toBeVisible();
         await expectClean(page, `/art/ larger view (${scheme})`);
+      });
+
+      test('the Creative list in the header, open', async ({ page }) => {
+        await page.goto('/');
+        await page.getByRole('navigation', { name: 'Main' }).getByRole('link', { name: 'Creative', exact: true }).hover();
+        await expect(page.locator('.submenu')).toBeVisible();
+        await expectClean(page, `Creative list open (${scheme})`);
       });
 
       test('the phone menu, open', async ({ page }) => {

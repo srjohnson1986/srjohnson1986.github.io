@@ -1,11 +1,11 @@
 import { test, expect } from '@playwright/test';
 import { variants, releases, projects } from './helpers/data';
-import { nav } from '../src/data/site';
+import { navPages } from '../src/data/site';
 
 // Short checks that the real, public site is alive and serving what it should. They run against
 // the deployed site (see playwright.config.ts) and deliberately do few things, quickly.
 
-const mainPages = ['/', '/resume/qa/', '/development/', '/audio/', '/art/', '/events/', '/contact/'];
+const mainPages = ['/', '/resume/qa/', '/development/', '/audio/', '/art/', '/creative/', '/jabroni-fest/', '/contact/'];
 
 test('the home page is served with its title and heading', async ({ page, baseURL }) => {
   const response = await page.goto('/');
@@ -17,7 +17,7 @@ test('the home page is served with its title and heading', async ({ page, baseUR
 
 test('every navigation link responds', async ({ request }) => {
   const problems: string[] = [];
-  for (const item of nav) {
+  for (const item of navPages) {
     const response = await request.get(item.href);
     if (response.status() !== 200) problems.push(`${item.href} returned ${response.status()}`);
   }

@@ -25,6 +25,9 @@ const copy = z
   .refine(noDashes, 'Use single hyphens only: no em dashes, en dashes, or double hyphens')
   .refine(noPhone, 'Do not publish phone numbers');
 
+// The path of a page on this site, such as /audio/. Used by the Home cards and the Creative cards.
+const pagePath = z.string().regex(/^\/[a-z0-9-]*(\/[a-z0-9-]+)*\/?$/, 'Use a page path on this site, such as /audio/');
+
 // A web link, which must be https. Used by projects (repo, demo) and releases (Bandcamp page).
 const httpsUrl = z
   .string()
@@ -166,11 +169,11 @@ const education = defineCollection({
   ]),
 });
 
-// A headline number with its label, shown in a strip on project pages and the Events page.
+// A headline number with its label, shown in a strip on project pages and the Jabroni Fest page.
 const fact = z.strictObject({ value: copy, label: copy });
 
 // ---------------------------------------------------------------------------
-// Events (src/data/events.yaml)
+// Events (src/data/events.yaml), shown on the Jabroni Fest page
 // ---------------------------------------------------------------------------
 
 const events = defineCollection({
@@ -287,14 +290,16 @@ const intros = defineCollection({
   schema: z
     .strictObject({
       // Which page the text is for.
-      id: z.enum(['home', 'art', 'audio', 'contact', 'events', 'development', 'not-found']),
+      id: z.enum(['home', 'art', 'audio', 'contact', 'jabroni-fest', 'creative', 'development', 'not-found']),
       // The page's title in the browser tab and in link previews, and its description.
       title: copy,
       description: copy,
       // The line under the page's heading.
       lead: copy,
-      // One paragraph per entry, in order (Home and Art).
+      // One paragraph per entry, in order (Home, Art, and Creative).
       paragraphs: z.array(copy).min(1).optional(),
+      // The cards that link to the pages under Creative, in order (Creative).
+      cards: z.array(z.strictObject({ title: copy, blurb: copy, href: pagePath })).min(1).optional(),
       // Shown before the lead, only when an email address is published (Contact).
       email_note: copy.optional(),
       // The closing line under the contact details, which links to the resume (Contact).
@@ -314,7 +319,8 @@ const intros = defineCollection({
       const need = (field: keyof typeof entry) => {
         if (entry[field] === undefined) ctx.addIssue({ code: 'custom', message: `The ${entry.id} entry needs "${field}"`, path: [field] });
       };
-      if (entry.id === 'home' || entry.id === 'art') need('paragraphs');
+      if (entry.id === 'home' || entry.id === 'art' || entry.id === 'creative') need('paragraphs');
+      if (entry.id === 'creative') need('cards');
       if (entry.id === 'art') {
         need('empty');
         need('no_match');
@@ -367,10 +373,7 @@ const homeCards = defineCollection({
     title: copy,
     blurb: copy,
     // The page the card opens, such as /audio/. Leave out while the page is not built yet.
-    href: z
-      .string()
-      .regex(/^\/[a-z0-9-]*(\/[a-z0-9-]+)*\/?$/, 'Use a page path on this site, such as /audio/')
-      .optional(),
+    href: pagePath.optional(),
   }),
 });
 

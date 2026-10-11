@@ -1,5 +1,5 @@
 import { test, expect } from './helpers/test';
-import { builtPages } from './helpers/data';
+import { builtPages, retiredPages } from './helpers/data';
 
 // Print routes exist only so the PDFs can be printed from them. Nothing links to them.
 const isPrintRoute = (p: string) => p.startsWith('/resume/print/');
@@ -103,7 +103,8 @@ test('every internal link, anchor, and asset resolves, and no page is orphaned',
     if (!response.ok()) problems.push(`${asset} returned ${response.status()}`);
   }
 
-  const expected = builtPages().filter((p) => !isPrintRoute(p));
+  // The retired /events/ address is built on purpose, so old links work, and nothing links to it.
+  const expected = builtPages().filter((p) => !isPrintRoute(p) && !retiredPages.includes(p));
   for (const built of expected) {
     if (!crawled.has(built)) problems.push(`${built} is built but nothing links to it`);
   }

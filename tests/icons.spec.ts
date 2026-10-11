@@ -1,9 +1,9 @@
 import { test, expect } from './helpers/test';
-import { builtPages } from './helpers/data';
+import { builtPages, redirectPages } from './helpers/data';
 
 // Every public page names the same three icons: the SVG favicon (which follows the browser's light
 // or dark theme), a 32 px ICO fallback, and a 180 px Apple touch icon.
-const pages = builtPages().filter((p) => !p.startsWith('/resume/print/') && p !== '/resume/');
+const pages = builtPages().filter((p) => !p.startsWith('/resume/print/') && !redirectPages.includes(p));
 
 for (const url of pages) {
   test(`${url} links the site icons`, async ({ page }) => {

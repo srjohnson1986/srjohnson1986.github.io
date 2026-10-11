@@ -1,0 +1,99 @@
+---
+import { getEntry } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { fill } from '../lib/copy';
+
+const intro = (await getEntry('intros', 'creative'))!.data;
+---
+
+<BaseLayout title={fill(intro.title)} description={fill(intro.description)}>
+  <h1>Creative</h1>
+  <p class="lead">{intro.lead}</p>
+
+  <div class="statement">
+    {intro.paragraphs!.map((paragraph) => <p>{paragraph}</p>)}
+  </div>
+
+  <!-- For now this page is copy and a way into the pages under it. A combined listing or filter
+       may come later. The cards also serve touch screens, where the header list cannot be hovered. -->
+  <section aria-labelledby="creative-pages">
+    <h2 id="creative-pages">Explore</h2>
+    <ul class="cards">
+      {
+        intro.cards!.map((card) => (
+          <li>
+            <a class="card" href={card.href}>
+              <h3>{card.title}</h3>
+              <p>{card.blurb}</p>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+</BaseLayout>
+
+<style>
+  h1 {
+    margin: 0 0 0.5rem;
+    font-size: 2rem;
+  }
+
+  .lead {
+    margin: 0 0 1.5rem;
+    color: var(--muted);
+  }
+
+  .statement {
+    max-width: 42rem;
+    margin: 0 0 2rem;
+  }
+
+  .statement p {
+    margin: 0 0 0.9rem;
+  }
+
+  h2 {
+    margin: 0 0 0.75rem;
+    font-size: 0.85rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+    gap: 1rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .card {
+    display: block;
+    height: 100%;
+    padding: 1rem 1.1rem;
+    border: 1px solid var(--rule);
+    border-radius: 0.6rem;
+    background: var(--card);
+    color: var(--fg);
+    text-decoration: none;
+  }
+
+  .card:hover {
+    border-color: var(--accent);
+  }
+
+  .card h3 {
+    margin: 0 0 0.35rem;
+    color: var(--accent);
+    font-size: 1.05rem;
+  }
+
+  .card p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.95rem;
+  }
+</style>
