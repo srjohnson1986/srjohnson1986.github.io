@@ -24,6 +24,28 @@ test.describe('the date format used by the checks below', () => {
     expect(rolesNewestFirst.slice(0, ongoing.length)).toEqual(ongoing); // all the ongoing roles come first
     expect(ongoing.map((r) => r.start)).toEqual([...ongoing.map((r) => r.start)].sort((a, b) => b - a));
     expect(new Set(ids).size, 'every role appears once').toBe(ids.length);
+
+    // The whole order, pair by pair: the roles that finished (and the ongoing ones) never go back in time.
+    const end = (r: (typeof rolesNewestFirst)[number]) => (r.end === 'present' ? Infinity : r.end);
+    for (let i = 0; i < rolesNewestFirst.length - 1; i++) {
+      const [a, b] = [rolesNewestFirst[i], rolesNewestFirst[i + 1]];
+      const inOrder =
+        end(a) > end(b) || (end(a) === end(b) && (a.start > b.start || (a.start === b.start && a.id.localeCompare(b.id) < 0)));
+      expect(inOrder, `${a.id} should come before ${b.id}`).toBe(true);
+    }
+  });
+
+  test('the data has the kinds of role the checks below are meant to cover', () => {
+    // Keeps the position and note branches real: if the data stopped having one, those checks would
+    // quietly run on nothing.
+    const shown = variants.flatMap((v) => {
+      const listed = variantBulletIds(v).map((id) => bulletById.get(id)!);
+      return rolesNewestFirst.filter((role) => listed.some((b) => b.role === role.id));
+    });
+    expect(shown.some((r) => r.positions), 'a shown role with several positions').toBe(true);
+    expect(shown.some((r) => !r.positions && r.note), 'a shown single-title role with a note').toBe(true);
+    expect(shown.some((r) => !r.positions && !r.note), 'a shown single-title role without a note').toBe(true);
+    expect(shown.some((r) => r.neutral_org), 'a shown role with an alternate organization name').toBe(true);
   });
 });
 
@@ -56,6 +78,11 @@ for (const variant of variants) {
         await page.goto(url);
         for (const { role } of sections) {
           const el = page.locator(`section[aria-labelledby="role-${role.id}"]`);
+          // The organization name belongs to this very role. (resume.spec.ts compares the names only as a
+          // sorted set, which two swapped names would still satisfy.) The web page always shows real names;
+          // the print route follows the version's label mode.
+          const org = name === 'print route' && variant.org_labels === 'neutral' && role.neutral_org ? role.neutral_org : role.org;
+          await expect(el.locator(`h3#role-${role.id}`), `organization of ${role.id}`).toHaveText(org);
           await expect(el.locator('.role-head .dates'), `dates of ${role.id}`).toHaveText(dateRange(role.start, role.end));
 
           if (role.positions) {
@@ -84,6 +111,7 @@ for (const variant of variants) {
         const items = page.locator('ul.education > li');
         await expect(items).toHaveCount(education.length);
         for (const [i, entry] of education.entries()) {
+          expect(entry.degree ?? entry.certification, `education entry "${entry.id}" needs a degree or a certification`).toBeTruthy();
           const title = entry.degree ?? (entry.level ? `${entry.certification} (${entry.level})` : entry.certification!);
           await expect(items.nth(i).locator('.position-title')).toHaveText(title);
           if (entry.school) await expect(items.nth(i).locator('.note')).toHaveText(entry.school);
