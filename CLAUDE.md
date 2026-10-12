@@ -37,6 +37,7 @@ The Playwright suite is a portfolio piece as well as a safety net. It lives in `
 - `not-found.spec.ts`, `social.spec.ts`, `icons.spec.ts`, `theme.spec.ts`, `copy.spec.ts` - the friendly 404 page, the link-preview tags, sitemap, and robots.txt, the site icons, the light and dark theme button, and the page text that comes from `src/data/intros.yaml`
 - `fonts.spec.ts`, `header.spec.ts` - the bundled Atkinson font (and no outside fonts), and a header that does not move between pages
 - `readme.spec.ts` - the README and the content READMEs: npm commands match `package.json`, relative links and named project files exist, and every spec file is described here or in the README. It needs no browser. When it fails, fix the README or CLAUDE.md, not the test
+- `contact.spec.ts` - the email, LinkedIn, GitHub, and area on the Contact page and every resume header and print route, and the privacy rules on the built pages (area is "Atlanta area", no phone number or `tel:` link)
 - `accessibility.spec.ts` - axe scans of every page in light, dark, and phone width, plus the changing states and keyboard checks
 - `smoke.spec.ts` - short checks against the live site, run by the Smoke test workflow after every deploy, weekly, and on demand
 
