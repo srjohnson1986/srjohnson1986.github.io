@@ -1,5 +1,5 @@
 import { test, expect } from './helpers/test';
-import { bulletById, dateRange, education, rolesNewestFirst, variantBulletIds, variants } from './helpers/data';
+import { bulletById, dateRange, education, expectedSkills, rolesNewestFirst, variantBulletIds, variants } from './helpers/data';
 
 // The resume pages and the print routes (which the PDFs are printed from) show more than a version's
 // summary, skills, and bullet text: the order of the roles, each role's dates, title, note, and
@@ -8,6 +8,41 @@ import { bulletById, dateRange, education, rolesNewestFirst, variantBulletIds, v
 //
 // The date format and the role order are worked out in tests/helpers/data.ts, apart from the site's own
 // code, so a mistake in the site's version cannot agree with the test.
+
+// The PDFs are printed from the print routes with the browser's print media, so this is what a reader of
+// the PDF sees. The text checks elsewhere use toContainText, which also matches text a print rule hides.
+for (const variant of variants) {
+  test(`the print route of "${variant.id}" shows everything, readable, within the page`, async ({ page }) => {
+    await page.emulateMedia({ media: 'print' });
+    await page.goto(`/resume/print/${variant.id}/`);
+    const resume = page.locator('article.resume');
+    const listed = variantBulletIds(variant).map((id) => bulletById.get(id)!);
+
+    await expect(resume.getByRole('heading', { level: 1 })).toBeVisible();
+    for (const name of ['Summary', 'Core Skills', 'Experience', 'Education and Certifications']) {
+      await expect(resume.getByRole('heading', { level: 2, name })).toBeVisible();
+    }
+    await expect(resume.locator('section[aria-labelledby="resume-summary"] p')).toBeVisible();
+    // Every one of these is checked for being shown, not just present in the markup.
+    await expect(resume.locator('.bullets li:visible')).toHaveCount(listed.length);
+    await expect(resume.locator('.skills dt:visible')).toHaveCount(expectedSkills(variant.id).length);
+    await expect(resume.locator('.skills dd:visible')).toHaveCount(expectedSkills(variant.id).length);
+    await expect(resume.locator('ul.education > li:visible')).toHaveCount(education.length);
+    await expect(resume.locator('.role-head:visible')).toHaveCount(await resume.locator('section.role').count());
+
+    // Dark text on a white page, not pale or invisible text.
+    const colors = await resume.locator('.bullets li').first().evaluate((el) => {
+      const channels = (css: string) => css.match(/[\d.]+/g)!.slice(0, 3).map(Number);
+      return { text: channels(getComputedStyle(el).color), page: channels(getComputedStyle(document.body).backgroundColor) };
+    });
+    expect(Math.max(...colors.text), 'text colour channels').toBeLessThan(110);
+    expect(Math.min(...colors.page), 'page colour channels').toBeGreaterThan(240);
+
+    // Nothing sticks out sideways past the page.
+    const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+    expect(overflow, 'pixels wider than the page').toBeLessThanOrEqual(1);
+  });
+}
 
 test.describe('the date format used by the checks below', () => {
   // Literal examples, so the helper is known to be right before the pages are compared with it.
