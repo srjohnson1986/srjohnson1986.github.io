@@ -120,8 +120,7 @@ test.describe('Art filters', () => {
     await openFilters(page);
     await control(page, 'sort').selectOption('oldest');
 
-    const oldest = await shownTitles(page);
-    expect(oldest).toEqual([...newest].reverse());
+    await expect.poll(() => shownTitles(page)).toEqual([...newest].reverse());
     expect(new URL(page.url()).searchParams.get('sort')).toBe('oldest');
     await expect(page.locator('[data-filter-count]')).toHaveText(' · 1 selected');
     await expect(status(page)).toHaveText(`Showing ${total} of ${total} pieces`);
@@ -133,7 +132,7 @@ test.describe('Art filters', () => {
     expect(firstYear).toBeLessThanOrEqual(lastYear);
 
     await page.getByRole('button', { name: 'Clear filters' }).click();
-    expect(await shownTitles(page)).toEqual(newest);
+    await expect.poll(() => shownTitles(page)).toEqual(newest);
     expect(new URL(page.url()).search).toBe('');
     await expect(page.locator('[data-filter-count]')).toHaveText('');
   });
@@ -142,13 +141,14 @@ test.describe('Art filters', () => {
     const newest = await defaultOrder(page);
     await openFilters(page);
     await control(page, 'sort').selectOption('oldest');
+    await expect(page).toHaveURL(/sort=oldest/); // the choice is in the address once it has been applied
     await page.reload();
-    expect(await shownTitles(page)).toEqual([...newest].reverse());
+    await expect.poll(() => shownTitles(page)).toEqual([...newest].reverse());
     await openFilters(page);
     await expect(control(page, 'sort')).toHaveValue('oldest');
 
     await page.goto(`${ART}?sort=oldest`);
-    expect(await shownTitles(page)).toEqual([...newest].reverse());
+    await expect.poll(() => shownTitles(page)).toEqual([...newest].reverse());
   });
 
   test('each year shows exactly that year\'s pieces, still newest first', async ({ page }) => {
@@ -157,7 +157,7 @@ test.describe('Art filters', () => {
     for (const year of years) {
       await control(page, 'year').selectOption(year);
       const expected = inPageOrder(newest, (a) => String(a.year) === year);
-      expect(await shownTitles(page), `year ${year}`).toEqual(expected);
+      await expect.poll(() => shownTitles(page), { message: `year ${year}` }).toEqual(expected);
       await expect(status(page)).toHaveText(`Showing ${expected.length} of ${total} pieces`);
     }
   });
@@ -168,7 +168,7 @@ test.describe('Art filters', () => {
     for (const format of formats) {
       await control(page, 'format').selectOption(format);
       const expected = inPageOrder(newest, (a) => a.format === format);
-      expect(await shownTitles(page), `format ${format}`).toEqual(expected);
+      await expect.poll(() => shownTitles(page), { message: `format ${format}` }).toEqual(expected);
     }
   });
 
@@ -183,14 +183,14 @@ test.describe('Art filters', () => {
     await control(page, 'year').selectOption(String(sample.year));
     await control(page, 'format').selectOption(sample.format!);
     await control(page, 'sort').selectOption('oldest');
-    expect(await shownTitles(page)).toEqual([...expected].reverse());
+    await expect.poll(() => shownTitles(page)).toEqual([...expected].reverse());
     await expect(page.locator('[data-filter-count]')).toHaveText(' · 3 selected');
 
     const search = new URL(page.url()).searchParams;
     expect([search.get('year'), search.get('format'), search.get('sort')]).toEqual([String(sample.year), sample.format, 'oldest']);
 
     await page.goto(`${ART}?year=${sample.year}&format=${sample.format}&sort=oldest`);
-    expect(await shownTitles(page)).toEqual([...expected].reverse());
+    await expect.poll(() => shownTitles(page)).toEqual([...expected].reverse());
   });
 
   test('a combination with no pieces shows the message from the file', async ({ page }) => {
@@ -200,7 +200,7 @@ test.describe('Art filters', () => {
     expect(pair, 'the data has a year and format that never go together').toBeTruthy();
 
     await page.goto(`${ART}?year=${pair![0]}&format=${pair![1]}`);
-    expect(await shownTitles(page)).toEqual([]);
+    await expect.poll(() => shownTitles(page)).toEqual([]);
     await expect(page.locator('[data-no-results]')).toBeVisible();
     await expect(page.locator('[data-no-results]')).toHaveText(intros.art.no_match!);
     await openFilters(page);
@@ -233,12 +233,12 @@ test.describe('Art filters', () => {
 
     // One name: everything that has it.
     await pick(tags[0]);
-    expect(await shownTitles(page)).toEqual(inPageOrder(newest, (a) => has(a, [tags[0]])));
+    await expect.poll(() => shownTitles(page)).toEqual(inPageOrder(newest, (a) => has(a, [tags[0]])));
 
     // A second name widens the result instead of narrowing it.
     await pick(tags[1]);
     const both = inPageOrder(newest, (a) => has(a, [tags[0], tags[1]]));
-    expect(await shownTitles(page)).toEqual(both);
+    await expect.poll(() => shownTitles(page)).toEqual(both);
     expect(both.length).toBeGreaterThanOrEqual(inPageOrder(newest, (a) => has(a, [tags[0]])).length);
 
     // A band and a venue together, which come from different lists in the files.
@@ -248,14 +248,14 @@ test.describe('Art filters', () => {
     test.skip(!band || !venue, 'needs a band and a venue');
     await pick(band);
     await pick(venue);
-    expect(await shownTitles(page)).toEqual(inPageOrder(newest, (a) => has(a, [band, venue])));
+    await expect.poll(() => shownTitles(page)).toEqual(inPageOrder(newest, (a) => has(a, [band, venue])));
     await expect(status(page)).toHaveText(`Showing ${inPageOrder(newest, (a) => has(a, [band, venue])).length} of ${total} pieces`);
 
     // And it can be shared as a link.
     const search = new URL(page.url()).searchParams;
     expect(search.getAll('tag')).toEqual([band, venue]);
     await page.goto(`${ART}?tag=${encodeURIComponent(band)}&tag=${encodeURIComponent(venue)}`);
-    expect(await shownTitles(page)).toEqual(inPageOrder(newest, (a) => has(a, [band, venue])));
+    await expect.poll(() => shownTitles(page)).toEqual(inPageOrder(newest, (a) => has(a, [band, venue])));
   });
 
   for (const width of [375, 700, 1100, 1600]) {
@@ -294,6 +294,7 @@ test.describe('Art filters', () => {
     await page.goto(ART);
     await openFilters(page);
     await control(page, 'sort').selectOption('oldest');
+    await expect(page).toHaveURL(/sort=oldest/); // wait until the pieces have been re-sorted
     const link = page.locator('[data-item] .piece > a[data-lightbox]').first();
     const alt = await link.locator('img').getAttribute('alt');
     await link.click();

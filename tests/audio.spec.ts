@@ -178,13 +178,13 @@ test.describe('Audio players', () => {
 
     const titles = () => page.locator('[data-item]:not([hidden]) h2').allTextContents();
     await page.locator('select[name="band"]').selectOption({ label: 'Karbomb' });
-    expect(await titles()).toEqual(['Tag Team Champions']);
+    await expect.poll(() => titles()).toEqual(['Tag Team Champions']);
     await page.locator('select[name="band"]').selectOption({ label: 'Naw' });
-    expect(await titles()).toContain('Naw X Asbestos Worker'); // the split shows under the band that was recorded
+    await expect.poll(() => titles()).toContain('Naw X Asbestos Worker'); // the split shows under the band that was recorded
     await page.locator('select[name="band"]').selectOption({ label: 'Seagulls' });
-    expect(await titles()).toContain('Tag Team Champions');
-    expect(await titles()).toContain('The Royal We');
-    expect(await titles()).not.toContain('Part Deux');
+    await expect.poll(() => titles()).toContain('Tag Team Champions');
+    await expect.poll(() => titles()).toContain('The Royal We');
+    await expect.poll(() => titles()).not.toContain('Part Deux');
   });
 
   test('the genre group is titled just Genre', async ({ page }) => {

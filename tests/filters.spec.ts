@@ -93,7 +93,7 @@ for (const archive of archives) {
       await expect(panel.locator('summary')).toBeVisible();
       await expect(panel).not.toHaveAttribute('open', '');
       await expect(page.getByRole('form', { name: `Filter ${archive.noun}` })).toBeHidden();
-      expect(sorted(await visibleTitles(page))).toEqual(sorted(items.map((i) => i.title))); // every item shows while closed
+      await expect.poll(async () => sorted(await visibleTitles(page))).toEqual(sorted(items.map((i) => i.title))); // every item shows while closed
 
       await openFilters(page);
       await expect(panel).toHaveAttribute('open', '');
@@ -116,7 +116,7 @@ for (const archive of archives) {
       await page.reload(); // reloads closed, with the filter still applied and still announced
       await expect(page.locator('[data-filter-panel]')).not.toHaveAttribute('open', '');
       await expect(note).toHaveText(' · 1 selected');
-      expect(sorted(await visibleTitles(page))).toEqual(titlesWhere(items, (i) => i.facets[archive.tagFacet].includes(tags[0])));
+      await expect.poll(async () => sorted(await visibleTitles(page))).toEqual(titlesWhere(items, (i) => i.facets[archive.tagFacet].includes(tags[0])));
 
       await openFilters(page);
       await page.getByRole('button', { name: 'Clear filters' }).click();
@@ -131,7 +131,7 @@ for (const archive of archives) {
         for (const value of distinct(items, facet)) {
           await select.selectOption(value);
           const expected = titlesWhere(items, (i) => i.facets[facet].includes(value));
-          expect(sorted(await visibleTitles(page)), `${facet}=${value}`).toEqual(expected);
+          await expect.poll(async () => sorted(await visibleTitles(page)), { message: `${facet}=${value}` }).toEqual(expected);
           await expect(status(page)).toHaveText(`Showing ${expected.length} of ${items.length} ${archive.noun}`);
         }
       });
@@ -145,7 +145,7 @@ for (const archive of archives) {
       // One tag: everything that has it.
       const first = tags[0];
       await pickTag(page, first);
-      expect(sorted(await visibleTitles(page))).toEqual(titlesWhere(items, (i) => i.facets[archive.tagFacet].includes(first)));
+      await expect.poll(async () => sorted(await visibleTitles(page))).toEqual(titlesWhere(items, (i) => i.facets[archive.tagFacet].includes(first)));
 
       // Two tags that never occur together give an empty result with its message.
       const pair = tags
@@ -155,7 +155,7 @@ for (const archive of archives) {
       await page.getByRole('button', { name: 'Clear filters' }).click();
       await pickTag(page, pair![0]);
       await pickTag(page, pair![1]);
-      expect(await visibleTitles(page)).toEqual([]);
+      await expect.poll(() => visibleTitles(page)).toEqual([]);
       await expect(status(page)).toHaveText(`Showing 0 of ${items.length} ${archive.noun}`);
       await expect(page.locator('[data-no-results]')).toBeVisible();
     });
@@ -170,7 +170,7 @@ for (const archive of archives) {
         await pickTag(page, distinct(items, archive.tagFacet)[0]);
       }
       await page.getByRole('button', { name: 'Clear filters' }).click();
-      expect(sorted(await visibleTitles(page))).toEqual(sorted(items.map((i) => i.title)));
+      await expect.poll(async () => sorted(await visibleTitles(page))).toEqual(sorted(items.map((i) => i.title)));
       expect(new URL(page.url()).search).toBe('');
       await expect(page.locator('[data-no-results]')).toBeHidden();
     });
@@ -189,7 +189,7 @@ for (const archive of archives) {
       if (facet) await page.locator(`select[name="${facet}"]`).selectOption(value!);
       await pickTag(page, tag);
       const expected = titlesWhere(items, matches);
-      expect(sorted(await visibleTitles(page))).toEqual(expected);
+      await expect.poll(async () => sorted(await visibleTitles(page))).toEqual(expected);
 
       const search = new URL(page.url()).searchParams;
       if (facet) expect(search.get(facet)).toBe(value);
@@ -199,11 +199,11 @@ for (const archive of archives) {
       await page.reload();
       if (facet) await expect(page.locator(`select[name="${facet}"]`)).toHaveValue(value!);
       await expect(page.locator(`input[name="${archive.tagFacet}"][value="${tag}"]`)).toBeChecked();
-      expect(sorted(await visibleTitles(page))).toEqual(expected);
+      await expect.poll(async () => sorted(await visibleTitles(page))).toEqual(expected);
 
       // So does a link opened directly.
       await page.goto(`${archive.path}?${archive.tagFacet}=${encodeURIComponent(tag)}${facet ? `&${facet}=${encodeURIComponent(value!)}` : ''}`);
-      expect(sorted(await visibleTitles(page))).toEqual(expected);
+      await expect.poll(async () => sorted(await visibleTitles(page))).toEqual(expected);
     });
   });
 }
