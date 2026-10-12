@@ -195,6 +195,17 @@ export interface Artwork {
 }
 
 export const projects = loadDir<Project>('src/content/projects');
+/**
+ * The words shown for a project's type. Written out here, not imported from the site, so a wrong label in
+ * the site cannot agree with itself.
+ */
+export const PROJECT_TYPE_LABELS: Record<string, string> = {
+  app: 'App',
+  tool: 'Tool',
+  website: 'Website',
+  library: 'Library',
+  script: 'Script',
+};
 /** The projects in the order the Development page lists them: newest year first, featured first within a year, then by title. (A test checks the page really uses this order.) */
 export const projectsInArchiveOrder = [...projects].sort(
   (a, b) => b.year - a.year || Number(Boolean(b.featured)) - Number(Boolean(a.featured)) || a.title.localeCompare(b.title),

@@ -1,5 +1,5 @@
 import { test, expect, type Page } from './helpers/test';
-import { projects, releases } from './helpers/data';
+import { PROJECT_TYPE_LABELS, projects, releases } from './helpers/data';
 import { bandsOf, bandSlug } from '../src/lib/band';
 
 // The Development & QA and Audio archives share one filter component, so both are tested the same way.
@@ -197,6 +197,13 @@ test('Development & QA filters by tag only, and each card still shows its year a
   await expect(page.locator('fieldset legend')).toHaveText('Tags');
   for (const project of projects) {
     const card = page.locator('[data-item]', { has: page.getByRole('heading', { name: project.title, exact: true }) });
-    await expect(card).toContainText(`${project.year} ·`);
+    await expect(card.getByRole('link', { name: project.title, exact: true })).toHaveAttribute('href', `/development-qa/${project.slug}/`);
+    // The Featured badge sits in the same line; CSS spaces it, so the text may or may not have a space before it.
+    await expect(card.locator('.meta')).toHaveText(new RegExp(`^${project.year} · ${PROJECT_TYPE_LABELS[project.type]}[ ]*${project.featured ? 'Featured' : ''}$`));
+    await expect(card.locator('.featured')).toHaveCount(project.featured ? 1 : 0);
+    await expect(card.locator(':scope > p:not(.meta)')).toHaveText(project.summary.replace(/\s+/g, ' ').trim());
+    // A chip reads like its tag, with a few special spellings (ci/cd, ai-assisted), so compare only the letters and digits.
+    const chips = (await card.locator('.chips .chip').allTextContents()).map((c) => c.toLowerCase().replace(/[^a-z0-9]/g, ''));
+    expect(chips, project.title).toEqual(project.tags.map((tag) => tag.replace(/[^a-z0-9]/gi, '').toLowerCase()));
   }
 });

@@ -1,19 +1,10 @@
 import { test, expect } from './helpers/test';
-import { projects } from './helpers/data';
+import { PROJECT_TYPE_LABELS, projects } from './helpers/data';
 
 // Each Development & QA project has a page built from one YAML file in src/content/projects/. The link
 // crawl, the accessibility scans, and the preview-tag checks only visit these pages, so these checks are
 // what notice a page losing its repo link, its stack, or its outcome list, or printing "undefined".
 // Every expected value is read from the project file, so changing a project never needs a test edit.
-
-// Written out here on purpose, not imported from the site, so a wrong label in the site cannot agree with itself.
-const TYPE_LABELS: Record<string, string> = {
-  app: 'App',
-  tool: 'Tool',
-  website: 'Website',
-  library: 'Library',
-  script: 'Script',
-};
 
 // Folded YAML text and the page both end up as one line of text, so compare with spaces collapsed.
 const oneLine = (text: string) => text.replace(/\s+/g, ' ').trim();
@@ -38,7 +29,7 @@ for (const project of projects) {
     test('shows the heading, the year and type, the summary, and a way back', async ({ page }) => {
       await page.goto(url);
       await expect(page.getByRole('heading', { level: 1 })).toHaveText(project.title);
-      await expect(page.locator('p.meta')).toHaveText(`${project.year} · ${TYPE_LABELS[project.type]}`);
+      await expect(page.locator('p.meta')).toHaveText(`${project.year} · ${PROJECT_TYPE_LABELS[project.type]}`);
       await expect(page.locator('p.summary')).toHaveText(oneLine(project.summary));
       await expect(page.getByRole('link', { name: 'All projects' })).toHaveAttribute('href', '/development-qa/');
     });
