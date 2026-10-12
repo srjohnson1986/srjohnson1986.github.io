@@ -47,6 +47,7 @@ src/
   content.config.ts   every collection and its schema
 scripts/        PDF generation, the icon and link-preview image generators, and the smoke test runner
 tests/          the Playwright suite
+.claude/agents/ the test-reviewer subagent (see Testing)
 .vscode/        maps each YAML file to its schema, for autocomplete and checking in VS Code
 .github/        workflows, Dependabot settings, and issue and pull request templates
 ```
@@ -95,6 +96,24 @@ The Playwright suite runs against the built site and is public on purpose. It re
 - **Smoke test:** a handful of checks against the deployed site.
 
 A passing suite only means something if it can fail, so each area was checked by breaking the site on purpose (a dead link, a missing heading, a truncated PDF, pale text, players that load by themselves) and confirming the right tests failed.
+
+### Reviewing the tests with a subagent
+
+[`.claude/agents/test-reviewer.md`](.claude/agents/test-reviewer.md) defines a Claude Code subagent that reviews the Playwright tests themselves. It looks for four things:
+
+- **Coverage gaps:** pages, data files, or resume versions that no test checks.
+- **Weak assertions:** tests that would still pass if the feature broke, such as an existence-only check, or a hard-coded value where the site's data file should be the source.
+- **Tests that cannot fail:** each comes with a deliberate break that would prove it works.
+- **Likely flaky patterns:** fixed waits, order-dependent tests, and reliance on live third-party content.
+
+It reports findings ranked High, Medium, and Low, each with a file, a line, and a suggested fix. It is read-only: it has only the Read, Grep, and Glob tools (Edit, Write, and Bash are denied), so it never changes a file. For the same reason it cannot run `git`, so give it the files to review. From the repository root in Claude Code:
+
+```text
+Use the test-reviewer agent on tests/links.spec.ts and tests/audio.spec.ts
+Use the test-reviewer agent on the whole suite
+```
+
+For a pull request, pass it the specs the branch changed, which `git diff --name-only main...HEAD tests` lists. Its findings are leads to check against the code, not a gate: it is not part of CI, and it reads the tests without running them. If Claude Code says it cannot find the agent, restart the session so it picks up `.claude/agents/`.
 
 ## Adding content
 
