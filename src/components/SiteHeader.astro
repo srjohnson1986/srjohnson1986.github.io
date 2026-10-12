@@ -142,6 +142,17 @@ const current = (item: NavItem) => (item.children?.some((child) => isCurrent(chi
     });
   }
 
+  // The phone menu is a native details element, which does not close on Escape by itself. Close it the
+  // same way as the wide-screen lists, and put focus back on the Menu button so it is not lost with the list.
+  const phoneMenu = document.querySelector<HTMLDetailsElement>('.nav-menu');
+  if (phoneMenu) {
+    document.addEventListener('keydown', (event) => {
+      if (event.key !== 'Escape' || !phoneMenu.open) return;
+      phoneMenu.open = false;
+      phoneMenu.querySelector<HTMLElement>('summary')?.focus();
+    });
+  }
+
   // The theme button switches between light and dark and remembers the choice. Until it is used,
   // the page follows the system setting.
   const button = document.querySelector<HTMLButtonElement>('.theme-toggle');
