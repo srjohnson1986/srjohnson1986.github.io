@@ -390,3 +390,33 @@ test.describe('Development & QA, which used to be called Development', () => {
     }
   });
 });
+
+// Found to be fine in an exploratory session, and written down so it stays that way. Both are about the
+// Back button, which is easy to break without a visible error: a redirect or a filter that adds history
+// entries makes Back feel stuck or take a visitor somewhere they did not expect.
+test.describe('the Back button', () => {
+  test('from the resume it returns to the page the visitor came from, not through the redirect again', async ({ page }) => {
+    await page.goto('/');
+    await page.locator('.nav-wide').getByRole('link', { name: 'Resume', exact: true }).click();
+    // /resume/ forwards at once to the first version.
+    await expect(page).toHaveURL(/\/resume\/[a-z-]+\/$/);
+    await page.goBack();
+    await expect(page).toHaveURL((url) => url.pathname === '/' && url.search === ''); // the home page itself, not just any path ending in a slash
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText(site.name);
+  });
+
+  test('changing filters does not add history entries, so Back leaves the archive', async ({ page }) => {
+    await page.goto('/');
+    await page.locator('.nav-wide').getByRole('link', { name: 'Creative', exact: true }).hover();
+    await page.locator('.nav-wide .submenu').getByRole('link', { name: 'Audio', exact: true }).click();
+    await expect(page).toHaveURL(/\/audio\/$/);
+
+    await page.locator('[data-filter-panel] > summary').click();
+    await page.locator('select[name="year"]').selectOption({ index: 1 });
+    await page.locator('label.tag-option').first().click();
+    await expect(page).toHaveURL(/\?.*year=/);
+
+    await page.goBack();
+    await expect(page).toHaveURL((url) => url.pathname === '/' && url.search === ''); // the home page itself, not just any path ending in a slash
+  });
+});
