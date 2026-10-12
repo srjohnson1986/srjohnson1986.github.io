@@ -51,6 +51,8 @@ test.describe('Audio players', () => {
       await page.waitForLoadState('networkidle');
       await expect(page.locator('iframe.embed-light:visible')).toHaveCount(releases.length);
       await expect(page.locator('iframe.embed-dark:visible')).toHaveCount(0);
+      // Without this, players that never load at all would leave the list below empty and pass.
+      expect(requested.length).toBeGreaterThan(0);
       expect(requested.filter((url) => url.includes('bgcol=1b1b20'))).toEqual([]);
     });
   });
