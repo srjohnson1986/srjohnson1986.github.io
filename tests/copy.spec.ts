@@ -1,5 +1,7 @@
+import fs from 'node:fs';
+import path from 'node:path';
 import { test, expect } from './helpers/test';
-import { events, intros, projects, releases } from './helpers/data';
+import { builtPages, dist, events, intros, projects, releases } from './helpers/data';
 import { fill, linkParts } from '../src/lib/copy';
 
 // The small pieces of text that live in src/data/intros.yaml: each page's browser title and
@@ -77,6 +79,32 @@ test.describe('the text helpers, with fixed examples', () => {
       { text: '.' },
     ]);
     expect(linkParts('No links here')).toEqual([{ text: 'No links here' }]);
+  });
+});
+
+// CLAUDE.md: single hyphens only, with no em dash, en dash, or double hyphen in text. The content schema
+// enforces that for the YAML copy; text written straight into a page file is checked here on the built pages.
+test.describe('the single-hyphen rule on the built pages', () => {
+  const files = [...builtPages().map((p) => path.join(dist, p, 'index.html')), path.join(dist, '404.html')];
+  const EM = String.fromCharCode(0x2014);
+  const EN = String.fromCharCode(0x2013);
+
+  test('there are pages to scan', () => {
+    expect(files.length).toBeGreaterThan(10);
+    for (const file of files) expect(fs.existsSync(file), `${file} is missing`).toBe(true);
+  });
+
+  test('no built page has an em dash, an en dash, or a double hyphen in its text', () => {
+    const found: string[] = [];
+    for (const file of files) {
+      const html = fs.readFileSync(file, 'utf8').replace(/<(script|style)[\s\S]*?<\/\1>/gi, ' ').replace(/<!--[\s\S]*?-->/g, ' ');
+      const where = path.relative(dist, file);
+      if (html.includes(EM) || html.includes(EN)) found.push(`${where}: has an em dash or an en dash`);
+      const text = html.replace(/<[^>]+>/g, ' ');
+      const double = text.match(/[A-Za-z0-9] -- [A-Za-z0-9]/);
+      if (double) found.push(`${where}: has a double hyphen ("${double[0]}")`);
+    }
+    expect(found, 'Use single hyphens only').toEqual([]);
   });
 });
 
