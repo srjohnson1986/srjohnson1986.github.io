@@ -146,8 +146,25 @@ test.describe('theme button scene', () => {
 
   test('animates between the themes when motion is allowed', async ({ page }) => {
     await page.goto('/');
+    await toggle(page).waitFor();
+    // Record that the knob really starts a transition. (The duration written in the stylesheet is there
+    // whether or not anything moves, and reading the running animations after the click could miss a
+    // 0.45 second transition on a slow machine.)
+    await page.evaluate(() => {
+      const w = window as unknown as { __knobTransitions: string[] };
+      w.__knobTransitions = [];
+      document.addEventListener(
+        'transitionrun',
+        (event) => {
+          if ((event.target as Element).classList.contains('knob')) w.__knobTransitions.push(event.propertyName);
+        },
+        true,
+      );
+    });
     await toggle(page).click();
-    await expect(toggle(page).locator('.knob')).toHaveCSS('transition-duration', '0.45s');
+    await expect
+      .poll(() => page.evaluate(() => (window as unknown as { __knobTransitions: string[] }).__knobTransitions), 'transitions started by the knob')
+      .toContain('transform');
   });
 });
 
