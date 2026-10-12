@@ -4,6 +4,7 @@ Session notes from exploratory testing of the live site, driven by Claude Code t
 
 - [TEMPLATE.md](TEMPLATE.md) - copy this for a new session.
 - [2026-10-12-live-site.md](2026-10-12-live-site.md) - the first session: the live site, 2 findings, 5 tests.
+- [2026-10-12-mcp-session.md](2026-10-12-mcp-session.md) - the second session, the first run through the Playwright MCP server itself: 1 finding, 1 test.
 - Each session is one file named `YYYY-MM-DD-topic.md`.
 
 Exploratory testing is learning and testing at the same time, with no script. The notes record what was covered, what was found, and what was not covered, so the next session starts where this one stopped. A finding that a test would catch next time becomes a Playwright test in `tests/`; a check that stays manual is listed in the notes with the reason.
