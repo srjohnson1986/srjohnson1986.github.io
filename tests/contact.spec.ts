@@ -60,6 +60,7 @@ test.describe('privacy rules', () => {
   // A North American style number in any common layout: (404) 555-0123, 404-555-0123, 404.555.0123,
   // +1 404 555 0123. Dates such as 2026.08.29 and year ranges do not fit this shape.
   const phone = /(?:\+?1[\s.-]?)?(?:\(\d{3}\)\s?|\b\d{3}[\s.-])\d{3}[\s.-]\d{4}\b/;
+  const withoutScripts = (html: string) => html.replace(/<(script|style)[\s\S]*?<\/\1>/gi, ' ');
   const visibleText = (html: string) =>
     html
       .replace(/<(script|style)[\s\S]*?<\/\1>/gi, ' ')
@@ -80,6 +81,9 @@ test.describe('privacy rules', () => {
       const where = path.relative(dist, file);
       const number = visibleText(html).match(phone);
       if (number) found.push(`${where}: text contains "${number[0]}"`);
+      // Also the tags themselves: a number in a meta description, an alt, or an aria-label is published too.
+      const inTags = withoutScripts(html).match(phone);
+      if (inTags && !number) found.push(`${where}: markup contains "${inTags[0]}"`);
       if (/href=["']?tel:/i.test(html)) found.push(`${where}: has a tel: link`);
     }
     expect(found, 'Phone numbers must not be published').toEqual([]);
