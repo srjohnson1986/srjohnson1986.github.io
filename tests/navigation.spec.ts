@@ -195,6 +195,27 @@ test.describe('navigation on a phone', () => {
     await expect(details).not.toHaveAttribute('open', '');
   });
 
+  // Found in an exploratory session: Escape closed the lists on a wide screen but not the phone menu.
+  test('Escape closes the open menu and puts focus back on the Menu button', async ({ page }) => {
+    await page.goto('/art/');
+    const summary = page.locator('summary', { hasText: 'Menu' });
+    const details = page.locator('.nav-menu');
+
+    await summary.click();
+    await expect(details).toHaveAttribute('open', '');
+    // Focus is on a link inside the menu, as it is after tabbing in, so Escape has to rescue it.
+    await page.getByRole('navigation', { name: 'Main' }).getByRole('link', { name: 'Home', exact: true }).focus();
+    await page.keyboard.press('Escape');
+    await expect(details).not.toHaveAttribute('open', '');
+    await expect(summary).toBeFocused();
+
+    // With the menu already closed, Escape leaves it closed and does not move focus.
+    await page.getByRole('link', { name: 'Skip to content' }).focus();
+    await page.keyboard.press('Escape');
+    await expect(details).not.toHaveAttribute('open', '');
+    await expect(page.getByRole('link', { name: 'Skip to content' })).toBeFocused();
+  });
+
   test('the open menu lists every page, with the pages under a section listed beneath its link', async ({ page }) => {
     await page.goto('/');
     await page.locator('summary', { hasText: 'Menu' }).click();
