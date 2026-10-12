@@ -133,10 +133,12 @@ test.describe('keyboard', () => {
     await expect(page).toHaveURL(/#main$/);
   });
 
-  test('focused links and controls have a visible outline', async ({ page }) => {
+  test('focused links and controls have a visible outline, all the way down the page', async ({ page }) => {
     await page.goto('/development-qa/');
     const problems: string[] = [];
-    for (let i = 0; i < 12; i++) {
+    const stops: { area: string; tag: string; label: string }[] = [];
+    // Walk every tab stop until focus leaves the page (the cap only stops a runaway loop).
+    for (let i = 0; i < 100; i++) {
       await page.keyboard.press('Tab');
       const info = await page.evaluate(() => {
         const el = document.activeElement as HTMLElement | null;
@@ -146,11 +148,28 @@ test.describe('keyboard', () => {
         const pill = el.nextElementSibling ? getComputedStyle(el.nextElementSibling) : null;
         const own = style.outlineStyle !== 'none' && parseFloat(style.outlineWidth) > 0;
         const viaPill = pill ? pill.outlineStyle !== 'none' && parseFloat(pill.outlineWidth) > 0 : false;
-        return { label: (el.textContent || el.getAttribute('name') || el.tagName).trim().slice(0, 30), visible: own || viaPill };
+        const area = el.closest('header') ? 'header' : el.closest('main') ? 'main' : el.closest('footer') ? 'footer' : 'other';
+        const label = (el.textContent || el.getAttribute('name') || el.tagName).trim().slice(0, 30);
+        // A checkbox that is itself invisible (opacity 0) shows nothing to the visitor, however it is outlined,
+        // so only the pill beside it counts.
+        const invisible = style.opacity === '0';
+        return { area, tag: el.tagName, label, visible: invisible ? viaPill : own || viaPill };
       });
-      if (info && !info.visible) problems.push(info.label);
+      if (!info) break;
+      stops.push(info);
+      if (!info.visible) problems.push(`${info.area}: ${info.label}`);
+      // The tag options only become tab stops once the panel is open, so open it from the keyboard.
+      if (info.tag === 'SUMMARY' && info.label === 'Filters') await page.keyboard.press('Enter');
     }
     expect(problems, `focused with no visible outline: ${problems.join(', ')}`).toEqual([]);
+
+    // Without these the loop could pass by only ever looking at the header again.
+    const reached = (area: string, tag: string) => stops.some((s) => s.area === area && s.tag === tag);
+    expect(reached('header', 'BUTTON'), 'the theme button was reached').toBe(true);
+    expect(stops.some((s) => s.tag === 'SUMMARY' && s.label === 'Filters'), 'the Filters control was reached').toBe(true);
+    expect(reached('main', 'INPUT'), 'a tag option was reached').toBe(true);
+    expect(reached('main', 'A'), 'a project link was reached').toBe(true);
+    expect(reached('footer', 'A'), 'a footer link was reached').toBe(true);
   });
 
   test('every page has exactly one skip link, and it targets the main landmark', async ({ page }) => {
