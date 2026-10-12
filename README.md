@@ -137,18 +137,25 @@ The Model Context Protocol (MCP) is an open standard that lets an AI tool call o
 - **Pinned version.** The package version is written out, so a new release cannot change the tools underneath a session. Bump it on purpose and re-run a short session.
 - **No secrets.** The server needs no account or token, and the file contains none.
 - **Headless, isolated Chromium.** `--isolated` gives each session a throwaway browser profile, so no cookies or sign-ins carry over and the site's theme choice starts fresh. Output such as screenshots goes to `.playwright-mcp/`, which is not committed.
-- **Not a dependency.** `npx` downloads the server when it first runs; it is not in `package.json`. The browser is the same Chromium that `npx playwright install` already installs for the tests.
+- **Not a dependency.** `npx` downloads the server when it first runs; it is not in `package.json`. The browser is not shared with the tests: the server brings its own Playwright, so it needs its own Chromium build, installed once (see below).
 
-The server does not give Claude any more access than a browser has, but a browser can open any address, so Claude Code asks you to approve a project-scoped server the first time you open the project. Claude Code only loads it at the start of a session. On Windows, if Claude Code reports the server as failed to connect, change `"command": "npx"` to `"command": "cmd"` and put `"/c", "npx"` at the start of `args` in a local, uncommitted override (`claude mcp add --scope local`).
+The server does not give Claude any more access than a browser has, but a browser can open any address, so Claude Code asks you to approve a project-scoped server the first time you open the project. Claude Code only loads it at the start of a session. Plain `npx` works as the command on Windows 11 (tested). If Claude Code ever reports the server as failed to connect on Windows, change `"command": "npx"` to `"command": "cmd"` and put `"/c", "npx"` at the start of `args` in a local, uncommitted override (`claude mcp add --scope local`).
 
 ### Running an exploratory session
 
-1. Clone the repository, run `claude` in it, and approve the `playwright` server when asked. Check it with `/mcp`.
-2. Copy [`docs/exploratory/TEMPLATE.md`](docs/exploratory/TEMPLATE.md) and write a charter: the area, the tools, and what you want to find out. Keep it to one sentence, and set a time box (30 to 60 minutes).
-3. Ask Claude to explore the live site to that charter, taking notes as it goes. The browser tools work from the page's accessibility tree rather than pixels, so they can read the page the way a screen reader does, press keys, resize the window, and read the console and network log.
-4. Write the notes (covered, found, not covered) next to the template. Be factual: what was done, what happened, what was expected.
-5. For each real finding, open an issue. If a test would catch it next time, write the Playwright test first, confirm it fails against the bug, then fix the bug in its own pull request. A deliberate break proves a test of something that is already fine.
-6. List what stays manual, with the reason, in the notes.
+1. Clone the repository and install the server's browser once. It downloads about 120 MB into your user profile (the `ms-playwright` folder), not the repository, and without it the first browser call fails with "Browser is not installed":
+
+   ```bash
+   npx @playwright/mcp@0.0.83 install-browser chrome-for-testing
+   ```
+
+   Use the version pinned in `.mcp.json`; a test keeps this number in step with it.
+2. Run `claude` in the repository and approve the `playwright` server when asked. Check it with `/mcp`.
+3. Copy [`docs/exploratory/TEMPLATE.md`](docs/exploratory/TEMPLATE.md) and write a charter: the area, the tools, and what you want to find out. Keep it to one sentence, and set a time box (30 to 60 minutes).
+4. Ask Claude to explore the live site to that charter, taking notes as it goes. The browser tools work from the page's accessibility tree rather than pixels, so they can read the page the way a screen reader does, press keys, resize the window, and read the console and network log.
+5. Write the notes (covered, found, not covered) next to the template. Be factual: what was done, what happened, what was expected.
+6. For each real finding, open an issue. If a test would catch it next time, write the Playwright test first, confirm it fails against the bug, then fix the bug in its own pull request. A deliberate break proves a test of something that is already fine.
+7. List what stays manual, with the reason, in the notes.
 
 Past sessions are in [`docs/exploratory/`](docs/exploratory/).
 

@@ -25,7 +25,7 @@ Read `PROJECT_BRIEF.md` (kept in `private/`) for goals, pages, and privacy rules
 - `npm run test:only` - run the suite without rebuilding (build first with `npm run build`)
 - `npm run test:smoke` - run only the smoke checks against the deployed site (`SMOKE_URL` points them elsewhere)
 - Docs: https://docs.astro.build
-- Exploratory testing: `.mcp.json` registers the Playwright MCP server (pinned version, headless, isolated, no secrets); approve it once in Claude Code. Charter, template, and session notes live in `docs/exploratory/`. See the README section "Exploratory testing with the Playwright MCP server"
+- Exploratory testing: `.mcp.json` registers the Playwright MCP server (pinned version, headless, isolated, no secrets); approve it once in Claude Code, and install its browser once with `npx @playwright/mcp@0.0.83 install-browser chrome-for-testing` (it is not the tests' browser). Charter, template, and session notes live in `docs/exploratory/`. See the README section "Exploratory testing with the Playwright MCP server"
 
 ## Testing
 
