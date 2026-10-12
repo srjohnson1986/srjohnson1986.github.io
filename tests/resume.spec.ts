@@ -113,6 +113,20 @@ for (const variant of variants) {
       expect([...headings].sort()).toEqual([...expectedOrgs].sort());
     });
 
+    test('print route carries the version\'s summary, bullets, and skills', async ({ page }) => {
+      // The PDF is printed from this page, so what is missing here is missing from the download.
+      await page.goto(`/resume/print/${variant.id}/`);
+
+      const resume = page.locator('article.resume');
+      await expect(resume).toContainText(summary);
+      for (const bullet of listed) await expect(resume).toContainText(bullet.text);
+      await expect(resume.locator('.bullets li')).toHaveCount(listed.length);
+
+      const expected = expectedSkills(variant.id);
+      await expect(page.locator('.skills dt')).toHaveText(expected.map((g) => g.group));
+      await expect(page.locator('.skills dd')).toHaveText(expected.map((g) => g.items.join(', ')));
+    });
+
     test('print route follows the version\'s label mode and has no site chrome', async ({ page }) => {
       await page.goto(`/resume/print/${variant.id}/`);
 

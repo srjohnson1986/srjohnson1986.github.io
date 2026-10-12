@@ -79,7 +79,7 @@ In VS Code, the YAML files autocomplete and flag mistakes as you type, using sch
 
 The Playwright suite runs against the built site and is public on purpose. It reads the same data files the site is built from, so a test can say what a page should contain without a second hand-copied list.
 
-- **Resume and PDFs:** every version renders with exactly its own bullets and skills, print routes carry no site chrome, and each PDF is a real PDF with a sensible page count.
+- **Resume and PDFs:** every version renders with exactly its own bullets and skills, print routes carry the version's summary, bullets, and skills and no site chrome, and each PDF is a real PDF with a sensible page count that was printed from its own version (checked through the document title Chromium writes into the file).
 - **Links:** a crawl from the home page checks every link, in-page anchor, and image, requires that no page is orphaned, and checks that each page has a title, one heading, a main landmark, and no console errors.
 - **Link previews and the sitemap:** every public page carries Open Graph tags that match its title, description, and address, the preview image exists at 1200 by 630, `robots.txt` points to the sitemap, and the sitemap lists every public page and none of the print routes. There are no Twitter or X tags.
 - **Theme button:** it starts from the system setting, switches and remembers a choice across reloads and pages, works from the keyboard and with storage blocked, is absent without scripts, and never touches the print pages.
