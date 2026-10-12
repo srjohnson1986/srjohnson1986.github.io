@@ -101,7 +101,11 @@ test.describe('README', () => {
   test('every spec file in tests/ is described in the README or CLAUDE.md', () => {
     const specs = fs.readdirSync(path.join(root, 'tests')).filter((name) => name.endsWith('.spec.ts'));
     expect(specs.length, 'spec files found').toBeGreaterThan(10);
-    const undescribed = specs.filter((name) => !readme.includes(name) && !claudeNotes.includes(name));
+    // A spec counts as described only when its whole file name appears. A plain substring match would let
+    // art-filters.spec.ts stand in for filters.spec.ts, so the name must not follow a letter, digit, or hyphen.
+    const mentions = (text: string, name: string) =>
+      new RegExp(`(?<![\\w-])${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`).test(text);
+    const undescribed = specs.filter((name) => !mentions(readme, name) && !mentions(claudeNotes, name));
     expect(
       undescribed,
       `These specs are not described anywhere: ${undescribed.join(', ')}. Add a line to the test list in CLAUDE.md and the Testing section of the README.`,

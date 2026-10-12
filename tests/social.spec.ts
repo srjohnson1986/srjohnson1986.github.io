@@ -58,6 +58,8 @@ test.describe('sitemap and robots.txt', () => {
     expect(response.status()).toBe(200);
     const text = await response.text();
     expect(text).toContain('User-agent: *');
+    // "Allows crawling" means no rule that shuts the whole site out.
+    expect(text).not.toMatch(/^\s*Disallow:\s*\/\s*$/m);
     expect(text).toContain(`Sitemap: ${SITE}/sitemap-index.xml`);
   });
 
