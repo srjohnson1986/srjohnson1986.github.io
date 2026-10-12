@@ -207,7 +207,7 @@ test.describe('Larger view of an image', () => {
     await expect(links).toHaveCount(expected);
     const hrefs = await links.evaluateAll((as) => as.map((a) => (a as HTMLAnchorElement).href));
     expect(new Set(hrefs).size).toBe(expected); // each image has its own larger version
-    for (const href of hrefs.slice(0, 4)) {
+    for (const href of hrefs) {
       const response = await request.get(href);
       expect(response.status(), href).toBe(200);
       expect(response.headers()['content-type'], href).toContain('image/');
@@ -374,6 +374,7 @@ test.describe('Gallery alignment', () => {
       expect(frames.length).toBeGreaterThan(0);
       for (const f of frames) {
         expect(f.ratio).toBeCloseTo(0.8, 2); // 4:5, the same for squares and posters
+        expect(f.widthGap, 'how far the frame is from the width of its card').toBeLessThanOrEqual(0); // the frame fills the card, no more
         expect(f.fit).toBe('contain'); // the whole flyer shows; nothing is cropped
       }
     });
