@@ -38,7 +38,7 @@ src/
   pages/        one file per page (resume and development-qa use dynamic routes)
   components/   header, footer, the shared archive filters, the resume document, facts strip
   layouts/      the base layout
-  lib/          loaders that join content collections and enforce cross-collection rules
+  lib/          loaders that join content collections and enforce cross-collection rules; copy-rules.js holds the text rules the schema and the bullet skill share
   styles/       global.css and the print stylesheet for the PDFs
   data/         site settings and navigation (site.ts), page text (intros.yaml), Home cards, events and studio info (YAML)
     resume/     roles, bullets, summaries, skills, education, and resume versions (YAML)
@@ -48,6 +48,7 @@ src/
 scripts/        PDF generation, the icon and link-preview image generators, and the smoke test runner
 tests/          the Playwright suite
 .claude/agents/ the test-reviewer subagent (see Testing)
+.claude/skills/ the add-resume-bullet skill (see Adding a resume bullet with a skill)
 .vscode/        maps each YAML file to its schema, for autocomplete and checking in VS Code
 .github/        workflows, Dependabot settings, and issue and pull request templates
 ```
@@ -97,6 +98,7 @@ The Playwright suite runs against the built site and is public on purpose. It re
 - **Interactive behavior:** the filters, the art stories and series, the audio players (Bandcamp is stubbed, so the tests never use the network), and the wide and phone navigation, including the Creative and Development & QA lists (hover, keyboard, and Escape, with the projects in the same order as the Development & QA page) and the old `/events/` and `/development/` forwards.
 - **Accessibility:** axe-core scans of every page in light, dark, and phone width, plus the pages' changing states and keyboard checks for the skip link and focus.
 - **The README itself:** `tests/readme.spec.ts` checks that every npm command the README names exists in `package.json` (and the reverse), that its links and the project files it names exist, and that every spec file is described. It cannot judge whether a sentence is still true, so the pull request checklist covers that.
+- **Bullet skill:** `tests/add-resume-bullet-skill.spec.ts` runs the skill's check mode against a clean bullet and one bullet per rule, and confirms nothing is written.
 - **Smoke test:** a handful of checks against the deployed site.
 
 A passing suite only means something if it can fail, so each area was checked by breaking the site on purpose (a dead link, a missing heading, a truncated PDF, pale text, players that load by themselves) and confirming the right tests failed.
@@ -118,6 +120,16 @@ Use the test-reviewer agent on the whole suite
 ```
 
 For a pull request, pass it the specs the branch changed, which `git diff --name-only main...HEAD tests` lists. Its findings are leads to check against the code, not a gate: it is not part of CI, and it reads the tests without running them. If Claude Code says it cannot find the agent, restart the session so it picks up `.claude/agents/`.
+
+## Adding a resume bullet with a skill
+
+[`.claude/skills/add-resume-bullet/`](.claude/skills/add-resume-bullet/SKILL.md) is a Claude Code skill that adds one resume bullet correctly. Claude reads its short description and uses it when you ask to add a bullet to the resume. You give it the text, the role, and the resume versions (`qa`, `consulting`, `creative`, `adoption`). It then:
+
+1. Checks the bullet before writing anything. The build schema already rejects dashes, phone numbers, and a first word that is not a past-tense verb, and the skill runs those same rules from `src/lib/copy-rules.js` so a bad bullet is stopped early. It adds three things the build does not check: weak opening verbs (Reviewed, Asked, Helped, Worked), a plus sign on project counts (`152+ issues`), and a warning, with unused verbs as alternatives, when the opening verb is already used in the same role.
+2. Writes the entry at the end of its role in `bullets.yaml`, keeps the "N bullets" comment right, and adds the id to each version you named in `variants.yaml`.
+3. Runs `npm test`, then reports whether each affected version still renders and each PDF is still two pages or fewer.
+
+To see the checks without writing anything, run `node .claude/skills/add-resume-bullet/check-bullet.mjs check --role tpd --versions qa --text "Built ..."`. It prints each problem and exits with 1 if any is an error. Numbers in a bullet still have to come from the private bank or from me; the skill only reminds you of that.
 
 ## Adding content
 

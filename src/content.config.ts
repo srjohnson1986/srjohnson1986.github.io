@@ -1,6 +1,7 @@
 import { defineCollection, reference } from 'astro:content';
 import { file, glob } from 'astro/loaders';
 import { z } from 'astro/zod';
+import { noDashes, noPhone, startsWithPastTenseVerb } from './lib/copy-rules.js';
 
 // ---------------------------------------------------------------------------
 // Shared building blocks
@@ -14,10 +15,7 @@ const kebab = z
 
 // Public copy rules from CLAUDE.md. A schema failure stops the build, so a bad
 // entry can never reach the live site.
-const EN_DASH = String.fromCharCode(0x2013);
-const EM_DASH = String.fromCharCode(0x2014);
-const noDashes = (s: string) => !s.includes(EN_DASH) && !s.includes(EM_DASH) && !s.includes('--');
-const noPhone = (s: string) => !/(\+?1[\s.-]?)?\(?\d{3}\)?[\s.-]\d{3}[\s.-]\d{4}/.test(s);
+// The predicates live in src/lib/copy-rules.js, where the add-resume-bullet skill's check also uses them.
 const copy = z
   .string()
   .trim()
@@ -33,16 +31,6 @@ const httpsUrl = z
   .string()
   .url()
   .refine((u) => u.startsWith('https://'), 'Use an https:// link');
-
-// Resume bullets start with a past-tense verb ("Built", "Led"...). Regular verbs end in
-// "ed"; the short list below covers the irregular ones. Add to it if a valid verb is rejected.
-const IRREGULAR_PAST = new Set([
-  'Built', 'Led', 'Wrote', 'Set', 'Kept', 'Split', 'Ran', 'Held', 'Made', 'Taught', 'Drove', 'Won', 'Sent', 'Brought',
-]);
-const startsWithPastTenseVerb = (s: string) => {
-  const word = s.match(/^[A-Za-z]+/)?.[0] ?? '';
-  return /^[A-Z][a-z]+ed$/.test(word) || IRREGULAR_PAST.has(word);
-};
 
 const dateOrder = (v: { start: number; end: number | 'present' }) => v.end === 'present' || v.end >= v.start;
 
