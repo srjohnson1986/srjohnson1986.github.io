@@ -39,6 +39,7 @@ The Playwright suite is a portfolio piece as well as a safety net. It lives in `
 - `readme.spec.ts` - the README and the content READMEs: npm commands match `package.json`, relative links and named project files exist, and every spec file is described here or in the README. It needs no browser. When it fails, fix the README or CLAUDE.md, not the test
 - `contact.spec.ts` - the email, LinkedIn, GitHub, and area on the Contact page and every resume header and print route, and the privacy rules on the built pages (area is "Atlanta area", no phone number or `tel:` link)
 - `jabroni-fest.spec.ts` - the Jabroni Fest page shows every field of `src/data/events.yaml` (name, summary, role, facts, "How it runs", cause)
+- `projects.spec.ts` - each Development & QA project page shows every field of its `src/content/projects/*.yaml` file (summary, facts, problem, built, stack, outcome, and the repo and demo links it has)
 - `accessibility.spec.ts` - axe scans of every page in light, dark, and phone width, plus the changing states and keyboard checks
 - `smoke.spec.ts` - short checks against the live site, run by the Smoke test workflow after every deploy, weekly, and on demand
 

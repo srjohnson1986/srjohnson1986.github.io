@@ -118,10 +118,17 @@ export interface Project {
   slug: string;
   title: string;
   navTitle: string;
+  summary: string;
   year: number;
   featured?: boolean;
   type: string;
   tags: string[];
+  stack: string[];
+  problem: string;
+  built: string[];
+  outcome: string[];
+  facts?: { value: string; label: string }[];
+  links: { repo?: string; demo?: string };
 }
 export interface Release {
   slug: string;
