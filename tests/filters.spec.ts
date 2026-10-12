@@ -41,6 +41,24 @@ const archives: Archive[] = [
   },
 ];
 
+// The filters below compute their expected values with bandsOf and bandSlug from src/lib/band.ts, the same
+// functions the page uses, so a mistake in them would be on both sides. These literal examples pin them.
+test.describe('the band helpers, with fixed examples', () => {
+  test('bandSlug makes a short, space-free value', () => {
+    expect(bandSlug('Naw X Asbestos Worker')).toBe('naw-x-asbestos-worker');
+    expect(bandSlug('Fat Sally')).toBe('fat-sally');
+    expect(bandSlug('breaux!')).toBe('breaux');
+    expect(bandSlug('Mëdusa')).toBe('medusa'); // accents are dropped
+    expect(bandSlug('  Joy   Kills  ')).toBe('joy-kills');
+    expect(bandSlug('529')).toBe('529');
+  });
+
+  test('bandsOf lists the bands of a split, or just the artist', () => {
+    expect(bandsOf({ artist: 'Fat Sally' })).toEqual(['Fat Sally']);
+    expect(bandsOf({ artist: 'Seagulls and Karbomb', bands: ['Seagulls', 'Karbomb'] })).toEqual(['Seagulls', 'Karbomb']);
+  });
+});
+
 // The filters sit in a panel that starts closed.
 const openFilters = (page: Page) => page.locator('[data-filter-panel] > summary').click();
 const visibleTitles = (page: Page) => page.locator('[data-item]:not([hidden]) h2').allTextContents();

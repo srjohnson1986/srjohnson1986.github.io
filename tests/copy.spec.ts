@@ -59,6 +59,27 @@ test.describe('lines with links', () => {
   });
 });
 
+// The checks above compute their expected text with fill and linkParts from src/lib/copy.ts, the same
+// functions the pages use, so a mistake in them would be on both sides. These literal examples pin them.
+test.describe('the text helpers, with fixed examples', () => {
+  test('fill puts the name and area from site.ts into {name} and {area}', () => {
+    expect(fill('Hello, I am {name}, from the {area}.')).toBe('Hello, I am Steve Johnson, from the Atlanta area.');
+    expect(fill('{name} and {name}')).toBe('Steve Johnson and Steve Johnson');
+    expect(fill('Nothing to fill')).toBe('Nothing to fill');
+  });
+
+  test('linkParts splits [words](/path) links from plain text', () => {
+    expect(linkParts('See [my resume](/resume/) or [the rates](/audio/#studio).')).toEqual([
+      { text: 'See ' },
+      { text: 'my resume', href: '/resume/' },
+      { text: ' or ' },
+      { text: 'the rates', href: '/audio/#studio' },
+      { text: '.' },
+    ]);
+    expect(linkParts('No links here')).toEqual([{ text: 'No links here' }]);
+  });
+});
+
 test.describe('"no results" messages come from the file', () => {
   // Two tags that never occur together on the same item give an empty result.
   const neverTogether = (lists: string[][]) => {
