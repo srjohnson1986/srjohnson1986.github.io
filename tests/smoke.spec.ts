@@ -9,9 +9,17 @@ const mainPages = ['/', '/resume/qa/', '/development-qa/', '/audio/', '/art/', '
 test('the home page is served with its title and heading', async ({ page, baseURL }) => {
   const response = await page.goto('/');
   expect(response!.status()).toBe(200);
-  if (baseURL!.startsWith('https://')) expect(page.url()).toMatch(/^https:/);
   await expect(page).toHaveTitle(/Steve Johnson/);
   await expect(page.getByRole('heading', { level: 1, name: 'Steve Johnson' })).toBeVisible();
+});
+
+test('a plain http address is sent on to https', async ({ request, baseURL }) => {
+  // Asks for the http:// address and does not follow the redirect, so it sees the redirect itself.
+  // (Checking the address after loading an https page would always pass, whatever the server does.)
+  test.skip(!baseURL!.startsWith('https://'), 'only meaningful when the site under test is served over https');
+  const response = await request.get(`${baseURL!.replace(/^https:/, 'http:')}/`, { maxRedirects: 0 });
+  expect([301, 302, 307, 308], `status of the http address was ${response.status()}`).toContain(response.status());
+  expect(response.headers()['location'], 'where the http address redirects to').toMatch(/^https:\/\//);
 });
 
 test('every navigation link responds', async ({ request }) => {
