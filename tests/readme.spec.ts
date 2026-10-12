@@ -111,4 +111,18 @@ test.describe('README', () => {
       `These specs are not described anywhere: ${undescribed.join(', ')}. Add a line to the test list in CLAUDE.md and the Testing section of the README.`,
     ).toEqual([]);
   });
+
+  // Found in the second exploratory session: the MCP server brings its own Playwright, so it needs its own
+  // browser build, and a stale version in the install command would fetch the wrong one.
+  test('the Playwright MCP install command in the docs uses the version pinned in .mcp.json', () => {
+    const args: string[] = JSON.parse(read('.mcp.json')).mcpServers.playwright.args;
+    const pinned = args.find((arg) => arg.startsWith('@playwright/mcp@'))!.split('@').pop();
+    expect(pinned, 'a version is pinned in .mcp.json').toMatch(/^\d+\.\d+\.\d+/);
+    for (const [name, text] of [['README.md', readme], ['CLAUDE.md', claudeNotes]] as const) {
+      const named = [...text.matchAll(/@playwright\/mcp@([\w.-]+)/g)].map((match) => match[1]);
+      expect(named.length, `${name} gives the browser install command with the pinned version`).toBeGreaterThan(0);
+      expect(named.filter((version) => version !== pinned), `${name} names a version other than the pinned ${pinned}`).toEqual([]);
+      expect(text, `${name} says to install the browser`).toContain('install-browser');
+    }
+  });
 });
