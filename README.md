@@ -49,6 +49,7 @@ scripts/        PDF generation, the icon and link-preview image generators, and 
 tests/          the Playwright suite
 .claude/agents/ the test-reviewer subagent (see Testing)
 .claude/skills/ the add-resume-bullet skill (see Adding a resume bullet with a skill)
+docs/          exploratory testing charter, notes template, and session notes (see Exploratory testing)
 .vscode/        maps each YAML file to its schema, for autocomplete and checking in VS Code
 .github/        workflows, Dependabot settings, and issue and pull request templates
 ```
@@ -120,6 +121,36 @@ Use the test-reviewer agent on the whole suite
 ```
 
 For a pull request, pass it the specs the branch changed, which `git diff --name-only main...HEAD tests` lists. Its findings are leads to check against the code, not a gate: it is not part of CI, and it reads the tests without running them. If Claude Code says it cannot find the agent, restart the session so it picks up `.claude/agents/`.
+
+## Exploratory testing with the Playwright MCP server
+
+The Playwright suite checks what I thought to check. Exploratory testing finds what I did not: Claude Code drives a real browser against the live site, follows its nose, and reports anything a visitor or recruiter would trip over. Findings that a test would catch next time then become Playwright tests.
+
+### What MCP is, and how Claude Code connects
+
+The Model Context Protocol (MCP) is an open standard that lets an AI tool call outside programs through a small, uniform interface. An MCP server is such a program: it lists the tools it offers (for example "click this element" or "take a page snapshot"), and the client (Claude Code) calls them when the model decides to. Claude Code starts the server as a child process and talks to it over standard input and output, so nothing is exposed on the network.
+
+### How the setup works here
+
+[`.mcp.json`](.mcp.json) at the repository root is Claude Code's project-scoped MCP configuration, committed so a fresh clone gets the same tools. It starts the Playwright MCP server (`@playwright/mcp`) with `npx`:
+
+- **Pinned version.** The package version is written out, so a new release cannot change the tools underneath a session. Bump it on purpose and re-run a short session.
+- **No secrets.** The server needs no account or token, and the file contains none.
+- **Headless, isolated Chromium.** `--isolated` gives each session a throwaway browser profile, so no cookies or sign-ins carry over and the site's theme choice starts fresh. Output such as screenshots goes to `.playwright-mcp/`, which is not committed.
+- **Not a dependency.** `npx` downloads the server when it first runs; it is not in `package.json`. The browser is the same Chromium that `npx playwright install` already installs for the tests.
+
+The server does not give Claude any more access than a browser has, but a browser can open any address, so Claude Code asks you to approve a project-scoped server the first time you open the project. Claude Code only loads it at the start of a session. On Windows, if Claude Code reports the server as failed to connect, change `"command": "npx"` to `"command": "cmd"` and put `"/c", "npx"` at the start of `args` in a local, uncommitted override (`claude mcp add --scope local`).
+
+### Running an exploratory session
+
+1. Clone the repository, run `claude` in it, and approve the `playwright` server when asked. Check it with `/mcp`.
+2. Copy [`docs/exploratory/TEMPLATE.md`](docs/exploratory/TEMPLATE.md) and write a charter: the area, the tools, and what you want to find out. Keep it to one sentence, and set a time box (30 to 60 minutes).
+3. Ask Claude to explore the live site to that charter, taking notes as it goes. The browser tools work from the page's accessibility tree rather than pixels, so they can read the page the way a screen reader does, press keys, resize the window, and read the console and network log.
+4. Write the notes (covered, found, not covered) next to the template. Be factual: what was done, what happened, what was expected.
+5. For each real finding, open an issue. If a test would catch it next time, write the Playwright test first, confirm it fails against the bug, then fix the bug in its own pull request. A deliberate break proves a test of something that is already fine.
+6. List what stays manual, with the reason, in the notes.
+
+Past sessions are in [`docs/exploratory/`](docs/exploratory/).
 
 ## Adding a resume bullet with a skill
 
