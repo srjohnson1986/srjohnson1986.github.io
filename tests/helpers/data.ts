@@ -139,7 +139,15 @@ export interface EventOrg {
 }
 /** The organizations on the Jabroni Fest page, in the order the page lists them (by id). */
 export const events = load<EventOrg[]>('src/data/events.yaml').sort((a, b) => a.id.localeCompare(b.id));
-export const studio = load<{ id: string; heading: string; story: string[] }[]>('src/data/studio.yaml')[0];
+export interface Studio {
+  id: string;
+  heading: string;
+  story: string[];
+  rates: { price: string; description: string }[];
+  included: string;
+  prep: { heading: string; intro: string; steps: string[] };
+}
+export const studio = load<Studio[]>('src/data/studio.yaml')[0];
 export const bulletById = new Map(bullets.map((b) => [b.id, b]));
 export const roleById = new Map(roles.map((r) => [r.id, r]));
 export const summaryById = new Map(summaries.map((s) => [s.id, s]));

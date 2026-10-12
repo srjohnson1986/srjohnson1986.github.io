@@ -205,7 +205,55 @@ test.describe('Audio players', () => {
     await page.goto('/audio/');
     await page.getByRole('link', { name: 'Rates and how to prepare' }).click();
     await expect(page).toHaveURL(/#studio$/);
-    await expect(page.getByRole('heading', { level: 2, name: 'Kingdom Hell rates' })).toBeInViewport();
+    await expect(page.getByRole('heading', { level: 2, name: studio.heading })).toBeInViewport();
     await expect(page.getByRole('link', { name: 'contact page' })).toHaveAttribute('href', '/contact/');
+  });
+});
+
+// What each release card says about the release, and the studio rates section. The type and role
+// names are written out here, not imported from the site, so a wrong label cannot agree with itself.
+const oneLine = (text: string) => text.replace(/\s+/g, ' ').trim();
+const TYPE_LABELS: Record<string, string> = { album: 'Album', ep: 'EP', single: 'Single', split: 'Split' };
+const ROLE_LABELS: Record<string, string> = {
+  produced: 'Produced',
+  engineered: 'Engineered',
+  mixed: 'Mixed',
+  mastered: 'Mastered',
+  wrote: 'Wrote',
+  performed: 'Performed',
+};
+
+test.describe('Audio release cards', () => {
+  test('there are releases with a role line to check', () => {
+    // Keeps the role line below real. (A release with no roles shows no role line, and is handled too.)
+    expect(releases.some((r) => r.roles?.length), 'a release with roles').toBe(true);
+  });
+
+  test('each card shows its artist, year, type, my role, and genre chips', async ({ page }) => {
+    await stubBandcamp(page);
+    await page.goto('/audio/');
+    for (const release of releases) {
+      const el = card(page, release.title);
+      await expect(el.locator('.artist'), release.title).toHaveText(release.artist);
+      const role = release.roles?.length ? ` · My role: ${release.roles.map((r) => ROLE_LABELS[r]).join(', ')}` : '';
+      await expect(el.locator('.meta'), release.title).toHaveText(`${release.year} · ${TYPE_LABELS[release.type]}${role}`);
+      // A chip reads like its tag with the hyphens as spaces (and capitals for names), so compare ignoring case.
+      const chips = (await el.locator('.chips .chip').allTextContents()).map((c) => c.toLowerCase());
+      expect(chips, release.title).toEqual(release.tags.map((tag) => tag.replace(/-/g, ' ').toLowerCase()));
+    }
+  });
+});
+
+test.describe('Audio studio rates', () => {
+  test('shows every rate, what is included, and how to prepare, in order', async ({ page }) => {
+    await stubBandcamp(page);
+    await page.goto('/audio/');
+    const section = page.locator('section#studio');
+    await expect(section.getByRole('heading', { level: 2 })).toHaveText(studio.heading);
+    await expect(section.locator('ul.rates li')).toHaveText(studio.rates.map((r) => oneLine(`${r.price} ${r.description}`)));
+    await expect(section.getByText(oneLine(studio.included), { exact: true })).toBeVisible();
+    await expect(section.getByRole('heading', { level: 3 })).toHaveText(studio.prep.heading);
+    await expect(section.getByText(oneLine(studio.prep.intro), { exact: true })).toBeVisible();
+    await expect(section.locator('ul.prep li')).toHaveText(studio.prep.steps.map(oneLine));
   });
 });
