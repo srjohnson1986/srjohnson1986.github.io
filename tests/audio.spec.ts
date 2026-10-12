@@ -105,14 +105,19 @@ test.describe('Audio players', () => {
     const number = async (page: Page, i: number) => (await shown(page, i).contentFrame().locator('#n').textContent()) ?? '';
 
     test('clicking into a second player resets the first, and leaves a player nobody touched alone', async ({ page }) => {
+      // The page looks at which player has focus every 250 ms. The fake clock runs those checks a known
+      // number of times after each click, so "not reset" is asserted after the page has had its chance.
+      await page.clock.install();
       await numberedPlayers(page);
       await page.goto('/audio/');
       const [a, b, c] = [await number(page, 0), await number(page, 1), await number(page, 2)];
 
       await shown(page, 0).contentFrame().locator('#play').click();
+      await page.clock.runFor(1000); // four focus checks
       expect(await number(page, 0)).toBe(a); // the first one on its own is not reset
 
       await shown(page, 1).contentFrame().locator('#play').click();
+      await page.clock.runFor(1000);
       await expect.poll(() => number(page, 0)).not.toBe(a); // the first was reset
       expect(await number(page, 1)).toBe(b); // the one just used is not
       expect(await number(page, 2)).toBe(c); // one nobody touched is not
