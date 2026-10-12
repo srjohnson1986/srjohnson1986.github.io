@@ -30,14 +30,15 @@ Read `PROJECT_BRIEF.md` (kept in `private/`) for goals, pages, and privacy rules
 
 The Playwright suite is a portfolio piece as well as a safety net. It lives in `tests/`, and the data helpers in `tests/helpers/data.ts` read the same YAML files the site is built from, so a test states what a page should contain without a second hand-copied list.
 
-- `resume.spec.ts` - every resume version renders from the real data, shows exactly its skills, and the print routes follow the label mode
-- `pdfs.spec.ts` - one real PDF per version, with a sensible page count
+- `resume.spec.ts` - every resume version renders from the real data, shows exactly its skills, and the print routes carry the same summary, bullets, and skills and follow the label mode
+- `pdfs.spec.ts` - one real PDF per version, with a sensible page count, printed from its own version (its title says which)
 - `links.spec.ts` - a crawl from the home page that checks every link, anchor, and asset, and that no page is orphaned
 - `filters.spec.ts`, `art.spec.ts`, `art-filters.spec.ts` (the Art page sort and filters), `audio.spec.ts`, `navigation.spec.ts` - the interactive behavior (Bandcamp is stubbed for every spec through `tests/helpers/test.ts`, so tests never use the network; import `test` from there, except in the smoke test)
 - `not-found.spec.ts`, `social.spec.ts`, `icons.spec.ts`, `theme.spec.ts`, `copy.spec.ts` - the friendly 404 page, the link-preview tags, sitemap, and robots.txt, the site icons, the light and dark theme button, and the page text that comes from `src/data/intros.yaml`
 - `fonts.spec.ts`, `header.spec.ts` - the bundled Atkinson font (and no outside fonts), and a header that does not move between pages
 - `readme.spec.ts` - the README and the content READMEs: npm commands match `package.json`, relative links and named project files exist, and every spec file is described here or in the README. It needs no browser. When it fails, fix the README or CLAUDE.md, not the test
 - `contact.spec.ts` - the email, LinkedIn, GitHub, and area on the Contact page and every resume header and print route, and the privacy rules on the built pages (area is "Atlanta area", no phone number or `tel:` link)
+- `jabroni-fest.spec.ts` - the Jabroni Fest page shows every field of `src/data/events.yaml` (name, summary, role, facts, "How it runs", cause)
 - `accessibility.spec.ts` - axe scans of every page in light, dark, and phone width, plus the changing states and keyboard checks
 - `smoke.spec.ts` - short checks against the live site, run by the Smoke test workflow after every deploy, weekly, and on demand
 

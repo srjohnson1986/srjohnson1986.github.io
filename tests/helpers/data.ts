@@ -91,6 +91,17 @@ export interface HomeCard {
   href?: string;
 }
 export const homeCards = load<HomeCard[]>('src/data/home-cards.yaml').sort((a, b) => a.order - b.order);
+export interface EventOrg {
+  id: string;
+  name: string;
+  summary: string;
+  role: string;
+  facts: { value: string; label: string }[];
+  howItRuns: string[];
+  cause: { name: string; description: string };
+}
+/** The organizations on the Jabroni Fest page, in the order the page lists them (by id). */
+export const events = load<EventOrg[]>('src/data/events.yaml').sort((a, b) => a.id.localeCompare(b.id));
 export const studio = load<{ id: string; heading: string; story: string[] }[]>('src/data/studio.yaml')[0];
 export const bulletById = new Map(bullets.map((b) => [b.id, b]));
 export const roleById = new Map(roles.map((r) => [r.id, r]));

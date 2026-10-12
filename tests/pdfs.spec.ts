@@ -9,6 +9,18 @@ const MAX_PAGES = 2;
 // Chromium writes one "/Type /Page" object per page ("/Type /Pages" is the page tree).
 const countPages = (pdf: Buffer) => (pdf.toString('latin1').match(/\/Type\s*\/Page(?![s\w])/g) ?? []).length;
 
+/**
+ * The document title Chromium writes into the PDF's information dictionary. It is not compressed, and
+ * it comes from the <title> of the page that was printed, so it shows which print route a file was made from.
+ */
+function pdfTitle(pdf: Buffer): string | undefined {
+  const text = pdf.toString('latin1');
+  const hex = text.match(/\/Title\s*<([0-9A-Fa-f\s]+)>/);
+  if (hex) return Buffer.from(hex[1].replace(/\s/g, ''), 'hex').swap16().subarray(2).toString('utf16le');
+  const literal = text.match(/\/Title\s*\(((?:\\.|[^\\)])*)\)/);
+  return literal?.[1].replace(/\\(.)/g, '$1');
+}
+
 for (const variant of variants) {
   const file = `steve-johnson-resume-${variant.id}.pdf`;
 
@@ -31,6 +43,14 @@ for (const variant of variants) {
       const pages = countPages(body);
       expect(pages, `${file} has ${pages} pages`).toBeGreaterThanOrEqual(1);
       expect(pages, `${file} has ${pages} pages`).toBeLessThanOrEqual(MAX_PAGES);
+    });
+
+    test('was printed from its own version, not another one', () => {
+      // If the build printed the same route for every version, every file would still be a real PDF, but
+      // each would carry the wrong title.
+      const title = pdfTitle(fs.readFileSync(path.join(dist, 'resume', file)));
+      expect(title, `${file} has no readable title`).toBeTruthy();
+      expect(title).toBe(`Steve Johnson - Resume (${variant.label})`);
     });
   });
 }

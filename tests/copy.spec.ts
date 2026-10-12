@@ -1,5 +1,5 @@
 import { test, expect } from './helpers/test';
-import { intros, projects, releases } from './helpers/data';
+import { events, intros, projects, releases } from './helpers/data';
 import { fill, linkParts } from '../src/lib/copy';
 
 // The small pieces of text that live in src/data/intros.yaml: each page's browser title and
@@ -21,7 +21,8 @@ test.describe('page titles and descriptions come from the file', () => {
       await page.goto(path);
       await expect(page).toHaveTitle(fill(intros[id].title));
       const description = await page.locator('meta[name="description"]').getAttribute('content');
-      if (id === 'jabroni-fest') expect(description).toBeTruthy(); // taken from the events data when it has a summary
+      // The Jabroni Fest description is the first organization's summary from the events data.
+      if (id === 'jabroni-fest') expect(description).toBe(events[0].summary.replace(/\s+/g, ' ').trim());
       else expect(description).toBe(fill(intros[id].description));
       // Placeholders never reach a visitor.
       expect(`${await page.title()} ${description}`).not.toMatch(/[{}]/);
