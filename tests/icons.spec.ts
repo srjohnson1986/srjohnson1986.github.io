@@ -3,7 +3,8 @@ import { builtPages, redirectPages } from './helpers/data';
 
 // Every public page names the same three icons: the SVG favicon (which follows the browser's light
 // or dark theme), a 32 px ICO fallback, and a 180 px Apple touch icon.
-const pages = builtPages().filter((p) => !p.startsWith('/resume/print/') && !redirectPages.includes(p));
+// The 404 page is /404.html, which the list of built pages (index.html files) does not include.
+const pages = [...builtPages().filter((p) => !p.startsWith('/resume/print/') && !redirectPages.includes(p)), '/404.html'];
 
 for (const url of pages) {
   test(`${url} links the site icons`, async ({ page }) => {
