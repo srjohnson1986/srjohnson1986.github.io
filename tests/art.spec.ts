@@ -391,18 +391,20 @@ test.describe('Gallery alignment', () => {
     // A much wider font makes titles wrap to more lines, as on a machine with different fonts.
     await page.addStyleTag({ content: 'body, body * { font-family: "DejaVu Sans Mono", monospace !important; font-size-adjust: none; }' });
     await page.evaluate(() => window.dispatchEvent(new Event('resize')));
-    await page.waitForTimeout(200);
-    const cards = await page.locator('.piece').evaluateAll((els) =>
-      els.map((el) => {
-        const r = el.getBoundingClientRect();
-        return { top: Math.round(r.top + window.scrollY), bottom: r.bottom + window.scrollY };
-      }),
-    );
-    const rows = new Map<number, number[]>();
-    for (const c of cards) rows.set(c.top, [...(rows.get(c.top) ?? []), c.bottom]);
-    for (const [top, bottoms] of rows) {
-      expect(Math.max(...bottoms) - Math.min(...bottoms), `row at ${top}`).toBeLessThanOrEqual(2);
-    }
+    // The most that any row's cards differ in where they end. Polled, so the test waits for the page to
+    // finish lining the cards up instead of sleeping for a guessed time.
+    const worstRow = async () => {
+      const cards = await page.locator('.piece').evaluateAll((els) =>
+        els.map((el) => {
+          const r = el.getBoundingClientRect();
+          return { top: Math.round(r.top + window.scrollY), bottom: r.bottom + window.scrollY };
+        }),
+      );
+      const rows = new Map<number, number[]>();
+      for (const c of cards) rows.set(c.top, [...(rows.get(c.top) ?? []), c.bottom]);
+      return Math.max(...[...rows.values()].map((bottoms) => Math.max(...bottoms) - Math.min(...bottoms)));
+    };
+    await expect.poll(worstRow, 'how far apart the cards in the worst row end').toBeLessThanOrEqual(2);
   });
 
   test('opening Read more still grows only that card', async ({ page }) => {

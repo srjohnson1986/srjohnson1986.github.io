@@ -48,11 +48,12 @@ test.describe('Audio players', () => {
     test('only the light players show, and the dark ones are never requested', async ({ page }) => {
       const requested = await stubBandcamp(page);
       await page.goto('/audio/');
-      await page.waitForLoadState('networkidle');
       await expect(page.locator('iframe.embed-light:visible')).toHaveCount(releases.length);
       await expect(page.locator('iframe.embed-dark:visible')).toHaveCount(0);
-      // Without this, players that never load at all would leave the list below empty and pass.
-      expect(requested.length).toBeGreaterThan(0);
+      // Wait until players have really been requested, so the list below is not checked while it is
+      // still empty (and would pass for that reason). A player that loads eagerly has already been
+      // requested by the time goto returns, so a dark one cannot slip in after this point.
+      await expect.poll(() => requested.length, 'requests for players').toBeGreaterThan(0);
       expect(requested.filter((url) => url.includes('bgcol=1b1b20'))).toEqual([]);
     });
   });
@@ -63,10 +64,9 @@ test.describe('Audio players', () => {
     test('only the dark players show, and the light ones are never requested', async ({ page }) => {
       const requested = await stubBandcamp(page);
       await page.goto('/audio/');
-      await page.waitForLoadState('networkidle');
       await expect(page.locator('iframe.embed-dark:visible')).toHaveCount(releases.length);
       await expect(page.locator('iframe.embed-light:visible')).toHaveCount(0);
-      expect(requested.length).toBeGreaterThan(0);
+      await expect.poll(() => requested.length, 'requests for players').toBeGreaterThan(0);
       expect(requested.filter((url) => !url.includes('bgcol=1b1b20'))).toEqual([]);
     });
 
@@ -119,12 +119,15 @@ test.describe('Audio players', () => {
     });
 
     test('clicking in the same player again does not reset it', async ({ page }) => {
+      // The page looks at which player has focus every 250 ms. A fake clock lets the test run those
+      // checks a known number of times instead of sleeping and hoping one has happened.
+      await page.clock.install();
       await numberedPlayers(page);
       await page.goto('/audio/');
       const a = await number(page, 0);
       await shown(page, 0).contentFrame().locator('#play').click();
       await shown(page, 0).contentFrame().locator('#play').click();
-      await page.waitForTimeout(300);
+      await page.clock.runFor(1000); // four focus checks
       expect(await number(page, 0)).toBe(a);
     });
 
