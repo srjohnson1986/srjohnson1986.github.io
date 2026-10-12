@@ -12,11 +12,29 @@ export const dist = path.join(root, 'dist');
 
 const load = <T>(file: string): T => yaml.load(fs.readFileSync(path.join(root, file), 'utf8')) as T;
 
+export type Year = number | 'present';
 export interface Role {
   id: string;
   title: string;
   org: string;
   neutral_org?: string;
+  kind: string;
+  start: number;
+  end: Year;
+  note?: string;
+  /** Roles held in turn at one employer. When present, the page lists these instead of the one title. */
+  positions?: { title: string; start: number; end: Year; note?: string }[];
+}
+/** One entry of education.yaml: a degree (with school and year) or a certification (since a year). */
+export interface Education {
+  id: string;
+  order: number;
+  degree?: string;
+  school?: string;
+  year?: number;
+  certification?: string;
+  level?: string;
+  since?: number;
 }
 export interface Bullet {
   id: string;
@@ -52,6 +70,25 @@ export interface SkillGroup {
 }
 
 export const roles = load<Role[]>('src/data/resume/roles.yaml');
+export const education = load<Education[]>('src/data/resume/education.yaml').sort((a, b) => a.order - b.order);
+
+/**
+ * A date range as the resume prints it: "2012-2024", "2011" when it starts and ends in one year, and
+ * "2026-Present" while it goes on. This is written out here, apart from the site's own version, so a
+ * test compares the page with something the site did not compute. (resume-details.spec.ts pins it
+ * with literal examples.)
+ */
+export const dateRange = (start: number, end: Year): string =>
+  end === 'present' ? `${start}-Present` : start === end ? `${start}` : `${start}-${end}`;
+
+/**
+ * Roles in the order the resume lists them: ongoing roles first, then the latest end year, then the
+ * latest start year, then by id. Also written out here apart from the site's version.
+ */
+export const rolesNewestFirst = [...roles].sort((a, b) => {
+  const end = (r: Role) => (r.end === 'present' ? Infinity : r.end);
+  return end(b) - end(a) || b.start - a.start || a.id.localeCompare(b.id);
+});
 export const bullets = load<Bullet[]>('src/data/resume/bullets.yaml');
 export const summaries = load<Summary[]>('src/data/resume/summaries.yaml');
 export const skillGroups = load<SkillGroup[]>('src/data/resume/skills.yaml');
