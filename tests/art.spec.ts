@@ -171,9 +171,13 @@ test.describe('Art page', () => {
       const piece = page.locator('.piece', { has: page.getByText(art.title, { exact: true }) });
       const count = art.more!.length;
       await expect(piece.locator('summary')).toHaveText('Read more');
+      // The extra images are in the page while closed, so counting them proves nothing about the control.
+      await expect(piece.locator('.more'), `${art.title}: extras hidden before opening`).toBeHidden();
 
       await piece.locator('summary').click();
+      await expect(piece.locator('.more'), `${art.title}: extras shown after opening`).toBeVisible();
       await expect(piece.locator('.more img')).toHaveCount(count);
+      await expect(piece.locator('.more img:visible')).toHaveCount(count);
       for (const extra of art.more!) {
         await expect(piece.locator(`.more img[alt="${extra.alt.replace(/"/g, '\\"')}"]`)).toHaveCount(1);
         if (extra.caption) await expect(piece).toContainText(extra.caption);
