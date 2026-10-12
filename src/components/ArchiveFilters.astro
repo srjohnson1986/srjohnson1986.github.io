@@ -172,8 +172,15 @@ const tagGroups = facets.filter((f) => f.kind === 'tags');
 
     // Restore a shared or reloaded selection from the URL.
     const params = new URLSearchParams(location.search);
-    if (orderSelect) orderSelect.value = params.get(orderSelect.name) ?? '';
-    for (const s of selects) s.value = params.get(s.name) ?? '';
+    // Setting a drop-down to a value it has no option for leaves it blank, so a link with an unknown value
+    // (an old year, a typo) falls back to the first option, which is "All ..." or the default order.
+    const restore = (select: HTMLSelectElement) => {
+      const wanted = params.get(select.name);
+      if (wanted !== null && [...select.options].some((o) => o.value === wanted)) select.value = wanted;
+      else select.selectedIndex = 0;
+    };
+    if (orderSelect) restore(orderSelect);
+    for (const s of selects) restore(s);
     for (const b of boxes) b.checked = params.getAll(b.name).includes(b.value);
 
     form.addEventListener('change', apply);

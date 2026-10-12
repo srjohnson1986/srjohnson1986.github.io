@@ -90,6 +90,18 @@ test.describe('Art filters', () => {
     expect(formats.length).toBeGreaterThan(1);
   });
 
+  // Found in an exploratory session: a link with a value the drop-downs do not offer left them blank.
+  test('values in the link that the drop-downs do not offer are ignored, and each shows its first option', async ({ page }) => {
+    await page.goto(`${ART}?sort=no-such-value&year=1999&format=no-such-value`);
+    await expect(page.locator('.piece:visible')).toHaveCount(total);
+    for (const name of ['sort', 'year', 'format']) {
+      const select = control(page, name);
+      // toHaveValue('') would pass on a blank drop-down too, because "nothing selected" also reads as ''.
+      await expect(select.locator('option:checked'), `${name} drop-down has an option selected`).toHaveCount(1);
+      await expect(select.locator('option:checked')).toHaveText((await select.locator('option').first().textContent())!);
+    }
+  });
+
   test('with scripts off, the panel is hidden and every piece is listed', async ({ browser }) => {
     const context = await browser.newContext({ javaScriptEnabled: false });
     const page = await context.newPage();

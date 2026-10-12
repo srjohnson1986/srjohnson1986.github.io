@@ -175,6 +175,21 @@ for (const archive of archives) {
       await expect(page.locator('[data-no-results]')).toBeHidden();
     });
 
+    // Found in an exploratory session: /audio/?year=1999 listed everything but left the Year drop-down
+    // blank. A drop-down must always show one of its own options, so a value it does not offer is ignored.
+    test('a value in the link that the drop-downs do not offer is ignored, and each shows its first option', async ({ page }) => {
+      test.skip(archive.selects.length === 0, 'this page has no drop-downs');
+      const query = new URLSearchParams(Object.fromEntries(archive.selects.map((facet) => [facet, 'no-such-value'])));
+      await page.goto(`${archive.path}?${query}`);
+      await expect.poll(async () => sorted(await visibleTitles(page))).toEqual(sorted(items.map((i) => i.title)));
+      for (const facet of archive.selects) {
+        const select = page.locator(`select[name="${facet}"]`);
+        // toHaveValue('') would pass on a blank drop-down too, because "nothing selected" also reads as ''.
+        await expect(select.locator('option:checked'), `${facet} drop-down has an option selected`).toHaveCount(1);
+        await expect(select.locator('option:checked')).toHaveText((await select.locator('option').first().textContent())!);
+      }
+    });
+
     test('the selection lives in the URL and survives a reload', async ({ page }) => {
       await page.goto(archive.path);
       await openFilters(page);
