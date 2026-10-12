@@ -101,6 +101,11 @@ for (const variant of variants) {
       const switcher = page.getByRole('navigation', { name: 'Resume versions' });
       await expect(switcher.locator('[aria-current="page"]')).toHaveText(variant.label);
       await expect(switcher.getByRole('link')).toHaveCount(variants.length);
+      // In the order of variants.yaml, each going to its own version.
+      await expect(switcher.getByRole('link')).toHaveText(variants.map((v) => v.label));
+      for (const [i, v] of variants.entries()) {
+        await expect(switcher.getByRole('link').nth(i)).toHaveAttribute('href', `/resume/${v.id}/`);
+      }
 
       const pdf = page.getByRole('link', { name: /Download this version as a PDF/ });
       await expect(pdf).toHaveAttribute('href', `/resume/steve-johnson-resume-${variant.id}.pdf`);
