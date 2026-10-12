@@ -6,6 +6,26 @@ const topLevel = nav.map((item) => item.label);
 // Items that have pages under them (Creative). On a wide screen their pages open in a list.
 const sections = nav.filter((item) => item.children);
 
+// The other navigation, header, and 404 checks take their expected pages from the site's own navigation data,
+// so removing a page from it would remove the page from every expected list too. This is the one place
+// the intended pages are written out. Add a page here when one is added to src/data/site.ts on purpose.
+// (The pages under Development & QA come from the project files and are checked against them elsewhere.)
+test('the navigation holds the pages the site is meant to have', () => {
+  expect(nav.map((item) => [item.label, item.href])).toEqual([
+    ['Home', '/'],
+    ['Resume', '/resume/'],
+    ['Development & QA', '/development-qa/'],
+    ['Creative', '/creative/'],
+    ['Contact', '/contact/'],
+  ]);
+  const creative = nav.find((item) => item.label === 'Creative')!;
+  expect(creative.children!.map((item) => [item.label, item.href])).toEqual([
+    ['Audio', '/audio/'],
+    ['Art', '/art/'],
+    ['Jabroni Fest', '/jabroni-fest/'],
+  ]);
+});
+
 test.describe('navigation on a wide screen', () => {
   test('shows one row of top-level links and no Menu button, with the pages under Creative tucked away', async ({ page }) => {
     await page.goto('/');
