@@ -81,17 +81,26 @@ test.describe('Art page', () => {
     expect(titles.indexOf('Friends with Jennafits')).toBeGreaterThan(titles.indexOf("A collage from my summer of '25"));
   });
 
-  test('the Grog Shop flyer is the newest piece, with its two social versions under Read more', async ({ page }) => {
+  test('the first piece on the page shows its date and keeps its extra images under Read more', async ({ page }) => {
+    // Which piece is first is the date-order test's business (below). This takes whatever is first and
+    // checks it against its own entry in the art data, so adding a newer flyer needs no edit here.
     await page.goto('/art/');
     const first = page.locator('.piece').first();
-    await expect(first.locator(':scope > figcaption strong')).toHaveText('Grog Shop, August 29');
-    await expect(first.locator(':scope > figcaption .meta')).toContainText('2026.08.29');
+    const title = await first.locator(':scope > figcaption strong').textContent();
+    const art = artworks.find((a) => a.title === title);
+    expect(art, `"${title}" is in the art data`).toBeDefined();
+
+    if (art!.date) await expect(first.locator(':scope > figcaption .meta')).toContainText(art!.date);
+    if (!art!.more) {
+      await expect(first.locator('.more')).toHaveCount(0);
+      return;
+    }
     await expect(first.locator('summary')).toHaveText('Read more');
-    await expect(first.locator('.more img')).toHaveCount(2); // in the page already, hidden until opened
+    await expect(first.locator('.more img')).toHaveCount(art!.more.length); // in the page already, hidden until opened
     await expect(first.locator('.more')).toBeHidden();
     await first.locator('summary').click();
     await expect(first.locator('.more')).toBeVisible();
-    await expect(first.locator('.more img')).toHaveCount(2);
+    await expect(first.locator('.more img')).toHaveCount(art!.more.length);
   });
 
   test('the gallery runs newest first by date, from the first piece to the last', async ({ page }) => {
