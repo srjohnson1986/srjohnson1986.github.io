@@ -17,3 +17,6 @@ playwright/.cache/
 .env.*
 .DS_Store
 Thumbs.db
+
+# Playwright MCP session output (screenshots, snapshots)
+.playwright-mcp/
