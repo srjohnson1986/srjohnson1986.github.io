@@ -219,6 +219,31 @@ test.describe('navigation on a phone', () => {
   });
 });
 
+test.describe('Home page portrait and action links', () => {
+  test('shows the portrait with its alt text and the picture really loads, or the placeholder', async ({ page }) => {
+    await page.goto('/');
+    const portrait = page.locator('.portrait');
+    if (!site.photo) {
+      // site.ts says to leave the photo undefined to show a placeholder.
+      await expect(portrait.locator('img')).toHaveCount(0);
+      await expect(portrait.locator('.portrait-placeholder')).toBeVisible();
+      return;
+    }
+    const image = portrait.getByRole('img', { name: site.photo.alt, exact: true });
+    await expect(image).toHaveAttribute('src', site.photo.src);
+    // A picture that failed to load still has its alt text, so check the browser decoded it.
+    await expect.poll(() => image.evaluate((el: HTMLImageElement) => el.complete && el.naturalWidth > 0), 'the portrait loaded').toBe(true);
+  });
+
+  test('offers "View my resume" and "Get in touch", pointing to the Resume and Contact pages', async ({ page }) => {
+    await page.goto('/');
+    const actions = page.locator('p.actions');
+    await expect(actions.getByRole('link')).toHaveCount(2);
+    await expect(actions.getByRole('link', { name: 'View my resume', exact: true })).toHaveAttribute('href', '/resume/');
+    await expect(actions.getByRole('link', { name: 'Get in touch', exact: true })).toHaveAttribute('href', '/contact/');
+  });
+});
+
 test.describe('Home page entry cards', () => {
   test('the cards appear in the order set in src/data/home-cards.yaml, with their words', async ({ page }) => {
     await page.goto('/');
