@@ -84,6 +84,7 @@ The Playwright suite runs against the built site and is public on purpose. It re
 - **Link previews and the sitemap:** every public page carries Open Graph tags that match its title, description, and address, the preview image exists at 1200 by 630, `robots.txt` points to the sitemap, and the sitemap lists every public page and none of the print routes. There are no Twitter or X tags.
 - **Theme button:** it starts from the system setting, switches and remembers a choice across reloads and pages, works from the keyboard and with storage blocked, is absent without scripts, and never touches the print pages.
 - **Page text:** each page's browser title and description, the lines at the top of each page, and the "nothing here" messages match `src/data/intros.yaml`.
+- **Jabroni Fest page:** `tests/jabroni-fest.spec.ts` checks that the page shows every name, summary, role, fact, "How it runs" point, and cause from `src/data/events.yaml`, and the page description is checked against the summary.
 - **Fonts:** the Atkinson font is bundled, each weight the site uses really loads, and no font comes from another site.
 - **Header:** the name, links, and theme button stay in the same place on every page, whatever the page length or the current link.
 - **Art order and filters:** the gallery runs newest first by date, and the build rejects a date the sort cannot read. The collapsible panel sorts and filters by year, format, and tag, with bands and venues shown as proper names. Results survive a reload or a shared link, and cards in a row still line up after filtering.
