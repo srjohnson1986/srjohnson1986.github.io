@@ -42,11 +42,14 @@ The Playwright suite is a portfolio piece as well as a safety net. It lives in `
 - `jabroni-fest.spec.ts` - the Jabroni Fest page shows every field of `src/data/events.yaml` (name, summary, role, facts, "How it runs", cause)
 - `projects.spec.ts` - each Development & QA project page shows every field of its `src/content/projects/*.yaml` file (summary, facts, problem, built, stack, outcome, and the repo and demo links it has)
 - `accessibility.spec.ts` - axe scans of every page in light, dark, and phone width, plus the changing states and keyboard checks
+- `add-resume-bullet-skill.spec.ts` - the add-resume-bullet skill (`.claude/skills/add-resume-bullet/`): its check mode accepts a clean bullet, rejects one bullet per rule (weak verb, dash, phone number, count without a plus sign), and writes nothing. No browser needed
 - `smoke.spec.ts` - short checks against the live site, run by the Smoke test workflow after every deploy, weekly, and on demand
 
 `.claude/agents/test-reviewer.md` is a read-only subagent (Read, Grep, Glob only) that reviews specs for coverage gaps, weak assertions, tests that cannot fail, and flaky patterns. Give it the spec files to review (it cannot run `git`), for example the output of `git diff --name-only main...HEAD tests`. Its findings are leads to check, not a gate, and it is not part of CI.
 
 The CI workflow builds and runs the suite on every pull request, and it must be green before a merge. When adding a feature, add or update the test that covers it, and check that the test can fail by breaking the feature on purpose.
+
+To add a resume bullet, use the `add-resume-bullet` skill instead of editing `bullets.yaml` and `variants.yaml` by hand. The text rules (dashes, phone numbers, past-tense verb) live in `src/lib/copy-rules.js`, shared by the schema and the skill.
 
 ## Workflow: issue first
 
