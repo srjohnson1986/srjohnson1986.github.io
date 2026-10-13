@@ -41,7 +41,7 @@ src/
   lib/          loaders that join content collections and enforce cross-collection rules; copy-rules.js holds the text rules the schema and the bullet skill share
   styles/       global.css and the print stylesheet for the PDFs
   data/         site settings and navigation (site.ts), page text (intros.yaml), Home cards, events and studio info (YAML)
-    resume/     roles, bullets, summaries, skills, education, resume versions, and the lane list (YAML)
+    resume/     roles, bullets, summaries, skills, education, resume versions, the lane list, and the lane data imported from the bank (YAML)
   content/      one YAML file per item: projects/, releases/, art/
   assets/       images for the art page
   content.config.ts   every collection and its schema

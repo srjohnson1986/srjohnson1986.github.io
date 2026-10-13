@@ -9,6 +9,7 @@
   kind: job
   start: 2026
   end: present
+  lane_rank: {qa: 4, sdet: 3, con: 1, adp: 2, pmba: 1, it: 2}
 
 - id: care-board
   title: Solo Developer / Product Owner
@@ -17,6 +18,7 @@
   start: 2026
   end: 2026
   note: Personal project
+  lane_rank: {qa: 2, sdet: 1, con: 4, adp: 5, pmba: 5, it: 5}
 
 - id: portfolio-site
   title: Developer / Test Author
@@ -26,6 +28,7 @@
   start: 2026
   end: 2026
   note: Personal project
+  lane_rank: {qa: 3, sdet: 2, con: 7, adp: 6, pmba: 7, it: 7}
 
 # One employer entry with two positions, because the bank is not split by era.
 - id: verizon
@@ -42,6 +45,7 @@
     - title: Quality Assurance Engineer
       start: 2012
       end: 2017
+  lane_rank: {qa: 1, sdet: 4, con: 2, adp: 1, pmba: 2, it: 1}
 
 - id: kingdom-hell
   title: Owner / Producer / Audio Engineer
@@ -51,6 +55,7 @@
   start: 2016
   end: present
   note: Home studio
+  lane_rank: {qa: 9, sdet: 8, con: 9, adp: 9, pmba: 9, it: 6}
 
 - id: jabroni
   title: Event Coordinator / Project Manager
@@ -60,6 +65,7 @@
   start: 2013
   end: present
   note: Volunteer
+  lane_rank: {qa: 8, sdet: 9, con: 8, adp: 8, pmba: 6, it: 9}
 
 - id: nucor
   title: Business Analyst / Developer, Intern
@@ -67,6 +73,7 @@
   kind: internship
   start: 2011
   end: 2012
+  lane_rank: {qa: 5, sdet: 5, con: 3, adp: 4, pmba: 3, it: 3}
 
 - id: pg
   title: "Information & Decision Solutions Business Analyst, Intern"
@@ -74,6 +81,7 @@
   kind: internship
   start: 2011
   end: 2011
+  lane_rank: {qa: 6, sdet: 6, con: 5, adp: 3, pmba: 4, it: 8}
 
 - id: geek-squad
   title: Store Agent
@@ -82,3 +90,4 @@
   start: 2009
   end: 2011
   note: Part-time
+  lane_rank: {qa: 7, sdet: 7, con: 6, adp: 7, pmba: 8, it: 4}

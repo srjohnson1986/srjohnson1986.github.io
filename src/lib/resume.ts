@@ -64,7 +64,7 @@ const warnOnce = (message: string) => {
  * warning: varied verbs are the goal, but the owner does not want uniqueness forced.
  */
 export async function getResumeVariants(options: { labels?: 'real' } = {}): Promise<ResumeVariant[]> {
-  const [roleEntries, bulletEntries, groupEntries, summaryEntries, variantEntries, skillEntries, educationEntries, laneEntries] =
+  const [roleEntries, bulletEntries, groupEntries, summaryEntries, variantEntries, skillEntries, educationEntries, laneEntries, comboEntries] =
     await Promise.all([
       getCollection('roles'),
       getCollection('bullets'),
@@ -74,6 +74,7 @@ export async function getResumeVariants(options: { labels?: 'real' } = {}): Prom
       getCollection('skills'),
       getCollection('education'),
       getCollection('lanes'),
+      getCollection('combos'),
     ]);
 
   const bulletsById = new Map<string, Bullet>(bulletEntries.map((b) => [b.id, b]));
@@ -102,12 +103,13 @@ export async function getResumeVariants(options: { labels?: 'real' } = {}): Prom
   }
   if (dangling.length) throw new Error(`Broken references in the resume data:\n  - ${dangling.join('\n  - ')}`);
 
-  // The per-lane data (lanes and lane ranks; combined bullets are checked here too once they exist). The checks live in src/lib/lane-data.js so the
+  // The per-lane data (lanes, lane ranks, and combined bullets). The checks live in src/lib/lane-data.js so the
   // tests run the same code.
   const laneProblems = checkLaneData({
     lanes: laneEntries.map((l) => ({ id: l.id, code: l.data.code })),
     roles: roleEntries.map((r) => ({ id: r.id, lane_rank: r.data.lane_rank })),
     bullets: bulletEntries.map((b) => ({ id: b.id, role: b.data.role.id, public: b.data.public, lanes: b.data.lanes })),
+    combos: comboEntries.map((c) => ({ id: c.id, role: c.data.role.id, replaces: c.data.replaces.map((r) => r.id), lanes: c.data.lanes })),
   });
   if (laneProblems.length) throw new Error(`Problems in the lane data:\n  - ${laneProblems.join('\n  - ')}`);
 
@@ -122,6 +124,13 @@ export async function getResumeVariants(options: { labels?: 'real' } = {}): Prom
     for (const skill of trainingOnly) {
       if (new RegExp(`\\b${escapeRegExp(skill)}\\b`, 'i').test(bullet.data.text)) {
         claims.push(`bullet "${bullet.id}" mentions ${skill}, which is marked training_only in skills.yaml`);
+      }
+    }
+  }
+  for (const combo of comboEntries) {
+    for (const skill of trainingOnly) {
+      if (new RegExp(`\\b${escapeRegExp(skill)}\\b`, 'i').test(combo.data.text)) {
+        claims.push(`combined bullet "${combo.id}" mentions ${skill}, which is marked training_only in skills.yaml`);
       }
     }
   }
