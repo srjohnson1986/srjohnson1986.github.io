@@ -290,7 +290,15 @@ export interface LaneResume extends ResumeVariant {
 }
 
 // The print stylesheet decides where lines and pages break, so changing it means the fit has to be measured again.
-const printCssHash = () => createHash('sha1').update(fs.readFileSync('src/styles/print.css')).digest('hex').slice(0, 12);
+// Line endings are normalized first: a Windows checkout has CRLF and the CI runner has LF, and they must give the same hash.
+const printCssHash = () =>
+  createHash('sha1')
+    .update(fs.readFileSync('src/styles/print.css', 'utf8').replace(/\r\n/g, '\n'))
+    .digest('hex')
+    .slice(0, 12);
+
+// Plain code-point order, so every machine sorts ids the same way whatever its locale.
+const byId = (a: { id: string }, b: { id: string }) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0);
 
 /**
  * Builds the lane resumes from lanes.yaml, the lane tags on bullets, the combined bullets, and each lane's saved
@@ -320,10 +328,10 @@ export async function getLaneResumes(options: { candidates?: boolean } = {}): Pr
   // Position ties are broken by the order of this list, so it is sorted by id to give every machine the same answer.
   const bulletsById = new Map(bulletEntries.map((b) => [b.id, b]));
   const planBullets = [...bulletEntries]
-    .sort((a, b) => a.id.localeCompare(b.id))
+    .sort(byId)
     .map((b) => ({ id: b.id, role: b.data.role.id, public: b.data.public, text: b.data.text, lanes: b.data.lanes }));
   const planCombos = [...comboEntries]
-    .sort((a, b) => a.id.localeCompare(b.id))
+    .sort(byId)
     .map((c) => ({ id: c.id, role: c.data.role.id, replaces: c.data.replaces.map((r) => r.id), lanes: c.data.lanes, text: c.data.text }));
   const summariesById = new Map(summaryEntries.map((s) => [s.id, s]));
   const skillGroupsInOrder = [...skillEntries].sort((a, b) => a.data.order - b.data.order);

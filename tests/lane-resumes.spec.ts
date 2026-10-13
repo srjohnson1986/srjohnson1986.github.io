@@ -28,6 +28,9 @@ const fits = load<Fit[]>('lane-fit.yaml');
 const summaries = load<{ id: string; text: string }[]>('summaries.yaml');
 const skillGroups = load<SkillGroup[]>('skills.yaml').sort((a, b) => a.order - b.order);
 
+// Plain code-point order, as the build uses.
+const byId = (a: { id: string }, b: { id: string }) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0);
+
 // Newest first, written out again here rather than imported from the site.
 const end = (r: Role) => (r.end === 'present' ? Infinity : r.end);
 const rolesNewestFirst = [...roles].sort((a, c) => end(c) - end(a) || c.start - a.start || a.id.localeCompare(c.id));
@@ -37,8 +40,8 @@ function expectedItems(lane: Lane): Item[] {
     lane: lane.id,
     roleOrder: rolesNewestFirst.map((r) => r.id),
     roleRanks: Object.fromEntries(roles.map((r) => [r.id, r.lane_rank])),
-    bullets: [...bullets].sort((a, b) => a.id.localeCompare(b.id)),
-    combos: [...combos].sort((a, b) => a.id.localeCompare(b.id)),
+    bullets: [...bullets].sort(byId),
+    combos: [...combos].sort(byId),
     floors: lane.role_floor ?? {},
   });
   const fit = fits.find((f) => f.id === lane.id)!;
