@@ -18,6 +18,8 @@ const oldProjectPages = Object.fromEntries(
 
 // https://astro.build/config
 export default defineConfig({
+  // scripts/fit-lanes.mjs builds a throwaway copy of the site (with the lane fit pages, LANE_FIT=1) into its own folder.
+  outDir: process.env.LANE_FIT_OUT || 'dist',
   // A user site (repo named <user>.github.io) is served from the domain root,
   // so no `base` path is needed. `site` is used for canonical URLs and the sitemap.
   site: 'https://srjohnson1986.github.io',

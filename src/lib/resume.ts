@@ -1,5 +1,8 @@
 import { getCollection, type CollectionEntry } from 'astro:content';
+import { createHash } from 'node:crypto';
+import fs from 'node:fs';
 import { checkLaneData } from './lane-data.js';
+import { planLane, applySteps, fingerprint, compareItems } from './lane-fit.js';
 
 type Role = CollectionEntry<'roles'>;
 type Bullet = CollectionEntry<'bullets'>;
@@ -12,7 +15,7 @@ export interface ResumeSection {
   note?: string;
   positions?: { title: string; dates: string; note?: string }[];
   dates: string;
-  bullets: { id: string; text: string; theme: string; tags: string[] }[];
+  bullets: { id: string; text: string; theme: string; tags: string[]; /** lane pages only: the id used to find the item */ key?: string; /** lane fit page only: a candidate that is not on the page in the starting state */ hidden?: boolean }[];
 }
 
 export interface ResumeSkillGroup {
@@ -52,6 +55,56 @@ const warnOnce = (message: string) => {
   warned.add(message);
   console.warn(message);
 };
+
+type Skill = CollectionEntry<'skills'>;
+type Education = CollectionEntry<'education'>;
+
+// Ongoing roles first, then by end year, then start year, then id. Astro does not
+// guarantee collection order, so every tie is broken explicitly to keep builds stable.
+function sortRolesNewestFirst(roleEntries: Role[]): Role[] {
+  const endKey = (r: Role) => (r.data.end === 'present' ? Infinity : r.data.end);
+  return [...roleEntries].sort((a, b) => endKey(b) - endKey(a) || b.data.start - a.data.start || a.id.localeCompare(b.id));
+}
+
+function buildEducation(educationEntries: Education[]): ResumeEducation[] {
+  return [...educationEntries]
+    .sort((a, b) => a.data.order - b.data.order)
+    .map(({ data }) =>
+      'degree' in data
+        ? { title: data.degree, detail: data.school, dates: `${data.year}` }
+        : {
+            title: data.level ? `${data.certification} (${data.level})` : data.certification,
+            dates: formatRange(data.since, 'present'),
+          },
+    );
+}
+
+/** One role's block on a resume: employer, dates, positions, and the bullets already chosen for it. */
+function makeSection(role: Role, bullets: ResumeSection['bullets'], labelMode: 'neutral' | 'real'): ResumeSection {
+  const useNeutral = labelMode === 'neutral' && role.data.neutral_org;
+  return {
+    roleId: role.id,
+    org: useNeutral ? role.data.neutral_org! : role.data.org,
+    title: role.data.title,
+    note: role.data.note,
+    positions: role.data.positions?.map((p) => ({ title: p.title, dates: formatRange(p.start, p.end), note: p.note })),
+    dates: formatRange(role.data.start, role.data.end),
+    bullets,
+  };
+}
+
+/** Core Skills as shown on one resume version: drop items limited to other versions, then drop empty groups. */
+function skillsFor(skillGroupsInOrder: Skill[], variantId: string): ResumeSkillGroup[] {
+  return skillGroupsInOrder
+    .map(({ data }) => ({
+      group: data.group,
+      items: data.items.flatMap((item) => {
+        if (typeof item === 'string') return [item];
+        return !item.only || item.only.some((v) => v.id === variantId) ? [item.name] : [];
+      }),
+    }))
+    .filter((g) => g.items.length > 0);
+}
 
 /**
  * Builds every resume variant from the content collections and enforces the rules that a
@@ -142,22 +195,9 @@ export async function getResumeVariants(options: { labels?: 'real' } = {}): Prom
   }
 
   const skillGroupsInOrder = [...skillEntries].sort((a, b) => a.data.order - b.data.order);
-  const educationInOrder = [...educationEntries].sort((a, b) => a.data.order - b.data.order);
-  const education: ResumeEducation[] = educationInOrder.map(({ data }) =>
-    'degree' in data
-      ? { title: data.degree, detail: data.school, dates: `${data.year}` }
-      : {
-          title: data.level ? `${data.certification} (${data.level})` : data.certification,
-          dates: formatRange(data.since, 'present'),
-        },
-  );
+  const education = buildEducation(educationEntries);
 
-  // Ongoing roles first, then by end year, then start year, then id. Astro does not
-  // guarantee collection order, so every tie is broken explicitly to keep builds stable.
-  const endKey = (r: Role) => (r.data.end === 'present' ? Infinity : r.data.end);
-  const rolesNewestFirst: Role[] = [...roleEntries].sort(
-    (a, b) => endKey(b) - endKey(a) || b.data.start - a.data.start || a.id.localeCompare(b.id),
-  );
+  const rolesNewestFirst = sortRolesNewestFirst(roleEntries);
   const variantsInOrder = [...variantEntries].sort((a, b) => a.data.order - b.data.order);
 
   return variantsInOrder.map((variant): ResumeVariant => {
@@ -210,37 +250,17 @@ export async function getResumeVariants(options: { labels?: 'real' } = {}): Prom
     for (const role of rolesNewestFirst) {
       const roleBullets = chosen.filter((b) => b.data.role.id === role.id);
       if (!roleBullets.length) continue;
-      const useNeutral = labelMode === 'neutral' && role.data.neutral_org;
-      sections.push({
-        roleId: role.id,
-        org: useNeutral ? role.data.neutral_org! : role.data.org,
-        title: role.data.title,
-        note: role.data.note,
-        positions: role.data.positions?.map((p) => ({
-          title: p.title,
-          dates: formatRange(p.start, p.end),
-          note: p.note,
-        })),
-        dates: formatRange(role.data.start, role.data.end),
-        bullets: roleBullets.map((b) => ({
-          id: b.id,
-          text: b.data.text,
-          theme: b.data.theme,
-          tags: b.data.tags,
-        })),
-      });
+      sections.push(
+        makeSection(
+          role,
+          roleBullets.map((b) => ({ id: b.id, text: b.data.text, theme: b.data.theme, tags: b.data.tags })),
+          labelMode,
+        ),
+      );
     }
 
     // Core Skills for this version: drop items limited to other versions, then drop empty groups.
-    const skills: ResumeSkillGroup[] = skillGroupsInOrder
-      .map(({ data }) => ({
-        group: data.group,
-        items: data.items.flatMap((item) => {
-          if (typeof item === 'string') return [item];
-          return !item.only || item.only.some((v) => v.id === variant.id) ? [item.name] : [];
-        }),
-      }))
-      .filter((g) => g.items.length > 0);
+    const skills = skillsFor(skillGroupsInOrder, variant.id);
 
     return {
       id: variant.id,
@@ -252,4 +272,131 @@ export async function getResumeVariants(options: { labels?: 'real' } = {}): Prom
       education,
     };
   });
+}
+
+// ---------------------------------------------------------------------------
+// Lane resumes: one generic resume per job lane, trimmed to two pages
+// ---------------------------------------------------------------------------
+
+type Item = import('./lane-fit.js').Item;
+type Plan = import('./lane-fit.js').Plan;
+
+export interface LaneResume extends ResumeVariant {
+  laneId: string;
+  /** Hash of everything that decides this lane's layout. The saved fit (lane-fit.yaml) must carry the same one. */
+  fingerprint: string;
+  /** Only on the fit page: the plan scripts/fit-lanes.mjs searches for the smallest number of steps that fits. */
+  plan?: Plan;
+}
+
+// The print stylesheet decides where lines and pages break, so changing it means the fit has to be measured again.
+const printCssHash = () => createHash('sha1').update(fs.readFileSync('src/styles/print.css')).digest('hex').slice(0, 12);
+
+/**
+ * Builds the lane resumes from lanes.yaml, the lane tags on bullets, the combined bullets, and each lane's saved
+ * fit (lane-fit.yaml). Throws if a lane's saved fit is missing or no longer matches the data: run
+ * `npm run fit-lanes` to measure it again.
+ *
+ * With { candidates: true } it instead returns every candidate item for each lane, with the combined bullets
+ * hidden, plus the plan. That is the page scripts/fit-lanes.mjs measures; it is never part of the published site.
+ */
+export async function getLaneResumes(options: { candidates?: boolean } = {}): Promise<LaneResume[]> {
+  // The variants run every check on the shared resume data first (public bullets, training-only skills, lane data).
+  await getResumeVariants();
+  const [roleEntries, bulletEntries, summaryEntries, skillEntries, educationEntries, laneEntries, comboEntries, fitEntries] = await Promise.all([
+    getCollection('roles'),
+    getCollection('bullets'),
+    getCollection('summaries'),
+    getCollection('skills'),
+    getCollection('education'),
+    getCollection('lanes'),
+    getCollection('combos'),
+    getCollection('laneFit'),
+  ]);
+
+  const rolesNewestFirst = sortRolesNewestFirst(roleEntries);
+  const roleOrder = rolesNewestFirst.map((r) => r.id);
+  const roleRanks = Object.fromEntries(roleEntries.map((r) => [r.id, r.data.lane_rank ?? {}]));
+  // Position ties are broken by the order of this list, so it is sorted by id to give every machine the same answer.
+  const bulletsById = new Map(bulletEntries.map((b) => [b.id, b]));
+  const planBullets = [...bulletEntries]
+    .sort((a, b) => a.id.localeCompare(b.id))
+    .map((b) => ({ id: b.id, role: b.data.role.id, public: b.data.public, text: b.data.text, lanes: b.data.lanes }));
+  const planCombos = [...comboEntries]
+    .sort((a, b) => a.id.localeCompare(b.id))
+    .map((c) => ({ id: c.id, role: c.data.role.id, replaces: c.data.replaces.map((r) => r.id), lanes: c.data.lanes, text: c.data.text }));
+  const summariesById = new Map(summaryEntries.map((s) => [s.id, s]));
+  const skillGroupsInOrder = [...skillEntries].sort((a, b) => a.data.order - b.data.order);
+  const education = buildEducation(educationEntries);
+  const css = printCssHash();
+
+  return [...laneEntries]
+    .sort((a, b) => a.data.order - b.data.order)
+    .map((lane): LaneResume => {
+      const plan = planLane({
+        lane: lane.id,
+        roleOrder,
+        roleRanks,
+        bullets: planBullets,
+        combos: planCombos,
+        floors: lane.data.role_floor ?? {},
+      });
+      if (plan.initial.length === 0) throw new Error(`Lane "${lane.id}" has no bullets tagged for it`);
+
+      const summary = summariesById.get(lane.data.summary_id.id);
+      if (!summary) throw new Error(`Lane "${lane.id}" uses summary "${lane.data.summary_id.id}", which does not exist`);
+      const skills = skillsFor(skillGroupsInOrder, lane.data.skills_from.id);
+      const print = fingerprint(plan, { summary: summary.data.text, skills, labels: lane.data.org_labels, css });
+
+      let items: Item[];
+      if (options.candidates) {
+        items = [...plan.initial, ...plan.steps.flatMap((s) => (s.type === 'swap' ? [s.item] : []))].sort(compareItems);
+      } else {
+        const saved = fitEntries.find((e) => e.id === lane.id);
+        if (!saved) throw new Error(`Lane "${lane.id}" has no saved fit in lane-fit.yaml. Run "npm run fit-lanes".`);
+        if (saved.data.fingerprint !== print) {
+          throw new Error(
+            `Lane "${lane.id}" is out of date: the bullets, tags, ranks, wording, summary, skills, or print stylesheet changed since it was fitted. Run "npm run fit-lanes" to fit it again.`,
+          );
+        }
+        if (saved.data.steps > plan.steps.length) throw new Error(`Lane "${lane.id}" has a saved fit of ${saved.data.steps} steps but its plan has only ${plan.steps.length}`);
+        items = applySteps(plan, saved.data.steps);
+      }
+
+      const sections: ResumeSection[] = [];
+      for (const role of rolesNewestFirst) {
+        const roleItems = items.filter((i) => i.role === role.id);
+        if (!roleItems.length) continue;
+        sections.push(
+          makeSection(
+            role,
+            roleItems.map((i) => {
+              const bullet = i.kind === 'bullet' ? bulletsById.get(i.id) : undefined;
+              return {
+                id: i.id,
+                key: i.id,
+                text: i.text,
+                theme: bullet?.data.theme ?? 'combined-bullet',
+                tags: bullet?.data.tags ?? [],
+                hidden: options.candidates && i.kind === 'combo' ? true : undefined,
+              };
+            }),
+            lane.data.org_labels,
+          ),
+        );
+      }
+
+      return {
+        id: `lane-${lane.id}`,
+        laneId: lane.id,
+        label: lane.data.label,
+        summary: summary.data.text,
+        orgLabels: lane.data.org_labels,
+        skills,
+        sections,
+        education,
+        fingerprint: print,
+        plan: options.candidates ? plan : undefined,
+      };
+    });
 }

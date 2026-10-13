@@ -4,13 +4,16 @@
 import type { GetStaticPaths } from 'astro';
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import ResumeDocument from '../../../components/ResumeDocument.astro';
-import { getResumeVariants } from '../../../lib/resume';
+import { getResumeVariants, getLaneResumes } from '../../../lib/resume';
 import { site } from '../../../data/site';
 import '../../../styles/print.css';
 
 export const getStaticPaths = (async () => {
   const variants = await getResumeVariants();
-  return variants.map((variant) => ({ params: { variant: variant.id }, props: { variant } }));
+  // The lane resumes (ids like lane-qa) print the same way. The fit script builds without them (LANE_FIT=1), because
+  // it is the thing that makes their saved fit up to date.
+  const lanes = process.env.LANE_FIT === '1' ? [] : await getLaneResumes();
+  return [...variants, ...lanes].map((variant) => ({ params: { variant: variant.id }, props: { variant } }));
 }) satisfies GetStaticPaths;
 
 const { variant } = Astro.props;

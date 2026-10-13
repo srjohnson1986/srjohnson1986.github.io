@@ -108,6 +108,26 @@ const lanes = defineCollection({
     label: copy,
     // Display order (1 is first).
     order: z.number().int().min(1),
+    // The summary printed on this lane's resume.
+    summary_id: reference('summaries'),
+    // neutral: use each role's neutral_org where one exists. real: use real names.
+    org_labels: z.enum(['neutral', 'real']),
+    // Placeholder until the lane has its own Core Skills list: borrow the skills shown on this resume version.
+    skills_from: reference('variants'),
+    // The fewest bullets a role keeps on this lane's resume when it is trimmed to fit (role id -> number).
+    role_floor: z.record(kebab, z.number().int().min(0)).optional(),
+  }),
+});
+
+// Where each lane's fit stands: how many steps of the lane's cut plan (src/lib/lane-fit.js) to apply to fit two
+// pages, and the fingerprint of everything that fit was measured against. Written by scripts/fit-lanes.mjs.
+const laneFit = defineCollection({
+  loader: file('src/data/resume/lane-fit.yaml'),
+  schema: z.strictObject({
+    id: kebab,
+    steps: z.number().int().min(0),
+    fingerprint: z.string().regex(/^[0-9a-f]{12}$/),
+    pages: z.number().int().min(1).max(2),
   }),
 });
 
@@ -469,4 +489,4 @@ const projects = defineCollection({
   }),
 });
 
-export const collections = { roles, bullets, bulletGroups, summaries, lanes, combos, variants, skills, education, events, artworks, studio, intros, homeCards, releases, projects };
+export const collections = { roles, bullets, bulletGroups, summaries, lanes, laneFit, combos, variants, skills, education, events, artworks, studio, intros, homeCards, releases, projects };

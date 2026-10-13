@@ -32,7 +32,7 @@ const norm = (s) => s.replace(/\s+/g, ' ').trim();
  * @param {string} input.lane lane id, for example "qa"
  * @param {string[]} input.roleOrder role ids, newest first (the order roles are printed in); used to break rank ties
  * @param {Record<string, Record<string, number>>} input.roleRanks role id -> lane id -> rank (1 is most relevant)
- * @param {PlanBullet[]} input.bullets in file order
+ * @param {PlanBullet[]} input.bullets in a fixed order: it breaks position ties, so the caller must not leave it to chance (the build sorts by id)
  * @param {PlanCombo[]} [input.combos]
  * @param {Record<string, number>} [input.floors] role id -> the fewest items the role keeps
  * @returns {Plan}
@@ -105,8 +105,8 @@ export function planLane({ lane, roleOrder, roleRanks, bullets, combos = [], flo
   return { lane, initial, steps };
 }
 
-/** Tier first, then position, then the order the bullets are written in the file. */
-function compareItems(a, b) {
+/** Role, then tier, then position, then the bullets' order in the list the caller passed. */
+export function compareItems(a, b) {
   return a.role.localeCompare(b.role) || a.tier - b.tier || a.pos - b.pos || a.order - b.order;
 }
 

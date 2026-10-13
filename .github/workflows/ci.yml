@@ -32,6 +32,9 @@ jobs:
       - name: Build the site and the resume PDFs
         run: npm run build
 
+      - name: Check the lane resume fits are up to date and still fit two pages
+        run: npm run fit-lanes -- --check
+
       - name: Run the Playwright test suite
         run: npx playwright test
 
