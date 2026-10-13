@@ -5,7 +5,7 @@
 # role's block. The order here does not affect the resume: variants.yaml sets the display order.
 
 # ==================================================
-# == Thermal Process Development (tpd) - 24 bullets
+# == Thermal Process Development (tpd) - 27 bullets
 # ==================================================
 
 - id: tpd-built-maintained-open-source-vba
@@ -231,8 +231,38 @@
     structure of real exports, checking the generated files for leaked identifiers, so
     the add-in could be open-sourced for a client without exposing customer data.
 
+- id: tpd-caught-three-failing-ai-written-unit
+  role: tpd
+  theme: engineering-process-and-quality
+  tags: [qa, test-automation, ai-assisted]
+  public: true
+  text: >-
+    Caught three failing AI-written unit tests by running them, traced the failures to
+    sample data the tests built the wrong way, and fixed the test data rather than the
+    correct code.
+
+- id: tpd-coached-fellow-tpd-consultant-adopting
+  role: tpd
+  theme: ai-enablement
+  tags: [ai-assisted, adoption, leadership]
+  public: true
+  text: >-
+    Coached a fellow TPD consultant in adopting Claude Code for engineering work and Claude
+    for client tracking, time reporting, scheduling, and handoff documents and drawings, now
+    part of his daily workflow.
+
+- id: tpd-transformed-tpd-client-s-note-taking
+  role: tpd
+  theme: ai-enablement
+  tags: [ai-assisted, consulting, analysis]
+  public: true
+  text: >-
+    Transformed a TPD client's note-taking from hours of manual work into a Claude workflow
+    that extracts notes from 500+ page PDFs into organized spreadsheets, which they now use
+    on their own.
+
 # ======================================================
-# == Care Communication Board (care-board) - 38 bullets
+# == Care Communication Board (care-board) - 40 bullets
 # ======================================================
 
 - id: cb-designed-built-shipped-ad-free
@@ -242,8 +272,9 @@
   public: true
   text: >-
     Designed, built and shipped an ad-free communication app for Android and the web for a
-    family member, reaching first release in 4 days and v1.0 in 13 days while directing an
-    AI coding agent and owning all architecture and review decisions.
+    family member temporarily unable to speak, reaching first release in 4 days and v1.0 in
+    13 days while directing an AI coding agent and owning all architecture and review
+    decisions.
 
 - id: cb-engineered-413-test-suite-runs
   role: care-board
@@ -251,7 +282,7 @@
   tags: [ci-cd, test-automation, development]
   public: true
   text: >-
-    Engineered a suite of 413+ tests that runs on the JVM, in headless Chrome and on an
+    Engineered a suite of 458+ tests that runs on the JVM, in headless Chrome and on an
     Android emulator, backed by a 90% coverage gate and required checks on every merge.
 
 - id: cb-removed-every-barrier-adoption
@@ -308,7 +339,8 @@
   public: true
   text: >-
     Gathered requirements from caregivers and prioritized by urgency, pinning critical
-    phrases on every screen and returning to the home screen automatically after inactivity.
+    phrases ("Something's wrong," "Call the doctor") on every screen and returning to the
+    home screen automatically after inactivity.
 
 - id: cb-delivered-v1-two-platforms
   role: care-board
@@ -316,7 +348,7 @@
   tags: [development]
   public: true
   text: >-
-    Delivered v1.0 on two platforms in 13 days and kept shipping to 151+ issues, 159+ pull
+    Delivered v1.0 on two platforms in 13 days and kept shipping to 155+ issues, 164+ pull
     requests and 7+ releases, turning caregiver feedback into more than 130 shipped changes.
 
 - id: cb-tailored-features-real-care
@@ -326,7 +358,7 @@
   public: true
   text: >-
     Tailored features to real care situations: a large-text Show mode that flips upside down
-    for someone sitting across from the user, a hold-to-unlock caregiver lock that prevents
+    for someone sitting across from her, a hold-to-unlock caregiver lock that prevents
     accidental edits, and warnings when a tap would make no sound.
 
 - id: cb-investigated-routing-app-audio
@@ -468,8 +500,8 @@
   public: true
   text: >-
     Directed Claude Code through a governed workflow (issue to feature branch to pull
-    request to CI gate) to ship a cross-platform Kotlin app, about 16,000 lines of code and
-    tests across 186+ commits, with v1.0 in 13 days.
+    request to CI gate) to ship a cross-platform Kotlin app, 17,500+ lines of code and tests
+    across 191+ commits, with v1.0 in 13 days.
 
 - id: cb-led-4-phase-migration-kotlin
   role: care-board
@@ -536,8 +568,8 @@
   public: true
   text: >-
     Released the project as open source under Apache-2.0 with license and attribution
-    notices for bundled audio, fonts and icons, plus contributing, security and code-of-
-    conduct guides and issue templates.
+    notices for bundled audio, fonts and icons, plus contributing, security and
+    code-of-conduct guides and issue templates.
 
 - id: cb-diagnosed-intermittent-ci-hangs-browser
   role: care-board
@@ -619,7 +651,7 @@
     pitfalls, so every new session follows the project's rules from the start.
 
 # ===========================================================
-# == Personal portfolio website (portfolio-site) - 5 bullets
+# == Personal portfolio website (portfolio-site) - 21 bullets
 # ===========================================================
 
 - id: ps-built-public-playwright-suite
@@ -664,8 +696,162 @@
   text: >-
     Established an issue-first workflow in which every change ships through a reviewed pull request and merges only after the build check passes.
 
+- id: ps-launched-public-portfolio-site-astro
+  role: portfolio-site
+  theme: base-entry
+  tags: [development, qa]
+  public: true
+  text: >-
+    Launched a public portfolio site on Astro and GitHub Pages that serves as a filterable
+    record of software, audio, and art work and renders four role-specific resumes from one
+    set of data files.
+
+- id: ps-showcased-engineering-process-keeping-repository
+  role: portfolio-site
+  theme: base-entry
+  tags: [development, open-source]
+  public: true
+  text: >-
+    Showcased the engineering process by keeping the repository public, so how the site is
+    built, tested, and shipped is itself a portfolio piece.
+
+- id: ps-documented-how-add-kind-content
+  role: portfolio-site
+  theme: adoption-ux
+  tags: [documentation-training, adoption]
+  public: true
+  text: >-
+    Documented how to add each kind of content in plain-language guides beside the data, so
+    a new resume bullet, project, art piece, or release needs data files and images, not
+    code changes.
+
+- id: ps-translated-validation-rules-into-plain-language
+  role: portfolio-site
+  theme: adoption-ux
+  tags: [documentation-training, development]
+  public: true
+  text: >-
+    Translated validation rules into plain-language build errors that name the file and
+    field to fix, and mapped each YAML file to its schema for in-editor autocomplete and
+    checking.
+
+- id: ps-prioritized-accessibility-visitor-bundled-legible
+  role: portfolio-site
+  theme: adoption-ux
+  tags: [accessibility, qa]
+  public: true
+  text: >-
+    Prioritized accessibility for every visitor with a bundled legible font, light and dark
+    themes that follow system settings, a skip link, required alt text, and pages that keep
+    working without JavaScript.
+
+- id: ps-chronicled-how-site-was-built
+  role: portfolio-site
+  theme: adoption-ux
+  tags: [documentation-training, open-source]
+  public: true
+  text: >-
+    Chronicled how the site was built in a public project page and README covering the
+    problem, the build, the stack, and the outcome, so reviewers can follow the reasoning
+    and not only the result.
+
+- id: ps-modeled-resume-content-one-set
+  role: portfolio-site
+  theme: product-project-management
+  tags: [development, project-management]
+  public: true
+  text: >-
+    Modeled resume content as one set of data files (roles, bullets, skills, and versions)
+    that renders the web resume, a print layout, and a PDF for each of four role-specific
+    versions, so the outputs cannot drift apart.
+
+- id: ps-catalogued-development-audio-art-work
+  role: portfolio-site
+  theme: product-project-management
+  tags: [development]
+  public: true
+  text: >-
+    Catalogued development, audio, and art work in three filterable archives that still work
+    as plain lists without JavaScript.
+
+- id: ps-scripted-pdf-generation-resume-version
+  role: portfolio-site
+  theme: product-project-management
+  tags: [ci-cd, test-automation]
+  public: true
+  text: >-
+    Scripted PDF generation for each resume version with headless Chromium, failing the
+    build when a PDF is missing, broken, or longer than two pages.
+
+- id: ps-codified-site-s-content-rules
+  role: portfolio-site
+  theme: qa-testing
+  tags: [qa, test-automation]
+  public: true
+  text: >-
+    Codified the site's content rules as schema checks that fail the build with readable
+    messages, including single-hyphen copy, no phone numbers, past-tense bullet verbs,
+    resolvable references, and required alt text.
+
+- id: ps-derived-test-expectations-same-yaml
+  role: portfolio-site
+  theme: qa-testing
+  tags: [qa, test-automation]
+  public: true
+  text: >-
+    Derived test expectations from the same YAML files the site is built from, so a test
+    states what a page should contain without a second hand-copied list that can go stale.
+
+- id: ps-safeguarded-navigation-layout-crawl-checks
+  role: portfolio-site
+  theme: qa-testing
+  tags: [qa, test-automation]
+  public: true
+  text: >-
+    Safeguarded navigation and layout with a crawl that checks every link, anchor, and image
+    and flags orphaned pages, plus layout checks that keep the header and gallery cards
+    aligned.
+
+- id: ps-reconciled-readme-project-through-automated
+  role: portfolio-site
+  theme: qa-testing
+  tags: [qa, documentation-training]
+  public: true
+  text: >-
+    Reconciled the README with the project through an automated check of commands, links,
+    files, and described tests.
+
+- id: ps-orchestrated-claude-code-launch-site
+  role: portfolio-site
+  theme: ai-assisted-development-implementation-consulting
+  tags: [ai-assisted, development]
+  public: true
+  text: >-
+    Orchestrated Claude Code to launch the site, keeping ownership of design, review, and
+    content decisions with tests and CI as the guardrails.
+
+- id: ps-instituted-repository-rules-require-pull
+  role: portfolio-site
+  theme: ai-assisted-development-implementation-consulting
+  tags: [ci-cd, process]
+  public: true
+  text: >-
+    Instituted repository rules that require a pull request and a passing build check before
+    a change can merge, backed by auto-merge, automatic branch cleanup, and weekly
+    Dependabot updates.
+
+- id: ps-standardized-readme-check-pull-request
+  role: portfolio-site
+  theme: ai-assisted-development-implementation-consulting
+  tags: [process, documentation-training]
+  public: true
+  text: >-
+    Standardized a README check on every pull request, with a template checkbox and a
+    written workflow step, so documentation changes with the code instead of drifting from
+    it.
+
 # ===========================================
-# == Verizon Wireless (verizon) - 35 bullets
+# == Verizon Wireless (verizon) - 38 bullets
 # ===========================================
 
 - id: vz-led-qa-across-project
@@ -777,7 +963,7 @@
   public: true
   text: >-
     Analyzed confirmed fraudulent transactions to reverse-engineer attack patterns, then
-    built test cases covering those and adjacent vectors so future releases were validated
+    built test cases covering those and similar vectors so future releases were validated
     against known exploits.
 
 - id: vz-validated-fraud-related-fixes-across
@@ -831,9 +1017,9 @@
   tags: [api-testing, sql, qa]
   public: true
   text: >-
-    Validated about 20 third-party subscription integrations end to end, using Postman to
-    confirm subscription status and service tier against each partner's API, and SQL to
-    verify the matching subscription and customer IDs stored on Verizon's side.
+    Validated 20 third-party subscription integrations end to end, using Postman to confirm
+    subscription status and service tier against each partner's API, and SQL to verify the
+    matching subscription and customer IDs stored on Verizon's side.
 
 - id: vz-tested-full-subscription-lifecycle
   role: verizon
@@ -937,8 +1123,9 @@
   tags: [requirements, qa]
   public: true
   text: >-
-    Authored requirements and acceptance criteria for a new internal test-data retrieval
-    tool, then worked with developers to strengthen test coverage during build and testing.
+    Authored requirements and acceptance criteria for an internal mock-customer data
+    retrieval tool, then worked with developers to strengthen test coverage during build and
+    testing.
 
 - id: vz-verified-discounting-launches-separating-defects
   role: verizon
@@ -957,8 +1144,8 @@
   tags: [jira, documentation-training, qa]
   public: true
   text: >-
-    Published user guides that reached tens of thousands of views, reducing repeat questions
-    across teams.
+    Wrote eCredit and Jira user guides that reached tens of thousands of views, reducing
+    repeat questions across teams.
 
 - id: vz-managed-test-cases-zephyr-qtest
   role: verizon
