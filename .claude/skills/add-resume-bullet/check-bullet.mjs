@@ -160,7 +160,7 @@ export function checkBullet({ role, versions, text, theme, tags, id, exactOk = f
 
   // 5. A reminder, not a check: numbers must be real.
   const numbers = clean.match(/\$?\d[\d,.]*\+?%?/g);
-  if (numbers) notes.push(`Numbers in this bullet (${numbers.join(', ')}) must come from private/bank-export.md or from you. This script cannot verify them.`);
+  if (numbers) notes.push(`Numbers in this bullet (${numbers.join(', ')}) must come from the resume bullet bank or from you. This script cannot verify them.`);
 
   return { errors, warnings, notes, id: finalId, clean, versionList };
 }

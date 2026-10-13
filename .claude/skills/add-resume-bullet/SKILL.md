@@ -13,7 +13,7 @@ The build schema (`src/content.config.ts`) stays the authority for the rules it 
 
 Get these from the user. If one is missing and has no safe default, ask once, with the options listed.
 
-1. **Text.** Use the user's wording. Never invent or adjust a metric: numbers come from `private/bank-export.md` or from the user.
+1. **Text.** Use the user's wording. Never invent or adjust a metric: numbers come from the resume bullet bank (the artifact, via the refreshed snapshot `private/bank-export.md`; see CLAUDE.md) or from the user.
 2. **Role id** from `src/data/resume/roles.yaml` (tpd, care-board, portfolio-site, verizon, kingdom-hell, jabroni, nucor, pg, geek-squad).
 3. **Versions** by id: qa, consulting, creative, adoption. At least one. A bullet in `bullet-groups.yaml` is shared by several versions; the script does not edit groups, so if the user wants a shared group, say so and do that edit by hand.
 4. **Theme and tags.** Default: reuse the theme and tags of the closest existing bullet in that role (`grep -A4 "role: <id>" src/data/resume/bullets.yaml`) and say which you chose. `public` is always `true`.

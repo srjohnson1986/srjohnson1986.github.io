@@ -75,7 +75,8 @@ Same flow as the TPD-Addin-XLAM and soundboard repos. `main` deploys on every me
   - At the start of a session, and before cutting a new branch, run `git fetch --prune` and `git branch -vv`. Delete any local branch marked `gone` whose pull request is merged (`gh pr list --state all --head <branch>`). A `gone` branch whose pull request was closed unmerged, or that has no pull request, may hold unpushed work, so ask before deleting it.
   - The goal is that `git branch -a` shows only `main` (and any branch with a pull request still open).
 - To revoke the merge permission, Steve says so in chat and this section is updated.
-- Only use numbers that appear in `private/bank-export.md` or that I give you. Never invent metrics.
+- Only use numbers that appear in the resume bullet bank or that I give you. Never invent metrics.
+- **The bank (added 2026-10-12):** the source of truth is a private Claude Docs artifact (link in `private/PROJECT_BRIEF.md`, never in the repo). `private/bank-export.md` is a snapshot of it. At the start of any task that uses the bank, Claude refreshes the snapshot: export the artifact as markdown with the Claude Docs connector, move the old file to `private/bank-export.prev.md`, save the new one, and record the artifact revision and date in `private/bank-export.rev.txt`. Claude only reads the artifact, never writes to it.
 - Only bullets with `public: true` appear on the site.
 - Never publish the Target Roles section, the behavioral (STAR) stories, or internal notes from the bank.
 - Public site privacy: no phone number, location is "Atlanta area" only, contact is a mailto link plus LinkedIn and GitHub, no confidential employer details.
