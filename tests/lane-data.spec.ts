@@ -6,7 +6,7 @@ import { root } from './helpers/data';
 // @ts-expect-error - plain JavaScript module with no type declarations
 import { checkLaneData } from '../src/lib/lane-data.js';
 
-// The lane data (lanes.yaml, the `lanes` field on bullets, `lane_rank` on roles) is checked by
+// The lane data (lanes.yaml, the `lanes` field on bullets, `lane_rank` on roles, combos.yaml) is checked by
 // src/lib/lane-data.js, the same code the build runs. These specs run it on the real data files and on one
 // broken case per rule. They read only files, so they need no browser and no build.
 
@@ -45,7 +45,7 @@ test.describe('lane data checks', () => {
       lanes: load('lanes.yaml'),
       roles: load('roles.yaml'),
       bullets: load('bullets.yaml'),
-      combos: [], // combos.yaml arrives with the imported data
+      combos: load('combos.yaml'),
     };
     expect(data.lanes.length).toBeGreaterThan(0);
     expect(check(data)).toEqual([]);

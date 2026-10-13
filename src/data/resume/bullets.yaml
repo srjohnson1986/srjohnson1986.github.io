@@ -12,6 +12,7 @@
   role: tpd
   theme: automation-and-tooling
   tags: [project-management, development, consulting]
+  lanes: {qa: [1, 10], sdet: [1, 10], con: [1, 10], adp: [1, 40], pmba: [1, 30], it: [1, 10]}
   public: true
   text: >-
     Built and maintained an open-source VBA Excel add-in that turns Smartsheet exports into
@@ -22,6 +23,7 @@
   role: tpd
   theme: automation-and-tooling
   tags: [project-management, development, consulting]
+  lanes: {qa: [3, 50], sdet: [3, 50], con: [3, 10], adp: [2, 40], pmba: [3, 30], it: [2, 80]}
   public: true
   text: >-
     Designed eight Excel ribbon tools: custom and one-click versions of equipment list,
@@ -32,6 +34,7 @@
   role: tpd
   theme: automation-and-tooling
   tags: [development, consulting]
+  lanes: {sdet: [3, 40], con: [3, 20], adp: [2, 10], it: [2, 10]}
   public: true
   text: >-
     Implemented a settings system that saves each user's choices across Excel sessions, so
@@ -41,6 +44,7 @@
   role: tpd
   theme: engineering-process-and-quality
   tags: [consulting]
+  lanes: {qa: [3, 30], sdet: [2, 40], it: [1, 30]}
   public: true
   text: >-
     Moved the add-in from an unversioned single file to a source-controlled project with a
@@ -50,6 +54,7 @@
   role: tpd
   theme: engineering-process-and-quality
   tags: [ci-cd, consulting]
+  lanes: {qa: [2, 30], sdet: [1, 30], it: [2, 20]}
   public: true
   text: >-
     Added a GitHub Actions workflow that checks every code change for broken ribbon
@@ -59,6 +64,7 @@
   role: tpd
   theme: engineering-process-and-quality
   tags: [consulting]
+  lanes: {qa: [2, 70], sdet: [2, 30]}
   public: true
   text: >-
     Created a pre-release source-drift check that confirms the source code matches what
@@ -68,6 +74,7 @@
   role: tpd
   theme: engineering-process-and-quality
   tags: [test-automation, development, consulting]
+  lanes: {qa: [2, 20], sdet: [1, 20], it: [3, 60]}
   public: true
   text: >-
     Split business logic out of Excel-dependent code and added 20 Rubberduck unit tests for
@@ -77,6 +84,7 @@
   role: tpd
   theme: engineering-process-and-quality
   tags: [consulting]
+  lanes: {qa: [3, 10], sdet: [3, 20], con: [2, 60], adp: [3, 20], pmba: [1, 40], it: [3, 10]}
   public: true
   text: >-
     Delivered 11+ versioned releases, tracking work through 70+ GitHub issues and 98+
@@ -86,6 +94,7 @@
   role: tpd
   theme: engineering-process-and-quality
   tags: [consulting]
+  lanes: {qa: [3, 20], sdet: [2, 70], con: [3, 50], pmba: [2, 60], it: [3, 20]}
   public: true
   text: >-
     Refactored the codebase in small, reviewable changes: removed duplicated code across
@@ -95,6 +104,7 @@
   role: tpd
   theme: engineering-process-and-quality
   tags: [consulting]
+  lanes: {qa: [3, 40], con: [2, 40], adp: [2, 30], pmba: [2, 30], it: [3, 50]}
   public: true
   text: >-
     Established the first standardized naming and markup conventions for equipment cut
@@ -104,6 +114,7 @@
   role: tpd
   theme: documentation-and-enablement
   tags: [documentation-training, consulting]
+  lanes: {con: [1, 40], adp: [1, 30], pmba: [2, 50], it: [2, 30]}
   public: true
   text: >-
     Wrote the user guide and wiki, plus a developer architecture guide, changelog, and
@@ -113,6 +124,7 @@
   role: tpd
   theme: documentation-and-enablement
   tags: [documentation-training, open-source, consulting]
+  lanes: {con: [2, 30], adp: [3, 10], pmba: [3, 40], it: [2, 40]}
   public: true
   text: >-
     Released the add-in as open source under the MIT License with the client's approval,
@@ -123,6 +135,7 @@
   role: tpd
   theme: ai-assisted-development
   tags: [ai-assisted, consulting]
+  lanes: {qa: [3, 60], sdet: [3, 30], con: [3, 30], adp: [2, 50], pmba: [3, 60], it: [2, 70]}
   public: true
   text: >-
     Leveraged AI coding agents (Claude Code) to speed up development while keeping ownership
@@ -141,6 +154,7 @@
   role: tpd
   theme: project-controls-and-scheduling
   tags: [project-management, consulting]
+  lanes: {con: [2, 10], adp: [2, 20], pmba: [1, 20], it: [3, 70]}
   public: true
   text: >-
     Developed a dual-baseline Smartsheet schedule template through stakeholder interviews,
@@ -150,6 +164,7 @@
   role: tpd
   theme: project-controls-and-scheduling
   tags: [project-management, consulting]
+  lanes: {con: [1, 20], adp: [3, 30], pmba: [1, 10]}
   public: true
   text: >-
     Coordinated cross-functional delivery on capital projects of roughly $1M and 6+ months,
@@ -160,6 +175,7 @@
   role: tpd
   theme: coordination
   tags: [consulting]
+  lanes: {con: [2, 70], pmba: [2, 10]}
   public: true
   text: >-
     Supported product selection, cost analysis, and lead-time validation for equipment
@@ -169,6 +185,7 @@
   role: tpd
   theme: coordination
   tags: [requirements, project-management, consulting]
+  lanes: {con: [3, 40], pmba: [3, 10]}
   public: true
   text: >-
     Maintained alignment across evolving requirements and multiple external stakeholders to
@@ -178,6 +195,7 @@
   role: tpd
   theme: automation-and-tooling
   tags: [development, consulting]
+  lanes: {qa: [2, 10], sdet: [2, 60], it: [1, 20]}
   public: true
   text: >-
     Stored user settings in the Windows registry after finding that Excel never saves an
@@ -187,6 +205,7 @@
   role: tpd
   theme: engineering-process-and-quality
   tags: [test-automation, development, consulting]
+  lanes: {qa: [2, 40], sdet: [2, 10], it: [3, 40]}
   public: true
   text: >-
     Built a Python generator that creates seeded, fully fabricated sample workbooks, so
@@ -196,6 +215,7 @@
   role: tpd
   theme: engineering-process-and-quality
   tags: [test-automation, qa]
+  lanes: {qa: [1, 30], sdet: [2, 20]}
   public: true
   text: >-
     Designed the test fixtures around the inputs most likely to break the tools:
@@ -206,6 +226,7 @@
   role: tpd
   theme: engineering-process-and-quality
   tags: [qa, test-automation]
+  lanes: {qa: [1, 40], sdet: [3, 10]}
   public: true
   text: >-
     Wrote a manual smoke-test checklist with expected results for every ribbon tool, run
@@ -215,6 +236,7 @@
   role: tpd
   theme: engineering-process-and-quality
   tags: [ci-cd, consulting]
+  lanes: {qa: [2, 60], sdet: [2, 50], con: [2, 80], pmba: [2, 20], it: [3, 30]}
   public: true
   text: >-
     Defined a repeatable release process: a release pull request, a passing CI run, a
@@ -225,6 +247,7 @@
   role: tpd
   theme: data-privacy
   tags: [consulting, privacy]
+  lanes: {qa: [2, 50], sdet: [2, 80], con: [2, 20], adp: [3, 40], pmba: [3, 50], it: [1, 40]}
   public: true
   text: >-
     Replaced confidential customer workbooks with synthetic test data that mirrors the
@@ -235,6 +258,7 @@
   role: tpd
   theme: engineering-process-and-quality
   tags: [qa, test-automation, ai-assisted]
+  lanes: {qa: [1, 20], sdet: [1, 40]}
   public: true
   text: >-
     Caught three failing AI-written unit tests by running them, traced the failures to
@@ -245,6 +269,7 @@
   role: tpd
   theme: ai-enablement
   tags: [ai-assisted, adoption, leadership]
+  lanes: {con: [2, 50], adp: [1, 10], pmba: [3, 20], it: [2, 60]}
   public: true
   text: >-
     Coached a fellow TPD consultant in adopting Claude Code for engineering work and Claude
@@ -255,6 +280,7 @@
   role: tpd
   theme: ai-enablement
   tags: [ai-assisted, consulting, analysis]
+  lanes: {con: [1, 30], adp: [1, 20], pmba: [2, 40], it: [2, 50]}
   public: true
   text: >-
     Transformed a TPD client's note-taking from hours of manual work into a Claude workflow
@@ -269,6 +295,7 @@
   role: care-board
   theme: base-entry
   tags: [ai-assisted, development]
+  lanes: {qa: [1, 10], sdet: [1, 10], con: [1, 10], adp: [2, 40], pmba: [2, 10], it: [1, 10]}
   public: true
   text: >-
     Designed, built and shipped an ad-free communication app for Android and the web for a
@@ -280,6 +307,7 @@
   role: care-board
   theme: base-entry
   tags: [ci-cd, test-automation, development]
+  lanes: {qa: [1, 20], sdet: [1, 20]}
   public: true
   text: >-
     Engineered a suite of 458+ tests that runs on the JVM, in headless Chrome and on an
@@ -289,6 +317,7 @@
   role: care-board
   theme: adoption-ux
   tags: [development]
+  lanes: {con: [3, 10], adp: [1, 10]}
   public: true
   text: >-
     Removed every barrier to adoption for non-technical caregivers: zero-setup preset
@@ -299,6 +328,7 @@
   role: care-board
   theme: adoption-ux
   tags: [development]
+  lanes: {con: [3, 20], adp: [2, 30], it: [2, 40]}
   public: true
   text: >-
     Expanded from Android to a progressive web app that installs like an app and works
@@ -308,6 +338,7 @@
   role: care-board
   theme: adoption-ux
   tags: [accessibility, development]
+  lanes: {adp: [2, 10]}
   public: true
   text: >-
     Improved legibility and accessibility with automatically sized labels, fonts designed
@@ -317,6 +348,7 @@
   role: care-board
   theme: adoption-ux
   tags: [development]
+  lanes: {adp: [3, 10], it: [2, 70]}
   public: true
   text: >-
     Simplified distribution with a stable download link that always serves the latest
@@ -326,6 +358,7 @@
   role: care-board
   theme: adoption-ux
   tags: [development]
+  lanes: {con: [2, 70], adp: [3, 30], pmba: [3, 10]}
   public: true
   text: >-
     Evaluated commercial communication apps, found mostly ad-supported novelty software
@@ -336,6 +369,7 @@
   role: care-board
   theme: product-project-management
   tags: [requirements, development]
+  lanes: {qa: [3, 70], con: [1, 20], adp: [2, 60], pmba: [1, 20]}
   public: true
   text: >-
     Gathered requirements from caregivers and prioritized by urgency, pinning critical
@@ -346,6 +380,7 @@
   role: care-board
   theme: product-project-management
   tags: [development]
+  lanes: {qa: [3, 10], sdet: [3, 70], con: [2, 50], adp: [3, 50], pmba: [1, 10]}
   public: true
   text: >-
     Delivered v1.0 on two platforms in 13 days and kept shipping to 155+ issues, 164+ pull
@@ -355,6 +390,7 @@
   role: care-board
   theme: product-project-management
   tags: [development]
+  lanes: {qa: [3, 50], con: [2, 60], adp: [2, 20], pmba: [3, 60]}
   public: true
   text: >-
     Tailored features to real care situations: a large-text Show mode that flips upside down
@@ -365,6 +401,7 @@
   role: care-board
   theme: product-project-management
   tags: [development]
+  lanes: {qa: [3, 30], con: [2, 80], pmba: [2, 20]}
   public: true
   text: >-
     Investigated routing app audio directly into phone calls after a real speakerphone test
@@ -375,6 +412,7 @@
   role: care-board
   theme: product-project-management
   tags: [development]
+  lanes: {adp: [3, 20], it: [2, 60]}
   public: true
   text: >-
     Protected irreplaceable recordings with a weekly backup reminder that never blocks the
@@ -384,6 +422,7 @@
   role: care-board
   theme: qa-testing
   tags: [ci-cd, qa, development]
+  lanes: {qa: [2, 100], sdet: [2, 20]}
   public: true
   text: >-
     Implemented a CI coverage gate that fails the build if core code drops below 90% line
@@ -393,6 +432,7 @@
   role: care-board
   theme: qa-testing
   tags: [test-automation, qa, development]
+  lanes: {qa: [2, 50], sdet: [2, 30]}
   public: true
   text: >-
     Wrote an automated smoke test for the live website that loads the production build, taps
@@ -403,6 +443,7 @@
   role: care-board
   theme: qa-testing
   tags: [test-automation, qa, development]
+  lanes: {qa: [2, 60], sdet: [2, 40]}
   public: true
   text: >-
     Introduced screenshot regression tests for the board and every dialog in portrait,
@@ -412,6 +453,7 @@
   role: care-board
   theme: qa-testing
   tags: [qa, development]
+  lanes: {qa: [2, 70], sdet: [2, 100]}
   public: true
   text: >-
     Built upgrade testing into the release checklist: installed each new version over the
@@ -421,6 +463,7 @@
   role: care-board
   theme: qa-testing
   tags: [ci-cd, test-automation, qa, development]
+  lanes: {qa: [1, 30], sdet: [1, 40]}
   public: true
   text: >-
     Audited which tests CI actually ran, using Claude Code to look for gaps, and uncovered
@@ -431,6 +474,7 @@
   role: care-board
   theme: qa-testing
   tags: [test-automation, qa, development]
+  lanes: {qa: [1, 40], sdet: [2, 10]}
   public: true
   text: >-
     Diagnosed and fixed a race condition that could silently save stale data, and proved the
@@ -440,6 +484,7 @@
   role: care-board
   theme: qa-testing
   tags: [test-automation, accessibility, qa, development]
+  lanes: {qa: [2, 110], sdet: [2, 50]}
   public: true
   text: >-
     Automated UI tests for screen rotation, touch gestures and accessibility font scaling,
@@ -449,6 +494,7 @@
   role: care-board
   theme: qa-testing
   tags: [ci-cd, qa, development]
+  lanes: {qa: [3, 20], sdet: [1, 50], it: [2, 10]}
   public: true
   text: >-
     Configured GitHub Actions CI with branch protection and parallel Android and web
@@ -459,6 +505,7 @@
   role: care-board
   theme: qa-testing
   tags: [test-automation, qa, development]
+  lanes: {qa: [2, 40], sdet: [3, 10], pmba: [3, 30]}
   public: true
   text: >-
     Converted caregiver feedback into tracked issues and paired every fixed defect with a
@@ -468,6 +515,7 @@
   role: care-board
   theme: qa-testing
   tags: [qa, development]
+  lanes: {qa: [2, 90], sdet: [3, 20], it: [2, 50]}
   public: true
   text: >-
     Designed data-integrity safeguards: older saved boards keep loading after format
@@ -478,6 +526,7 @@
   role: care-board
   theme: qa-testing
   tags: [qa, development]
+  lanes: {qa: [2, 10], sdet: [3, 90]}
   public: true
   text: >-
     Explored the app hands-on and found layout breaks in landscape mode, fixed the header
@@ -487,6 +536,7 @@
   role: care-board
   theme: adoption-ux
   tags: [adoption, development, requirements]
+  lanes: {qa: [2, 80], con: [2, 20], adp: [1, 20], pmba: [2, 30]}
   public: true
   text: >-
     Turned a caretaker's feedback on a demo (no way to say a phrase that wasn't pre-recorded)
@@ -497,6 +547,7 @@
   role: care-board
   theme: ai-assisted-development-implementation-consulting
   tags: [ci-cd, ai-assisted, development]
+  lanes: {qa: [3, 60], sdet: [2, 110], con: [2, 40], pmba: [3, 20], it: [3, 30]}
   public: true
   text: >-
     Directed Claude Code through a governed workflow (issue to feature branch to pull
@@ -507,6 +558,7 @@
   role: care-board
   theme: ai-assisted-development-implementation-consulting
   tags: [leadership, development]
+  lanes: {sdet: [2, 120], con: [3, 40], pmba: [2, 50]}
   public: true
   text: >-
     Led a 4-phase migration to Kotlin Multiplatform and Compose Multiplatform, sharing about
@@ -517,6 +569,7 @@
   role: care-board
   theme: ai-assisted-development-implementation-consulting
   tags: [ai-assisted, development]
+  lanes: {qa: [3, 90], sdet: [3, 50], con: [3, 60]}
   public: true
   text: >-
     Owned architecture decisions and reviewed all AI-generated changes, including a single
@@ -527,6 +580,7 @@
   role: care-board
   theme: ai-assisted-development-implementation-consulting
   tags: [ai-assisted, development]
+  lanes: {qa: [3, 100], sdet: [3, 40]}
   public: true
   text: >-
     Refactored a 2,900-line file into 8 focused modules in a planned pass with no change in
@@ -545,6 +599,7 @@
   role: care-board
   theme: ai-assisted-development-implementation-consulting
   tags: [ci-cd, documentation-training, development]
+  lanes: {con: [2, 10], adp: [2, 70], pmba: [3, 50]}
   public: true
   text: >-
     Delivered a maintainable handoff: user documentation, architecture docs, automated
@@ -555,6 +610,7 @@
   role: care-board
   theme: adoption-ux
   tags: [documentation-training, ci-cd]
+  lanes: {con: [3, 50], adp: [2, 50], it: [3, 40]}
   public: true
   text: >-
     Kept documentation current without manual effort: the wiki mirrors the docs and
@@ -565,6 +621,7 @@
   role: care-board
   theme: adoption-ux
   tags: [documentation-training, open-source]
+  lanes: {con: [2, 30], adp: [3, 40], it: [3, 10]}
   public: true
   text: >-
     Released the project as open source under Apache-2.0 with license and attribution
@@ -575,6 +632,7 @@
   role: care-board
   theme: qa-testing
   tags: [qa, test-automation, ci-cd]
+  lanes: {qa: [2, 20], sdet: [1, 30]}
   public: true
   text: >-
     Diagnosed intermittent CI hangs in the browser test suite, tracing them to a UI test
@@ -586,6 +644,7 @@
   role: care-board
   theme: qa-testing
   tags: [qa, test-automation]
+  lanes: {qa: [2, 30], sdet: [2, 80]}
   public: true
   text: >-
     Traced an intermittent offline failure in the live-site smoke test to a real caching
@@ -595,6 +654,7 @@
   role: care-board
   theme: qa-testing
   tags: [ci-cd, documentation-training]
+  lanes: {qa: [3, 40], sdet: [2, 90]}
   public: true
   text: >-
     Added a documentation check to the required CI gate that fails on any broken link,
@@ -604,6 +664,7 @@
   role: care-board
   theme: qa-testing
   tags: [ci-cd, qa]
+  lanes: {qa: [2, 120], sdet: [2, 60], it: [2, 20]}
   public: true
   text: >-
     Built safeguards into the automated release pipeline (version and tag match,
@@ -614,6 +675,7 @@
   role: care-board
   theme: release-engineering-ci-cd
   tags: [ci-cd, development]
+  lanes: {qa: [3, 80], sdet: [2, 70], pmba: [2, 40], it: [1, 20]}
   public: true
   text: >-
     Automated releases end to end: pushing one version tag builds, signs, verifies and
@@ -624,6 +686,7 @@
   role: care-board
   theme: release-engineering-ci-cd
   tags: [ci-cd, development]
+  lanes: {sdet: [3, 30], pmba: [3, 40], it: [2, 30]}
   public: true
   text: >-
     Automated dependency maintenance: Dependabot groups updates by release train each
@@ -634,6 +697,7 @@
   role: care-board
   theme: ai-assisted-development-implementation-consulting
   tags: [development, ai-assisted]
+  lanes: {sdet: [3, 60], pmba: [2, 60], it: [3, 20]}
   public: true
   text: >-
     Extended the app to iOS with native audio, recording, speech and file storage on one
@@ -644,6 +708,7 @@
   role: care-board
   theme: ai-assisted-development-implementation-consulting
   tags: [ai-assisted, documentation-training]
+  lanes: {sdet: [3, 80], con: [3, 30], it: [3, 50]}
   public: true
   text: >-
     Wrote an AGENTS.md brief that tells any AI assistant or human contributor where code
@@ -658,6 +723,7 @@
   role: portfolio-site
   theme: portfolio-site-and-test-suite
   tags: [qa, development]
+  lanes: {qa: [1, 10], sdet: [1, 10]}
   public: true
   text: >-
     Designed a public Playwright suite that renders every resume version from the site's own data files and checks each one against the skills and bullets it should show.
@@ -666,6 +732,7 @@
   role: portfolio-site
   theme: portfolio-site-and-test-suite
   tags: [qa]
+  lanes: {qa: [1, 20], sdet: [1, 20]}
   public: true
   text: >-
     Proved the portfolio site's test suite could fail by deliberately breaking the site, with a
@@ -676,6 +743,7 @@
   role: portfolio-site
   theme: portfolio-site-and-test-suite
   tags: [qa]
+  lanes: {qa: [2, 30], sdet: [2, 20]}
   public: true
   text: >-
     Automated accessibility scanning with axe across every page in light, dark, and phone width, plus keyboard checks.
@@ -684,6 +752,7 @@
   role: portfolio-site
   theme: portfolio-site-and-test-suite
   tags: [qa, development]
+  lanes: {qa: [2, 40], sdet: [2, 10], it: [2, 20]}
   public: true
   text: >-
     Configured GitHub Actions to run the suite on every pull request and a smoke test against the live site after each deploy and weekly.
@@ -692,6 +761,7 @@
   role: portfolio-site
   theme: portfolio-site-and-test-suite
   tags: [development, consulting]
+  lanes: {qa: [3, 30], sdet: [3, 10], con: [3, 40], pmba: [2, 20]}
   public: true
   text: >-
     Established an issue-first workflow in which every change ships through a reviewed pull request and merges only after the build check passes.
@@ -700,6 +770,7 @@
   role: portfolio-site
   theme: base-entry
   tags: [development, qa]
+  lanes: {qa: [3, 20], sdet: [3, 50], con: [2, 10], adp: [3, 10], pmba: [3, 10], it: [3, 10]}
   public: true
   text: >-
     Launched a public portfolio site on Astro and GitHub Pages that serves as a filterable
@@ -719,6 +790,7 @@
   role: portfolio-site
   theme: adoption-ux
   tags: [documentation-training, adoption]
+  lanes: {con: [3, 10], adp: [2, 10]}
   public: true
   text: >-
     Documented how to add each kind of content in plain-language guides beside the data, so
@@ -729,6 +801,7 @@
   role: portfolio-site
   theme: adoption-ux
   tags: [documentation-training, development]
+  lanes: {adp: [2, 20]}
   public: true
   text: >-
     Translated validation rules into plain-language build errors that name the file and
@@ -739,6 +812,7 @@
   role: portfolio-site
   theme: adoption-ux
   tags: [accessibility, qa]
+  lanes: {qa: [3, 50], adp: [2, 30], it: [3, 30]}
   public: true
   text: >-
     Prioritized accessibility for every visitor with a bundled legible font, light and dark
@@ -749,6 +823,7 @@
   role: portfolio-site
   theme: adoption-ux
   tags: [documentation-training, open-source]
+  lanes: {adp: [3, 20]}
   public: true
   text: >-
     Chronicled how the site was built in a public project page and README covering the
@@ -759,6 +834,7 @@
   role: portfolio-site
   theme: product-project-management
   tags: [development, project-management]
+  lanes: {con: [2, 20], pmba: [2, 10]}
   public: true
   text: >-
     Modeled resume content as one set of data files (roles, bullets, skills, and versions)
@@ -778,6 +854,7 @@
   role: portfolio-site
   theme: product-project-management
   tags: [ci-cd, test-automation]
+  lanes: {qa: [3, 10], sdet: [2, 40], it: [3, 20]}
   public: true
   text: >-
     Scripted PDF generation for each resume version with headless Chromium, failing the
@@ -787,6 +864,7 @@
   role: portfolio-site
   theme: qa-testing
   tags: [qa, test-automation]
+  lanes: {qa: [2, 20], sdet: [2, 50]}
   public: true
   text: >-
     Codified the site's content rules as schema checks that fail the build with readable
@@ -797,6 +875,7 @@
   role: portfolio-site
   theme: qa-testing
   tags: [qa, test-automation]
+  lanes: {qa: [2, 50], sdet: [1, 30]}
   public: true
   text: >-
     Derived test expectations from the same YAML files the site is built from, so a test
@@ -806,6 +885,7 @@
   role: portfolio-site
   theme: qa-testing
   tags: [qa, test-automation]
+  lanes: {qa: [2, 10], sdet: [2, 30]}
   public: true
   text: >-
     Safeguarded navigation and layout with a crawl that checks every link, anchor, and image
@@ -816,6 +896,7 @@
   role: portfolio-site
   theme: qa-testing
   tags: [qa, documentation-training]
+  lanes: {qa: [3, 40], sdet: [3, 30]}
   public: true
   text: >-
     Reconciled the README with the project through an automated check of commands, links,
@@ -825,6 +906,7 @@
   role: portfolio-site
   theme: ai-assisted-development-implementation-consulting
   tags: [ai-assisted, development]
+  lanes: {sdet: [3, 60], con: [3, 20]}
   public: true
   text: >-
     Orchestrated Claude Code to launch the site, keeping ownership of design, review, and
@@ -834,6 +916,7 @@
   role: portfolio-site
   theme: ai-assisted-development-implementation-consulting
   tags: [ci-cd, process]
+  lanes: {sdet: [3, 20], con: [3, 30], pmba: [3, 20], it: [2, 10]}
   public: true
   text: >-
     Instituted repository rules that require a pull request and a passing build check before
@@ -844,6 +927,7 @@
   role: portfolio-site
   theme: ai-assisted-development-implementation-consulting
   tags: [process, documentation-training]
+  lanes: {sdet: [3, 40], pmba: [3, 30]}
   public: true
   text: >-
     Standardized a README check on every pull request, with a template checkbox and a
@@ -858,6 +942,7 @@
   role: verizon
   theme: leadership-and-delivery
   tags: [leadership, qa]
+  lanes: {qa: [1, 20], sdet: [3, 10], con: [2, 30], adp: [2, 50], pmba: [1, 10], it: [3, 30]}
   public: true
   text: >-
     Led QA across project teams of up to 20, coordinating onshore and offshore testers
@@ -867,6 +952,7 @@
   role: verizon
   theme: leadership-and-delivery
   tags: [leadership, qa]
+  lanes: {qa: [3, 130], con: [3, 30], adp: [3, 10], pmba: [2, 10]}
   public: true
   text: >-
     Streamlined Agile SDLC reporting, improving story tracking and resource allocation for
@@ -876,6 +962,7 @@
   role: verizon
   theme: leadership-and-delivery
   tags: [confluence, leadership, qa]
+  lanes: {qa: [3, 140], con: [3, 10], adp: [2, 10], pmba: [3, 80], it: [2, 100]}
   public: true
   text: >-
     Built and maintained Confluence repositories that standardized repeatable testing
@@ -885,6 +972,7 @@
   role: verizon
   theme: exploratory-testing-and-requirements-feedback
   tags: [qa, requirements]
+  lanes: {qa: [1, 40], sdet: [3, 80], con: [3, 70], pmba: [2, 90]}
   public: true
   text: >-
     Explored features hands-on alongside scripted test cases, catching wording, grammar, and
@@ -904,6 +992,7 @@
   role: verizon
   theme: exploratory-testing-and-requirements-feedback
   tags: [qa, requirements]
+  lanes: {pmba: [3, 60]}
   public: true
   text: >-
     Flagged cultural differences in how customer names and addresses should display, opening
@@ -914,6 +1003,7 @@
   role: verizon
   theme: scale-and-high-stakes-releases
   tags: [qa]
+  lanes: {qa: [1, 10], sdet: [2, 20], con: [2, 20], adp: [2, 60], pmba: [3, 30], it: [2, 80]}
   public: true
   text: >-
     Owned end-to-end testing for a site serving 70M monthly visitors plus native iOS and
@@ -924,6 +1014,7 @@
   role: verizon
   theme: scale-and-high-stakes-releases
   tags: [qa]
+  lanes: {qa: [2, 10], sdet: [3, 20], con: [2, 40], adp: [3, 20], it: [3, 40]}
   public: true
   text: >-
     Served in launch war rooms for device launches and peak retail events, validating live
@@ -933,6 +1024,7 @@
   role: verizon
   theme: scale-and-high-stakes-releases
   tags: [leadership, qa]
+  lanes: {qa: [2, 80], con: [2, 80], pmba: [3, 40]}
   public: true
   text: >-
     Led testing for redesigns of high-traffic eCommerce purchase flows, improving stability
@@ -942,6 +1034,7 @@
   role: verizon
   theme: scale-and-high-stakes-releases
   tags: [qa]
+  lanes: {qa: [3, 30], con: [2, 100], adp: [3, 30], pmba: [3, 50]}
   public: true
   text: >-
     Tested and launched new products, plans, features, and promotional discounts supporting
@@ -951,6 +1044,7 @@
   role: verizon
   theme: governance
   tags: [jira, process, qa]
+  lanes: {qa: [3, 160], con: [1, 20], adp: [1, 30], pmba: [1, 20], it: [1, 10]}
   public: true
   text: >-
     Owned governance for a Jira instance with 10,000+ users, establishing request and
@@ -960,6 +1054,7 @@
   role: verizon
   theme: fraud
   tags: [fraud, qa]
+  lanes: {qa: [1, 30], sdet: [2, 30]}
   public: true
   text: >-
     Analyzed confirmed fraudulent transactions to reverse-engineer attack patterns, then
@@ -970,6 +1065,7 @@
   role: verizon
   theme: fraud
   tags: [fraud, qa]
+  lanes: {qa: [3, 40]}
   public: true
   text: >-
     Validated fraud-related fixes across test environments, production, and regression cycles.
@@ -978,6 +1074,7 @@
   role: verizon
   theme: monitoring-and-log-investigation
   tags: [monitoring, qa]
+  lanes: {qa: [2, 20], sdet: [2, 70], it: [1, 20]}
   public: true
   text: >-
     Monitored application error logs in Kibana from the war room at every device launch and
@@ -988,6 +1085,7 @@
   role: verizon
   theme: monitoring-and-log-investigation
   tags: [monitoring, qa]
+  lanes: {qa: [3, 100], sdet: [2, 50], it: [2, 10]}
   public: true
   text: >-
     Built Kibana dashboards and saved searches the team used for error monitoring and defect
@@ -997,6 +1095,7 @@
   role: verizon
   theme: monitoring-and-log-investigation
   tags: [monitoring, qa]
+  lanes: {qa: [2, 90], sdet: [2, 40], it: [2, 20]}
   public: true
   text: >-
     Investigated defects through Kibana error logs and filed them with log evidence, giving
@@ -1006,6 +1105,7 @@
   role: verizon
   theme: monitoring-and-log-investigation
   tags: [monitoring, qa]
+  lanes: {qa: [3, 50], sdet: [3, 30], it: [3, 10]}
   public: true
   text: >-
     Spotted patterns across recurring errors and used post-deploy log checks to confirm
@@ -1015,6 +1115,7 @@
   role: verizon
   theme: data-and-api-validation
   tags: [api-testing, sql, qa]
+  lanes: {qa: [2, 60], sdet: [1, 10], con: [1, 10], pmba: [2, 30], it: [2, 40]}
   public: true
   text: >-
     Validated 20 third-party subscription integrations end to end, using Postman to confirm
@@ -1025,6 +1126,7 @@
   role: verizon
   theme: data-and-api-validation
   tags: [sql, qa]
+  lanes: {qa: [3, 70], sdet: [2, 10], pmba: [2, 40], it: [2, 50]}
   public: true
   text: >-
     Tested the full subscription lifecycle in SQL, including activation, pause,
@@ -1035,6 +1137,7 @@
   role: verizon
   theme: data-and-api-validation
   tags: [qa]
+  lanes: {qa: [3, 80], sdet: [3, 90], con: [2, 10], pmba: [2, 50]}
   public: true
   text: >-
     Coordinated with partner teams to resolve data discrepancies between Verizon and partner
@@ -1045,6 +1148,7 @@
   role: verizon
   theme: training-and-documentation-culture
   tags: [monitoring, confluence, documentation-training, leadership, qa]
+  lanes: {qa: [3, 20], con: [1, 40], adp: [1, 10], pmba: [3, 70], it: [2, 90]}
   public: true
   text: >-
     Created Confluence guides and recorded training sessions that got new onshore and
@@ -1055,6 +1159,7 @@
   role: verizon
   theme: training-and-documentation-culture
   tags: [qa]
+  lanes: {qa: [2, 40], sdet: [3, 40], adp: [2, 20]}
   public: true
   text: >-
     Set the team standard for defects and test cases written with minimal assumptions
@@ -1065,6 +1170,7 @@
   role: verizon
   theme: training-and-documentation-culture
   tags: [requirements, qa]
+  lanes: {qa: [2, 50], sdet: [2, 100], con: [3, 40], adp: [3, 40], pmba: [1, 30]}
   public: true
   text: >-
     Enforced requirements traceability by linking every defect to its test case and
@@ -1075,6 +1181,7 @@
   role: verizon
   theme: severity-versus-priority
   tags: [qa]
+  lanes: {qa: [2, 130], con: [2, 50], adp: [1, 40], pmba: [2, 70]}
   public: true
   text: >-
     Educated product owners on the distinction between defect severity and business
@@ -1084,6 +1191,7 @@
   role: verizon
   theme: jira-label-standardization
   tags: [jira, qa]
+  lanes: {qa: [3, 120], con: [2, 60], adp: [2, 40], pmba: [2, 60], it: [1, 30]}
   public: true
   text: >-
     Consolidated Jira labels from thousands of inconsistent variants to a couple hundred
@@ -1093,6 +1201,7 @@
   role: verizon
   theme: jira-label-standardization
   tags: [confluence, documentation-training, qa]
+  lanes: {con: [3, 50], adp: [2, 30], it: [2, 70]}
   public: true
   text: >-
     Restricted label editing to a small group and published a self-service Confluence guide
@@ -1102,6 +1211,7 @@
   role: verizon
   theme: credit-checks-for-device-installment-plans
   tags: [qa]
+  lanes: {qa: [1, 50], sdet: [3, 50], con: [1, 30], pmba: [2, 100]}
   public: true
   text: >-
     Built credit-check test coverage from scratch in about two weeks for the device
@@ -1112,6 +1222,7 @@
   role: verizon
   theme: credit-checks-for-device-installment-plans
   tags: [qa]
+  lanes: {qa: [2, 70], sdet: [3, 60], pmba: [3, 20]}
   public: true
   text: >-
     Applied risk-based boundary testing and a code walkthrough with developers to give a
@@ -1121,6 +1232,7 @@
   role: verizon
   theme: tooling
   tags: [requirements, qa]
+  lanes: {qa: [3, 90], sdet: [1, 20], con: [2, 70], pmba: [1, 40], it: [3, 50]}
   public: true
   text: >-
     Authored requirements and acceptance criteria for an internal mock-customer data
@@ -1131,6 +1243,7 @@
   role: verizon
   theme: discount-stacking-and-defect-triage
   tags: [qa]
+  lanes: {qa: [2, 110], con: [2, 90], pmba: [2, 80]}
   public: true
   text: >-
     Validated discount stacking on launches in a discount configuration tool, finding gaps
@@ -1142,6 +1255,7 @@
   role: verizon
   theme: training-and-documentation-culture
   tags: [jira, documentation-training, qa]
+  lanes: {con: [3, 20], adp: [1, 20], it: [3, 20]}
   public: true
   text: >-
     Wrote eCredit and Jira user guides that reached tens of thousands of views, reducing
@@ -1151,6 +1265,7 @@
   role: verizon
   theme: leadership-and-delivery
   tags: [qa]
+  lanes: {qa: [3, 10], sdet: [3, 70], it: [3, 60]}
   public: true
   text: >-
     Managed test cases in Zephyr and then qTest, Verizon's primary test case management
@@ -1160,6 +1275,7 @@
   role: verizon
   theme: leadership-and-delivery
   tags: [qa]
+  lanes: {qa: [3, 150]}
   public: true
   text: >-
     Synced test cases across teams with shared Google Sheets on several projects.
@@ -1168,6 +1284,7 @@
   role: verizon
   theme: leadership-and-delivery
   tags: [qa]
+  lanes: {qa: [2, 30], con: [3, 60], pmba: [2, 20]}
   public: true
   text: >-
     Wrote test plans that defined scope by environment, flow, and platform (web, app, or
@@ -1177,6 +1294,7 @@
   role: verizon
   theme: leadership-and-delivery
   tags: [qa]
+  lanes: {qa: [2, 100], pmba: [3, 10]}
   public: true
   text: >-
     Defined defect assignment and escalation paths in the test plans and required
@@ -1186,6 +1304,7 @@
   role: verizon
   theme: fraud
   tags: [qa, fraud]
+  lanes: {qa: [2, 120], sdet: [2, 90], it: [2, 60]}
   public: true
   text: >-
     Ran man-in-the-middle and cross-site scripting attacks with Burp Suite as part of
@@ -1195,6 +1314,7 @@
   role: verizon
   theme: monitoring-and-log-investigation
   tags: [qa, monitoring]
+  lanes: {qa: [3, 60], sdet: [2, 60], it: [2, 30]}
   public: true
   text: >-
     Inspected network logs, session data, cookies, and mobile browser behavior in Chrome
@@ -1204,6 +1324,7 @@
   role: verizon
   theme: tooling
   tags: [qa, test-automation]
+  lanes: {qa: [3, 110], sdet: [2, 80]}
   public: true
   text: >-
     Executed automated test cases from a Selenium suite through a browser UI to validate
@@ -1217,6 +1338,7 @@
   role: kingdom-hell
   theme: production-and-delivery
   tags: [audio]
+  lanes: {con: [3, 20], pmba: [3, 10], it: [3, 20]}
   public: true
   text: >-
     Produced and engineered dozens of recordings, mostly for other artists, all released and
@@ -1234,6 +1356,7 @@
   role: kingdom-hell
   theme: systems-and-workflow-design
   tags: [audio]
+  lanes: {it: [2, 10]}
   public: true
   text: >-
     Designed studio signal routing through a patchbay, preamps, and audio interface, and
@@ -1243,6 +1366,7 @@
   role: kingdom-hell
   theme: systems-and-workflow-design
   tags: [audio]
+  lanes: {qa: [3, 20], pmba: [3, 20], it: [3, 10]}
   public: true
   text: >-
     Built session templates scaled to project scope, and standardized mix prep (effects off,
@@ -1252,6 +1376,7 @@
   role: kingdom-hell
   theme: troubleshooting-and-quality
   tags: [audio]
+  lanes: {qa: [3, 10], it: [1, 10]}
   public: true
   text: >-
     Diagnosed signal problems by tracing weak or degraded audio through the chain to isolate
@@ -1261,6 +1386,7 @@
   role: kingdom-hell
   theme: troubleshooting-and-quality
   tags: [audio]
+  lanes: {it: [2, 20]}
   public: true
   text: >-
     Performed guitar setups and soldering repairs to keep instruments and gear in working
@@ -1270,6 +1396,7 @@
   role: kingdom-hell
   theme: learning-and-client-support
   tags: [audio]
+  lanes: {con: [3, 10], adp: [3, 10]}
   public: true
   text: >-
     Learned and configured unfamiliar effects on request mid-session, researching and
@@ -1300,6 +1427,7 @@
   role: jabroni
   theme: project-management-and-delivery
   tags: [events]
+  lanes: {con: [3, 10], adp: [3, 10], pmba: [2, 10]}
   public: true
   text: >-
     Organized an annual charity music festival for 11 years as one of three volunteer
@@ -1310,6 +1438,7 @@
   role: jabroni
   theme: project-management-and-delivery
   tags: [events]
+  lanes: {con: [2, 20], pmba: [1, 10]}
   public: true
   text: >-
     Managed venue booking, band selection and scheduling, sound and gear, and promotion for
@@ -1319,6 +1448,7 @@
   role: jabroni
   theme: project-management-and-delivery
   tags: [events]
+  lanes: {pmba: [2, 20]}
   public: true
   text: >-
     Structured planning for the festival by establishing and refining the booking,
@@ -1328,6 +1458,7 @@
   role: jabroni
   theme: project-management-and-delivery
   tags: [events]
+  lanes: {pmba: [3, 20]}
   public: true
   text: >-
     Kept the festival deliberately low-cost to maximize exposure for local bands while still
@@ -1337,6 +1468,7 @@
   role: jabroni
   theme: stakeholder-management
   tags: [events]
+  lanes: {con: [2, 10], pmba: [2, 30]}
   public: true
   text: >-
     Set clear, upfront expectations with performers: paid out-of-town bands fairly, asked
@@ -1346,6 +1478,7 @@
   role: jabroni
   theme: operations-and-troubleshooting
   tags: [project-management, events]
+  lanes: {pmba: [3, 10]}
   public: true
   text: >-
     Kept tight stage changeovers on schedule by encouraging gear sharing between bands and
@@ -1355,6 +1488,7 @@
   role: jabroni
   theme: operations-and-troubleshooting
   tags: [events]
+  lanes: {qa: [3, 10], it: [3, 10]}
   public: true
   text: >-
     Provided on-the-spot technical support for performers unfamiliar with shared gear,
@@ -1368,6 +1502,7 @@
   role: nucor
   theme: process-modernization
   tags: [development, analysis]
+  lanes: {qa: [2, 10], sdet: [2, 20], con: [1, 10], adp: [1, 20], pmba: [1, 10], it: [1, 10]}
   public: true
   text: >-
     Replaced a paper-based personnel change-of-status process, which required walking forms
@@ -1378,6 +1513,7 @@
   role: nucor
   theme: process-modernization
   tags: [project-management, analysis]
+  lanes: {con: [1, 20], adp: [2, 10], pmba: [1, 20], it: [3, 20]}
   public: true
   text: >-
     Gathered feedback from HR and IT stakeholders, assessed feasibility, and implemented
@@ -1388,6 +1524,7 @@
   role: nucor
   theme: training-and-documentation
   tags: [documentation-training, analysis]
+  lanes: {con: [2, 10], adp: [1, 10], pmba: [2, 20], it: [3, 10]}
   public: true
   text: >-
     Trained HR users and developers in person, and wrote both a user guide and a technical
@@ -1397,6 +1534,7 @@
   role: nucor
   theme: environment-and-technical-support
   tags: [development, analysis]
+  lanes: {qa: [1, 10], sdet: [2, 10], con: [3, 10], pmba: [3, 10], it: [1, 20]}
   public: true
   text: >-
     Built a local replica of the company's SharePoint server on Windows Server to deploy and
@@ -1407,6 +1545,7 @@
   role: nucor
   theme: environment-and-technical-support
   tags: [analysis]
+  lanes: {qa: [3, 10], sdet: [3, 10], it: [2, 20]}
   public: true
   text: >-
     Tracked down and restored overwritten source files in a project without real version
@@ -1416,6 +1555,7 @@
   role: nucor
   theme: environment-and-technical-support
   tags: [analysis]
+  lanes: {adp: [3, 10], it: [1, 30]}
   public: true
   text: >-
     Served as technical support for a 6-person project team, diagnosing slow machines and
@@ -1425,6 +1565,7 @@
   role: nucor
   theme: process-modernization
   tags: [development, analysis, sql]
+  lanes: {qa: [2, 20], sdet: [1, 10], con: [2, 20], pmba: [2, 10], it: [2, 10]}
   public: true
   text: >-
     Developed VB.NET forms and SharePoint web parts that drove the approval workflow and
@@ -1438,6 +1579,7 @@
   role: pg
   theme: analytics-and-tooling
   tags: [analytics, analysis]
+  lanes: {con: [2, 20], adp: [2, 10], pmba: [1, 10], it: [3, 10]}
   public: true
   text: >-
     Built a Spotfire dashboard that pulled Nielsen Answers data into interactive visuals for
@@ -1448,6 +1590,7 @@
   role: pg
   theme: analytics-and-tooling
   tags: [analytics, analysis]
+  lanes: {con: [1, 10], adp: [1, 20], pmba: [2, 10]}
   public: true
   text: >-
     Designed the tool with input from teams across North America, South America, and Europe
@@ -1457,6 +1600,7 @@
   role: pg
   theme: analytics-and-tooling
   tags: [analysis]
+  lanes: {qa: [3, 10], con: [3, 10], adp: [3, 10], pmba: [1, 20], it: [2, 10]}
   public: true
   text: >-
     Migrated 25+ legacy reports to a new data source, reducing data mismatches and manual
@@ -1466,6 +1610,7 @@
   role: pg
   theme: training-and-enablement
   tags: [documentation-training, analytics, analysis]
+  lanes: {con: [2, 10], adp: [1, 10], pmba: [3, 10]}
   public: true
   text: >-
     Trained about 100 users across North America, South America, and Europe on Nielsen
@@ -1475,6 +1620,7 @@
   role: pg
   theme: communication
   tags: [analytics, analysis]
+  lanes: {con: [3, 20], adp: [2, 20], pmba: [2, 20]}
   public: true
   text: >-
     Presented results to leadership using Prezi and live Spotfire visualizations of real
@@ -1488,6 +1634,7 @@
   role: geek-squad
   theme: hardware-troubleshooting-and-repair
   tags: [hardware]
+  lanes: {qa: [3, 10], it: [1, 10]}
   public: true
   text: >-
     Diagnosed desktop and laptop problems by running diagnostic suites to pinpoint
@@ -1497,6 +1644,7 @@
   role: geek-squad
   theme: hardware-troubleshooting-and-repair
   tags: [hardware]
+  lanes: {con: [3, 10], it: [1, 20]}
   public: true
   text: >-
     Replaced and upgraded components in customers' computers as requested, including

@@ -111,6 +111,19 @@ const lanes = defineCollection({
   }),
 });
 
+// A combined bullet that stands in for two or more bullets of one role, in the lanes it lists. Written by
+// scripts/import-lanes.mjs from the bank; src/lib/lane-data.js checks the rest.
+const combos = defineCollection({
+  loader: file('src/data/resume/combos.yaml'),
+  schema: z.strictObject({
+    id: z.string(),
+    role: reference('roles'),
+    replaces: z.array(reference('bullets')).min(2),
+    lanes: z.array(kebab).min(1),
+    text: copy.refine(startsWithPastTenseVerb, 'Start with a strong past-tense verb'),
+  }),
+});
+
 const variants = defineCollection({
   loader: file('src/data/resume/variants.yaml'),
   schema: z
@@ -456,4 +469,4 @@ const projects = defineCollection({
   }),
 });
 
-export const collections = { roles, bullets, bulletGroups, summaries, lanes, variants, skills, education, events, artworks, studio, intros, homeCards, releases, projects };
+export const collections = { roles, bullets, bulletGroups, summaries, lanes, combos, variants, skills, education, events, artworks, studio, intros, homeCards, releases, projects };
