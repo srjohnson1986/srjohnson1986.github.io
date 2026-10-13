@@ -1,0 +1,23 @@
+# Fixture roles. This comment must survive an import.
+
+- id: alpha
+  title: Tester
+  org: Alpha Co
+  kind: job
+  start: 2020
+  end: present
+
+# A comment between entries.
+- id: beta
+  title: Analyst
+  org: Beta Labs
+  kind: job
+  start: 2015
+  end: 2019
+  positions:
+    - title: Senior Analyst
+      start: 2017
+      end: 2019
+    - title: Analyst
+      start: 2015
+      end: 2017

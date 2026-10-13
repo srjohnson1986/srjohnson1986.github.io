@@ -1,0 +1,58 @@
+# Fixture bullets. This comment must survive an import.
+
+# ==================
+# == Alpha Co (alpha) - 4 bullets
+# ==================
+
+- id: alpha-ran-checks
+  role: alpha
+  theme: testing
+  tags: [qa]
+  public: true
+  text: >-
+    Ran the checks every night.
+
+- id: alpha-wrote-plans
+  role: alpha
+  theme: testing
+  tags: [qa]
+  public: true
+  text: >-
+    Wrote plans that named the scope, the risks, and the exit rules for each release so
+    reviewers could sign off quickly.
+
+- id: alpha-built-tooling
+  role: alpha
+  theme: tooling
+  tags: [development]
+  public: true
+  text: >-
+    Built tooling.
+
+- id: alpha-created-new-one
+  role: alpha
+  theme: tooling
+  tags: [development]
+  public: true
+  text: >-
+    Created a new one.
+
+# ==================
+# == Beta Labs (beta) - 2 bullets
+# ==================
+
+- id: beta-gathered-needs
+  role: beta
+  theme: analysis
+  tags: [analysis]
+  public: true
+  text: >-
+    Gathered needs.
+
+- id: beta-trained-users
+  role: beta
+  theme: training
+  tags: [adoption]
+  public: true
+  text: >-
+    Trained users.

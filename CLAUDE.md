@@ -24,6 +24,7 @@ Read `PROJECT_BRIEF.md` (kept in `private/`) for goals, pages, and privacy rules
 - `npm test` - build, then run the whole Playwright suite against the local build
 - `npm run test:only` - run the suite without rebuilding (build first with `npm run build`)
 - `npm run test:smoke` - run only the smoke checks against the deployed site (`SMOKE_URL` points them elsewhere)
+- `npm run import-lanes` - check the private bank (refresh `private/bank-export.md` from the artifact first) and report what it would import: lane tags, role ranks, combined bullets. Add `-- --write` to update `bullets.yaml`, `roles.yaml`, and `combos.yaml`, and `-- --apply-text` to also copy changed bullet wording. It writes nothing when the bank has a hard problem. Lane data is edited in the bank, then imported; never hand-edit `lanes`, `lane_rank`, or `combos.yaml`
 - Docs: https://docs.astro.build
 - Exploratory testing: `.mcp.json` registers the Playwright MCP server (pinned version, headless, isolated, no secrets); approve it once in Claude Code, and install its browser once with `npx @playwright/mcp@0.0.83 install-browser chrome-for-testing` (it is not the tests' browser). Charter, template, and session notes live in `docs/exploratory/`. See the README section "Exploratory testing with the Playwright MCP server"
 
@@ -44,6 +45,7 @@ The Playwright suite is a portfolio piece as well as a safety net. It lives in `
 - `projects.spec.ts` - each Development & QA project page shows every field of its `src/content/projects/*.yaml` file (summary, facts, problem, built, stack, outcome, and the repo and demo links it has)
 - `accessibility.spec.ts` - axe scans of every page in light, dark, and phone width, plus the changing states and keyboard checks
 - `add-resume-bullet-skill.spec.ts` - the add-resume-bullet skill (`.claude/skills/add-resume-bullet/`): its check mode accepts a clean bullet, rejects one bullet per rule (weak verb, dash, phone number, count without a plus sign), and writes nothing. No browser needed
+- `import-lanes.spec.ts` - the bank importer (`scripts/import-lanes.mjs`) on a made-up bank in `tests/fixtures/lanes/`: a clean check writes nothing, `--write` sets lanes, ranks, and combos and is repeatable, and each bad tag, heading, or combo exits with an error and writes nothing. No browser needed
 - `lane-data.spec.ts` - the per-lane resume data (`lanes.yaml`, the `lanes` field on bullets, `lane_rank` on roles, `combos.yaml`): the checks in `src/lib/lane-data.js` pass on the real data and reject one broken case per rule. No browser needed
 - `smoke.spec.ts` - short checks against the live site, run by the Smoke test workflow after every deploy, weekly, and on demand
 
