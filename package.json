@@ -14,6 +14,7 @@
     "test": "npm run build && playwright test",
     "test:only": "playwright test",
     "test:smoke": "node scripts/run-smoke.mjs",
+    "import-lanes": "node scripts/import-lanes.mjs",
     "astro": "astro"
   },
   "dependencies": {

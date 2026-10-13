@@ -1,0 +1,10 @@
+# Fixture: two lanes.
+- id: qa
+  code: QA
+  label: QA Engineer
+  order: 1
+
+- id: sdet
+  code: SDET
+  label: Automation / SDET
+  order: 2

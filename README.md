@@ -76,6 +76,7 @@ In VS Code, the YAML files autocomplete and flag mistakes as you type, using sch
 | `npm test` | Builds, then runs the whole test suite against the local build |
 | `npm run test:only` | Runs the suite without rebuilding |
 | `npm run test:smoke` | Runs only the short smoke checks against the live site |
+| `npm run import-lanes` | Checks the private resume bullet bank and reports what it would import (lane tags, role ranks, combined bullets); add `-- --write` to update the YAML (see Importing lane data from the bank) |
 
 ## Testing
 
@@ -100,6 +101,7 @@ The Playwright suite runs against the built site and is public on purpose. It re
 - **Accessibility:** axe-core scans of every page in light, dark, and phone width, plus the pages' changing states and keyboard checks for the skip link and focus.
 - **The README itself:** `tests/readme.spec.ts` checks that every npm command the README names exists in `package.json` (and the reverse), that its links and the project files it names exist, and that every spec file is described. It cannot judge whether a sentence is still true, so the pull request checklist covers that.
 - **Bullet skill:** `tests/add-resume-bullet-skill.spec.ts` runs the skill's check mode against a clean bullet and one bullet per rule, and confirms nothing is written.
+- **Lane import:** `tests/import-lanes.spec.ts` runs `scripts/import-lanes.mjs` on a small made-up bank (never the private one) in a temporary folder: a clean check writes nothing, `--write` sets lane tags, role ranks, and combined bullets and keeps comments and line endings, a second run changes nothing, and each kind of bad tag, heading, or combined bullet exits with an error and writes nothing. No browser needed.
 - **Lane data:** `tests/lane-data.spec.ts` runs the checks in `src/lib/lane-data.js` (the same code the build runs) on the real data files and on one broken case per rule: unknown lanes, partial role ranks, and combined bullets that point at missing bullets, mix roles, or are used in a lane where a bullet they replace is not tagged. No browser needed.
 - **Smoke test:** a handful of checks against the deployed site.
 
@@ -169,6 +171,18 @@ Past sessions are in [`docs/exploratory/`](docs/exploratory/).
 3. Runs `npm test`, then reports whether each affected version still renders and each PDF is still two pages or fewer.
 
 To see the checks without writing anything, run `node .claude/skills/add-resume-bullet/check-bullet.mjs check --role tpd --versions qa --text "Built ..."`. It prints each problem and exits with 1 if any is an error. Numbers in a bullet still have to come from the private bank or from me; the skill only reminds you of that.
+
+## Importing lane data from the bank
+
+The per-lane resumes need to know which bullets belong to which job lane, how relevant each role is to each lane, and which combined bullets can replace several bullets to save space. That lives in my private resume bullet bank (never committed), so `scripts/import-lanes.mjs` reads the bank on my machine and writes the result into the committed YAML (`lanes` on each bullet, `lane_rank` on each role, and `combos.yaml`).
+
+```bash
+npm run import-lanes                       # check: print a report, write nothing
+npm run import-lanes -- --write            # write the lane data
+npm run import-lanes -- --write --apply-text   # also copy changed bullet wording from the bank
+```
+
+The check exits with an error, and a write changes nothing, when the bank has a hard problem: an unknown id or lane, a tier outside 1 to 3, a role heading missing a rank, a public bullet with no tagged line, or a combined bullet that points at missing bullets, mixes roles, or is used in a lane where a bullet it replaces is not tagged. Running it twice changes nothing the second time. `tests/import-lanes.spec.ts` checks all of this against a small made-up bank in `tests/fixtures/lanes/`.
 
 ## Adding content
 
