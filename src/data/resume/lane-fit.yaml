@@ -1,0 +1,32 @@
+# Where each lane's fit stands: how many steps of the lane's cut plan (src/lib/lane-fit.js) it takes to fit two pages,
+# and the fingerprint of everything that fit was measured against. Written by scripts/fit-lanes.mjs (npm run fit-lanes); do not edit by hand.
+
+- id: adp
+  steps: 29
+  fingerprint: 2b95616eeab1
+  pages: 2
+
+- id: con
+  steps: 49
+  fingerprint: 1665341f4133
+  pages: 2
+
+- id: it
+  steps: 48
+  fingerprint: 0577e3bf9698
+  pages: 2
+
+- id: pmba
+  steps: 47
+  fingerprint: 5daec2248b06
+  pages: 2
+
+- id: qa
+  steps: 70
+  fingerprint: 5ec4a0f72055
+  pages: 2
+
+- id: sdet
+  steps: 54
+  fingerprint: deec57b0bf41
+  pages: 2

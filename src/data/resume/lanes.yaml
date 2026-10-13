@@ -2,33 +2,66 @@
 # uses in its tags (for example QA1.20 on a bullet, or [QA4 SDET3 ...] on a role heading); `id` is the
 # lowercase key used in `lanes` on bullets and `lane_rank` on roles. Lanes are data: add one here and it
 # is a valid key everywhere, with no code change. `order` is the display order.
+#
+# Per lane:
+#   summary_id    the summary printed on the lane's resume (summaries.yaml)
+#   org_labels    real or neutral employer names
+#   skills_from   PLACEHOLDER: borrow the Core Skills shown on this resume version, until the lane has its own list
+#   role_floor    the fewest bullets a role keeps when the resume is trimmed to fit two pages
+#
+# PLACEHOLDER: the summaries below are the existing hand-written ones, reused until each lane has its own.
+# The lane resumes are built at /resume/print/lane-<id>/ and as PDFs, but nothing links to them yet.
 
 - id: qa
   code: QA
   label: QA Engineer
   order: 1
+  summary_id: summary-qa
+  org_labels: real
+  skills_from: qa
+  role_floor: { tpd: 2, verizon: 2 }
 
 - id: sdet
   code: SDET
   label: Automation / SDET
   order: 2
+  summary_id: summary-qa
+  org_labels: real
+  skills_from: qa
+  role_floor: { tpd: 2, verizon: 2 }
 
 - id: con
   code: CON
   label: Implementation / Consulting
   order: 3
+  summary_id: summary-consulting
+  org_labels: real
+  skills_from: consulting
+  role_floor: { tpd: 2, verizon: 2 }
 
 - id: adp
   code: ADP
   label: Digital Adoption / Training
   order: 4
+  summary_id: summary-adoption
+  org_labels: real
+  skills_from: adoption
+  role_floor: { tpd: 2, verizon: 2 }
 
 - id: pmba
   code: PMBA
   label: Project Management / Business Analysis
   order: 5
+  summary_id: summary-consulting
+  org_labels: real
+  skills_from: consulting
+  role_floor: { tpd: 2, verizon: 2 }
 
 - id: it
   code: IT
   label: IT Generalist
   order: 6
+  summary_id: summary-consulting
+  org_labels: real
+  skills_from: consulting
+  role_floor: { tpd: 2, verizon: 2 }

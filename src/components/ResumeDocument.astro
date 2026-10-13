@@ -44,7 +44,7 @@ const { variant } = Astro.props;
     {
       variant.sections.map((section) => (
         <section
-          class:list={['role', { 'role-short': section.bullets.length <= 3 }]}
+          class:list={['role', { 'role-short': section.bullets.filter((b) => !b.hidden).length <= 3 }]}
           aria-labelledby={`role-${section.roleId}`}
         >
           <div class="role-head">
@@ -69,7 +69,7 @@ const { variant } = Astro.props;
           )}
           <ul class="bullets">
             {section.bullets.map((bullet) => (
-              <li>{bullet.text}</li>
+              <li data-key={bullet.key} hidden={bullet.hidden}>{bullet.text}</li>
             ))}
           </ul>
         </section>

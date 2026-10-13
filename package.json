@@ -15,6 +15,7 @@
     "test:only": "playwright test",
     "test:smoke": "node scripts/run-smoke.mjs",
     "import-lanes": "node scripts/import-lanes.mjs",
+    "fit-lanes": "node scripts/fit-lanes.mjs",
     "astro": "astro"
   },
   "dependencies": {

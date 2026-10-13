@@ -76,6 +76,7 @@ In VS Code, the YAML files autocomplete and flag mistakes as you type, using sch
 | `npm test` | Builds, then runs the whole test suite against the local build |
 | `npm run test:only` | Runs the suite without rebuilding |
 | `npm run test:smoke` | Runs only the short smoke checks against the live site |
+| `npm run fit-lanes` | Measures each lane resume and saves how many cuts it takes to fit two pages (`-- --check` only verifies the saved fits; see Lane resumes) |
 | `npm run import-lanes` | Checks the private resume bullet bank and reports what it would import (lane tags, role ranks, combined bullets); add `-- --write` to update the YAML (see Importing lane data from the bank) |
 
 ## Testing
@@ -102,6 +103,7 @@ The Playwright suite runs against the built site and is public on purpose. It re
 - **The README itself:** `tests/readme.spec.ts` checks that every npm command the README names exists in `package.json` (and the reverse), that its links and the project files it names exist, and that every spec file is described. It cannot judge whether a sentence is still true, so the pull request checklist covers that.
 - **Bullet skill:** `tests/add-resume-bullet-skill.spec.ts` runs the skill's check mode against a clean bullet and one bullet per rule, and confirms nothing is written.
 - **Lane import:** `tests/import-lanes.spec.ts` runs `scripts/import-lanes.mjs` on a small made-up bank (never the private one) in a temporary folder: a clean check writes nothing, `--write` sets lane tags, role ranks, and combined bullets and keeps comments and line endings, a second run changes nothing, and each kind of bad tag, heading, or combined bullet exits with an error and writes nothing. No browser needed.
+- **Lane resumes:** `tests/lane-resumes.spec.ts` checks, for every lane, that its print route shows exactly the bullets its saved fit says (by role newest first, in tier and position order, never a bullet the lane is not tagged for), every tier 1 bullet, the role floors, the lane summary, skills, and real organization names, that its PDF is two pages or fewer, that the content ends before the end of page 2, and that the page is kept out of search, the sitemap, and every link. It also checks that the pages used to measure the lanes are not part of the site.
 - **Lane fit plan:** `tests/lane-fit.spec.ts` checks `src/lib/lane-fit.js`, which decides which bullets a lane resume starts with and the order they are given up in to fit two pages: combined bullets are swapped in first, then tier 3 and tier 2 are cut starting with the least relevant role and the lowest position, tier 1 is never cut, and a role never goes below its floor. It runs on small made-up data, one rule at a time, and on the real data for all six lanes. No browser needed.
 - **Lane data:** `tests/lane-data.spec.ts` runs the checks in `src/lib/lane-data.js` (the same code the build runs) on the real data files and on one broken case per rule: unknown lanes, partial role ranks, and combined bullets that point at missing bullets, mix roles, or are used in a lane where a bullet they replace is not tagged. No browser needed.
 - **Smoke test:** a handful of checks against the deployed site.
@@ -184,6 +186,14 @@ npm run import-lanes -- --write --apply-text   # also copy changed bullet wordin
 ```
 
 The check exits with an error, and a write changes nothing, when the bank has a hard problem: an unknown id or lane, a tier outside 1 to 3, a role heading missing a rank, a public bullet with no tagged line, or a combined bullet that points at missing bullets, mixes roles, or is used in a lane where a bullet it replaces is not tagged. Running it twice changes nothing the second time. `tests/import-lanes.spec.ts` checks all of this against a small made-up bank in `tests/fixtures/lanes/`.
+
+## Lane resumes
+
+Besides the hand-written resume versions, the build makes one generic resume per job lane (QA, SDET, Implementation / Consulting, Adoption / Training, PM / BA, IT) from the lane data imported from the bank. Each is at `/resume/print/lane-<id>/` and as a PDF named `steve-johnson-resume-lane-<id>.pdf`. They are not linked from the site yet (placeholder summaries and skills are still in place), are kept out of search, and are not in the sitemap.
+
+A lane starts with every public bullet tagged for it, tier 1 first and then by position within each role, and is trimmed until it fits two pages: first combined bullets are swapped in, then tier 3 and tier 2 are cut starting with the least relevant role and the lowest position, tier 1 is never cut, and each role keeps at least its floor (`role_floor` in `lanes.yaml`). The order is in `src/lib/lane-fit.js`. `npm run fit-lanes` builds a throwaway copy of the site with a fit page per lane, prints it to PDF with headless Chromium, and searches for the fewest cuts that fit with a margin of a couple of lines. It saves the answer in `src/data/resume/lane-fit.yaml` along with a fingerprint of everything that decides the layout, and writes what each lane keeps and drops to the private folder. If tier 1 and the floors alone do not fit, it stops and flags the lane instead of cutting.
+
+The build refuses to run on a stale fit: changing a bullet, its tags, a rank, a combined bullet, a summary, a skill, or `print.css` means running `npm run fit-lanes` and committing `lane-fit.yaml`. CI runs `npm run fit-lanes -- --check`, which checks that each saved fit is current and still fits.
 
 ## Adding content
 

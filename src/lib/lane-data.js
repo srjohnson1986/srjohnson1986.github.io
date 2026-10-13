@@ -7,7 +7,7 @@
 // bullet is only used where every bullet it replaces is also used, and that role ranks are all-or-nothing.
 
 /**
- * @typedef {{ id: string, code: string }} Lane
+ * @typedef {{ id: string, code: string, role_floor?: Record<string, number> }} Lane
  * @typedef {{ id: string, lane_rank?: Record<string, number> }} Role
  * @typedef {{ id: string, role: string, public: boolean, lanes?: Record<string, number[]> }} Bullet
  * @typedef {{ id: string, role: string, replaces: string[], lanes: string[] }} Combo
@@ -29,6 +29,12 @@ export function checkLaneData({ lanes, roles, bullets, combos = [] }) {
     for (const lane of lanes) {
       if (seen.has(lane[key])) problems.push(`lanes.yaml lists the lane ${label} "${lane[key]}" twice`);
       seen.add(lane[key]);
+    }
+  }
+
+  for (const lane of lanes) {
+    for (const role of Object.keys(lane.role_floor ?? {})) {
+      if (!roleIds.has(role)) problems.push(`lane "${lane.id}" sets a role_floor for "${role}", which is not in roles.yaml`);
     }
   }
 

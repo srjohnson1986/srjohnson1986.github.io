@@ -63,6 +63,7 @@ test.describe('lane data checks', () => {
   const broken: [string, (d: LaneData) => void, RegExp][] = [
     ['a lane id listed twice', (d) => d.lanes.push({ id: 'qa', code: 'QAX' }), /lane id "qa" twice/],
     ['a lane code listed twice', (d) => d.lanes.push({ id: 'other', code: 'QA' }), /lane code "QA" twice/],
+    ['a lane floor for a role that does not exist', (d) => ((d.lanes[0] as { role_floor?: Record<string, number> }).role_floor = { zzz: 2 }), /lane "qa" sets a role_floor for "zzz"/],
     ['a bullet tagged for an unknown lane', (d) => (d.bullets[0].lanes!.nope = [1, 1]), /"a1" is tagged for lane "nope"/],
     ['a role ranking an unknown lane', (d) => (d.roles[0].lane_rank!.nope = 1), /role "a" ranks lane "nope"/],
     ['a role missing a rank once others have ranks', (d) => delete d.roles[1].lane_rank!.sdet, /role "b" has no lane_rank for "sdet"/],

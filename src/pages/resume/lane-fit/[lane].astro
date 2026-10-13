@@ -1,0 +1,28 @@
+---
+// The page scripts/fit-lanes.mjs measures: every candidate bullet of one lane in the print layout, with the combined
+// bullets hidden, plus the lane's cut plan as JSON. The script shows and hides items to find the smallest number of cuts
+// that fits two pages. It only exists in a build made with LANE_FIT=1 (the fit script makes that build itself), so it
+// is never part of the published site.
+import type { GetStaticPaths } from 'astro';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import ResumeDocument from '../../../components/ResumeDocument.astro';
+import { getLaneResumes } from '../../../lib/resume';
+import { site } from '../../../data/site';
+import '../../../styles/print.css';
+
+export const getStaticPaths = (async () => {
+  if (process.env.LANE_FIT !== '1') return [];
+  const lanes = await getLaneResumes({ candidates: true });
+  return lanes.map((lane) => ({ params: { lane: lane.laneId }, props: { lane } }));
+}) satisfies GetStaticPaths;
+
+const { lane } = Astro.props;
+const planJson = JSON.stringify({ lane: lane.laneId, fingerprint: lane.fingerprint, plan: lane.plan });
+---
+
+<BaseLayout title={`${site.name} - Lane fit (${lane.label})`} noindex theme="light" bodyClass="print" chrome={false}>
+  <div class="print-sheet">
+    <ResumeDocument variant={lane} />
+  </div>
+  <script id="lane-plan" type="application/json" is:inline set:html={planJson} />
+</BaseLayout>

@@ -26,13 +26,15 @@ import { createHash } from 'node:crypto';
  */
 
 const norm = (s) => s.replace(/\s+/g, ' ').trim();
+// Plain code-point order, so every machine sorts the same way whatever its locale.
+const cmp = (a, b) => (a < b ? -1 : a > b ? 1 : 0);
 
 /**
  * @param {object} input
  * @param {string} input.lane lane id, for example "qa"
  * @param {string[]} input.roleOrder role ids, newest first (the order roles are printed in); used to break rank ties
  * @param {Record<string, Record<string, number>>} input.roleRanks role id -> lane id -> rank (1 is most relevant)
- * @param {PlanBullet[]} input.bullets in file order
+ * @param {PlanBullet[]} input.bullets in a fixed order: it breaks position ties, so the caller must not leave it to chance (the build sorts by id)
  * @param {PlanCombo[]} [input.combos]
  * @param {Record<string, number>} [input.floors] role id -> the fewest items the role keeps
  * @returns {Plan}
@@ -50,7 +52,7 @@ export function planLane({ lane, roleOrder, roleRanks, bullets, combos = [], flo
   const rank = (role) => roleRanks[role]?.[lane] ?? Number.MAX_SAFE_INTEGER;
   // Most relevant first; equal ranks fall back to print order (newest first), so the older role gives up bullets first.
   const rolesMostRelevantFirst = [...new Set(initial.map((i) => i.role))].sort(
-    (a, b) => rank(a) - rank(b) || roleOrder.indexOf(a) - roleOrder.indexOf(b) || a.localeCompare(b),
+    (a, b) => rank(a) - rank(b) || roleOrder.indexOf(a) - roleOrder.indexOf(b) || cmp(a, b),
   );
   const cutRoleOrder = [...rolesMostRelevantFirst].reverse();
 
@@ -69,7 +71,7 @@ export function planLane({ lane, roleOrder, roleRanks, bullets, combos = [], flo
     .filter((c) => c.lanes.includes(lane) && c.replaces.every((id) => byId.has(id)))
     .map((c) => ({ combo: c, saving: c.replaces.reduce((s, id) => s + byId.get(id).text.length, 0) - norm(c.text).length }))
     .filter((c) => c.saving > 0) // a combined bullet that is not shorter would not help
-    .sort((a, b) => b.saving - a.saving || a.combo.id.localeCompare(b.combo.id));
+    .sort((a, b) => b.saving - a.saving || cmp(a.combo.id, b.combo.id));
   const taken = new Set();
   for (const { combo } of usable) {
     if (combo.replaces.some((id) => taken.has(id))) continue; // one bullet can only be swapped out once
@@ -105,9 +107,9 @@ export function planLane({ lane, roleOrder, roleRanks, bullets, combos = [], flo
   return { lane, initial, steps };
 }
 
-/** Tier first, then position, then the order the bullets are written in the file. */
-function compareItems(a, b) {
-  return a.role.localeCompare(b.role) || a.tier - b.tier || a.pos - b.pos || a.order - b.order;
+/** Role, then tier, then position, then the bullets' order in the list the caller passed. */
+export function compareItems(a, b) {
+  return cmp(a.role, b.role) || a.tier - b.tier || a.pos - b.pos || a.order - b.order;
 }
 
 /**
