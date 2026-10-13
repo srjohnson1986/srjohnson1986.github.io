@@ -14,7 +14,7 @@ export const noPhone = (/** @type {string} */ s) => !/(\+?1[\s.-]?)?\(?\d{3}\)?[
 // Resume bullets start with a past-tense verb ("Built", "Led"...). Regular verbs end in
 // "ed"; the short list below covers the irregular ones. Add to it if a valid verb is rejected.
 export const IRREGULAR_PAST = new Set([
-  'Built', 'Led', 'Wrote', 'Set', 'Kept', 'Split', 'Ran', 'Held', 'Made', 'Taught', 'Drove', 'Won', 'Sent', 'Brought',
+  'Built', 'Led', 'Wrote', 'Set', 'Kept', 'Split', 'Ran', 'Held', 'Made', 'Taught', 'Drove', 'Won', 'Sent', 'Brought', 'Caught',
 ]);
 
 export const startsWithPastTenseVerb = (/** @type {string} */ s) => {
