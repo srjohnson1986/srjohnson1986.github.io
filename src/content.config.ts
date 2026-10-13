@@ -51,6 +51,9 @@ const roles = defineCollection({
       start: year,
       end: endYear,
       note: copy.optional(),
+      // How relevant this role is to each lane, 1 = most relevant (keys are ids from lanes.yaml). Written by the
+      // bank importer; all or nothing across roles, which src/lib/lane-data.js checks.
+      lane_rank: z.record(kebab, z.number().int().min(1)).optional(),
       // Optional progression within one employer, newest first.
       positions: z
         .array(
@@ -70,6 +73,10 @@ const bullets = defineCollection({
     role: reference('roles'),
     theme: kebab,
     tags: z.array(kebab).min(1),
+    // Which job lanes use this bullet and where: { lane id: [tier, position] }. Tier 1 is lead, 2 support, 3 filler;
+    // position orders bullets inside a role and tier (gaps and ties are fine). A lane that is missing means the
+    // bullet is never used in that lane. Written by the bank importer.
+    lanes: z.record(kebab, z.tuple([z.number().int().min(1).max(3), z.number().int().min(1)])).optional(),
     // Only bullets with public: true may appear on the site or in a PDF.
     public: z.boolean(),
     text: copy.refine(startsWithPastTenseVerb, 'Start with a strong past-tense verb'),
@@ -89,6 +96,18 @@ const bulletGroups = defineCollection({
     // A short note on what the group is for. Not shown on the site.
     label: copy,
     bullets: z.array(reference('bullets')).min(1),
+  }),
+});
+
+// The job lanes that get a generic resume. A lane is just an id and the code the bank uses for it.
+const lanes = defineCollection({
+  loader: file('src/data/resume/lanes.yaml'),
+  schema: z.strictObject({
+    id: kebab,
+    code: z.string().regex(/^[A-Z]+$/, 'Use capital letters only, as in the bank tags'),
+    label: copy,
+    // Display order (1 is first).
+    order: z.number().int().min(1),
   }),
 });
 
@@ -437,4 +456,4 @@ const projects = defineCollection({
   }),
 });
 
-export const collections = { roles, bullets, bulletGroups, summaries, variants, skills, education, events, artworks, studio, intros, homeCards, releases, projects };
+export const collections = { roles, bullets, bulletGroups, summaries, lanes, variants, skills, education, events, artworks, studio, intros, homeCards, releases, projects };

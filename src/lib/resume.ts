@@ -1,4 +1,5 @@
 import { getCollection, type CollectionEntry } from 'astro:content';
+import { checkLaneData } from './lane-data.js';
 
 type Role = CollectionEntry<'roles'>;
 type Bullet = CollectionEntry<'bullets'>;
@@ -63,15 +64,17 @@ const warnOnce = (message: string) => {
  * warning: varied verbs are the goal, but the owner does not want uniqueness forced.
  */
 export async function getResumeVariants(options: { labels?: 'real' } = {}): Promise<ResumeVariant[]> {
-  const [roleEntries, bulletEntries, groupEntries, summaryEntries, variantEntries, skillEntries, educationEntries] = await Promise.all([
-    getCollection('roles'),
-    getCollection('bullets'),
-    getCollection('bulletGroups'),
-    getCollection('summaries'),
-    getCollection('variants'),
-    getCollection('skills'),
-    getCollection('education'),
-  ]);
+  const [roleEntries, bulletEntries, groupEntries, summaryEntries, variantEntries, skillEntries, educationEntries, laneEntries] =
+    await Promise.all([
+      getCollection('roles'),
+      getCollection('bullets'),
+      getCollection('bulletGroups'),
+      getCollection('summaries'),
+      getCollection('variants'),
+      getCollection('skills'),
+      getCollection('education'),
+      getCollection('lanes'),
+    ]);
 
   const bulletsById = new Map<string, Bullet>(bulletEntries.map((b) => [b.id, b]));
   const groupsById = new Map(groupEntries.map((g) => [g.id, g]));
@@ -98,6 +101,15 @@ export async function getResumeVariants(options: { labels?: 'real' } = {}): Prom
     }
   }
   if (dangling.length) throw new Error(`Broken references in the resume data:\n  - ${dangling.join('\n  - ')}`);
+
+  // The per-lane data (lanes and lane ranks; combined bullets are checked here too once they exist). The checks live in src/lib/lane-data.js so the
+  // tests run the same code.
+  const laneProblems = checkLaneData({
+    lanes: laneEntries.map((l) => ({ id: l.id, code: l.data.code })),
+    roles: roleEntries.map((r) => ({ id: r.id, lane_rank: r.data.lane_rank })),
+    bullets: bulletEntries.map((b) => ({ id: b.id, role: b.data.role.id, public: b.data.public, lanes: b.data.lanes })),
+  });
+  if (laneProblems.length) throw new Error(`Problems in the lane data:\n  - ${laneProblems.join('\n  - ')}`);
 
   // Skills flagged training_only in skills.yaml stay in the list, but a public bullet may not
   // name them, so a mention fails the build.

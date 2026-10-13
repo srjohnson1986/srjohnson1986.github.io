@@ -44,6 +44,7 @@ The Playwright suite is a portfolio piece as well as a safety net. It lives in `
 - `projects.spec.ts` - each Development & QA project page shows every field of its `src/content/projects/*.yaml` file (summary, facts, problem, built, stack, outcome, and the repo and demo links it has)
 - `accessibility.spec.ts` - axe scans of every page in light, dark, and phone width, plus the changing states and keyboard checks
 - `add-resume-bullet-skill.spec.ts` - the add-resume-bullet skill (`.claude/skills/add-resume-bullet/`): its check mode accepts a clean bullet, rejects one bullet per rule (weak verb, dash, phone number, count without a plus sign), and writes nothing. No browser needed
+- `lane-data.spec.ts` - the per-lane resume data (`lanes.yaml`, the `lanes` field on bullets, `lane_rank` on roles, `combos.yaml`): the checks in `src/lib/lane-data.js` pass on the real data and reject one broken case per rule. No browser needed
 - `smoke.spec.ts` - short checks against the live site, run by the Smoke test workflow after every deploy, weekly, and on demand
 
 `.claude/agents/test-reviewer.md` is a read-only subagent (Read, Grep, Glob only) that reviews specs for coverage gaps, weak assertions, tests that cannot fail, and flaky patterns. Give it the spec files to review (it cannot run `git`), for example the output of `git diff --name-only main...HEAD tests`. Its findings are leads to check, not a gate, and it is not part of CI.

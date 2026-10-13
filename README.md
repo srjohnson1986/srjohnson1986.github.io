@@ -41,7 +41,7 @@ src/
   lib/          loaders that join content collections and enforce cross-collection rules; copy-rules.js holds the text rules the schema and the bullet skill share
   styles/       global.css and the print stylesheet for the PDFs
   data/         site settings and navigation (site.ts), page text (intros.yaml), Home cards, events and studio info (YAML)
-    resume/     roles, bullets, summaries, skills, education, and resume versions (YAML)
+    resume/     roles, bullets, summaries, skills, education, resume versions, and the lane list (YAML)
   content/      one YAML file per item: projects/, releases/, art/
   assets/       images for the art page
   content.config.ts   every collection and its schema
@@ -100,6 +100,7 @@ The Playwright suite runs against the built site and is public on purpose. It re
 - **Accessibility:** axe-core scans of every page in light, dark, and phone width, plus the pages' changing states and keyboard checks for the skip link and focus.
 - **The README itself:** `tests/readme.spec.ts` checks that every npm command the README names exists in `package.json` (and the reverse), that its links and the project files it names exist, and that every spec file is described. It cannot judge whether a sentence is still true, so the pull request checklist covers that.
 - **Bullet skill:** `tests/add-resume-bullet-skill.spec.ts` runs the skill's check mode against a clean bullet and one bullet per rule, and confirms nothing is written.
+- **Lane data:** `tests/lane-data.spec.ts` runs the checks in `src/lib/lane-data.js` (the same code the build runs) on the real data files and on one broken case per rule: unknown lanes, partial role ranks, and combined bullets that point at missing bullets, mix roles, or are used in a lane where a bullet they replace is not tagged. No browser needed.
 - **Smoke test:** a handful of checks against the deployed site.
 
 A passing suite only means something if it can fail, so each area was checked by breaking the site on purpose (a dead link, a missing heading, a truncated PDF, pale text, players that load by themselves) and confirming the right tests failed.

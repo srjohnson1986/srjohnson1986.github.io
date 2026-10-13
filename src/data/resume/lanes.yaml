@@ -1,0 +1,34 @@
+# The job lanes that get a generic, auto-fitted resume. `code` is the short code the resume bullet bank
+# uses in its tags (for example QA1.20 on a bullet, or [QA4 SDET3 ...] on a role heading); `id` is the
+# lowercase key used in `lanes` on bullets and `lane_rank` on roles. Lanes are data: add one here and it
+# is a valid key everywhere, with no code change. `order` is the display order.
+
+- id: qa
+  code: QA
+  label: QA Engineer
+  order: 1
+
+- id: sdet
+  code: SDET
+  label: Automation / SDET
+  order: 2
+
+- id: con
+  code: CON
+  label: Implementation / Consulting
+  order: 3
+
+- id: adp
+  code: ADP
+  label: Digital Adoption / Training
+  order: 4
+
+- id: pmba
+  code: PMBA
+  label: Project Management / Business Analysis
+  order: 5
+
+- id: it
+  code: IT
+  label: IT Generalist
+  order: 6
