@@ -21,14 +21,14 @@
   "dependencies": {
     "@astrojs/sitemap": "^3.7.4",
     "@fontsource/atkinson-hyperlegible-next": "^5.3.0",
-    "astro": "^7.3.6"
+    "astro": "^7.3.8"
   },
   "allowScripts": {
     "esbuild": true
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.13.0",
-    "@playwright/test": "^1.63.0",
+    "@playwright/test": "^1.64.0",
     "js-yaml": "^5.4.3"
   }
 }
