@@ -10,7 +10,7 @@ const sections = nav.filter((item) => item.children);
 // so removing a page from it would remove the page from every expected list too. This is the one place
 // the intended pages are written out. Add a page here when one is added to src/data/site.ts on purpose.
 // (The pages under Development & QA come from the project files and are checked against them elsewhere.)
-test('the navigation holds the pages the site is meant to have', () => {
+test('the navigation holds the pages the site is meant to have', { tag: ['@req-324'] }, () => {
   expect(nav.map((item) => [item.label, item.href])).toEqual([
     ['Home', '/'],
     ['Resume', '/resume/'],
@@ -26,7 +26,7 @@ test('the navigation holds the pages the site is meant to have', () => {
   ]);
 });
 
-test.describe('navigation on a wide screen', () => {
+test.describe('navigation on a wide screen', { tag: ['@req-324'] }, () => {
   test('shows one row of top-level links and no Menu button, with the pages under Creative tucked away', async ({ page }) => {
     await page.goto('/');
     const main = page.getByRole('navigation', { name: 'Main' });
@@ -59,7 +59,7 @@ for (const section of sections) {
   const children = section.children!;
   const names = children.map((child) => child.label);
 
-  test.describe(`the "${section.label}" list on a wide screen`, () => {
+  test.describe(`the "${section.label}" list on a wide screen`, { tag: ['@req-324'] }, () => {
     const main = (page: Page) => page.getByRole('navigation', { name: 'Main' });
     const link = (page: Page) => main(page).getByRole('link', { name: section.label, exact: true });
     // Each section has its own list, so the list is found through its section's link.
@@ -135,7 +135,7 @@ for (const section of sections) {
   });
 }
 
-test.describe('the Development & QA list', () => {
+test.describe('the Development & QA list', { tag: ['@req-324'] }, () => {
   const development = nav.find((item) => item.href === '/development-qa/')!;
 
   test('has one entry per project, in the order the Development & QA page lists them, under their short names', async ({ page }) => {
@@ -165,7 +165,7 @@ test.describe('the Development & QA list', () => {
   });
 });
 
-test.describe('navigation on a phone', () => {
+test.describe('navigation on a phone', { tag: ['@req-324'] }, () => {
   test.use({ viewport: { width: 375, height: 812 } });
 
   test('shows one Menu button instead of the row, on a single line', async ({ page }) => {
@@ -240,7 +240,7 @@ test.describe('navigation on a phone', () => {
   });
 });
 
-test.describe('Home page portrait and action links', () => {
+test.describe('Home page portrait and action links', { tag: ['@req-325'] }, () => {
   test('shows the portrait with its alt text and the picture really loads, or the placeholder', async ({ page }) => {
     await page.goto('/');
     const portrait = page.locator('.portrait');
@@ -265,7 +265,7 @@ test.describe('Home page portrait and action links', () => {
   });
 });
 
-test.describe('Home page entry cards', () => {
+test.describe('Home page entry cards', { tag: ['@req-325'] }, () => {
   test('the cards appear in the order set in src/data/home-cards.yaml, with their words', async ({ page }) => {
     await page.goto('/');
     const section = page.getByRole('region', { name: 'Explore' });
@@ -288,7 +288,7 @@ test.describe('Home page entry cards', () => {
   }
 });
 
-test.describe('page introductions come from src/data/intros.yaml', () => {
+test.describe('page introductions come from src/data/intros.yaml', { tag: ['@req-328'] }, () => {
   const words = (text: string) => text.replace(/\s+/g, ' ').trim();
 
   test('the Home page shows the tagline and paragraphs from the file, in order', async ({ page }) => {
@@ -327,7 +327,7 @@ test.describe('page introductions come from src/data/intros.yaml', () => {
   });
 });
 
-test.describe('the Creative page', () => {
+test.describe('the Creative page', { tag: ['@req-326'] }, () => {
   const words = (text: string) => text.replace(/\s+/g, ' ').trim();
   const section = nav.find((item) => item.href === '/creative/')!;
 
@@ -359,7 +359,7 @@ test.describe('the Creative page', () => {
   });
 });
 
-test.describe('Jabroni Fest, which used to be called Events', () => {
+test.describe('Jabroni Fest, which used to be called Events', { tag: ['@req-327'] }, () => {
   test('the page is called Jabroni Fest in its heading and title', async ({ page }) => {
     await page.goto('/jabroni-fest/');
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Jabroni Fest');
@@ -382,7 +382,7 @@ test.describe('Jabroni Fest, which used to be called Events', () => {
   });
 });
 
-test.describe('Development & QA, which used to be called Development', () => {
+test.describe('Development & QA, which used to be called Development', { tag: ['@req-327'] }, () => {
   test('the page, the header, and a project page all use the new name', async ({ page }) => {
     await page.goto('/development-qa/');
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Development & QA');
@@ -415,7 +415,7 @@ test.describe('Development & QA, which used to be called Development', () => {
 // Found to be fine in an exploratory session, and written down so it stays that way. Both are about the
 // Back button, which is easy to break without a visible error: a redirect or a filter that adds history
 // entries makes Back feel stuck or take a visitor somewhere they did not expect.
-test.describe('the Back button', () => {
+test.describe('the Back button', { tag: ['@req-324'] }, () => {
   test('from the resume it returns to the page the visitor came from, not through the redirect again', async ({ page }) => {
     await page.goto('/');
     await page.locator('.nav-wide').getByRole('link', { name: 'Resume', exact: true }).click();

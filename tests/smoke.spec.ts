@@ -6,14 +6,14 @@ import { variants, releases, projects, navPages } from './helpers/data';
 
 const mainPages = ['/', '/resume/qa/', '/development-qa/', '/audio/', '/art/', '/creative/', '/jabroni-fest/', '/contact/'];
 
-test('the home page is served with its title and heading', async ({ page, baseURL }) => {
+test('the home page is served with its title and heading', { tag: ['@req-349'] }, async ({ page, baseURL }) => {
   const response = await page.goto('/');
   expect(response!.status()).toBe(200);
   await expect(page).toHaveTitle(/Steve Johnson/);
   await expect(page.getByRole('heading', { level: 1, name: 'Steve Johnson' })).toBeVisible();
 });
 
-test('a plain http address is sent on to https', async ({ request, baseURL }) => {
+test('a plain http address is sent on to https', { tag: ['@req-349'] }, async ({ request, baseURL }) => {
   // Asks for the http:// address and does not follow the redirect, so it sees the redirect itself.
   // (Checking the address after loading an https page would always pass, whatever the server does.)
   test.skip(!baseURL!.startsWith('https://'), 'only meaningful when the site under test is served over https');
@@ -22,7 +22,7 @@ test('a plain http address is sent on to https', async ({ request, baseURL }) =>
   expect(response.headers()['location'], 'where the http address redirects to').toMatch(/^https:\/\//);
 });
 
-test('every navigation link responds', async ({ request }) => {
+test('every navigation link responds', { tag: ['@req-349'] }, async ({ request }) => {
   const problems: string[] = [];
   for (const item of navPages) {
     const response = await request.get(item.href);
@@ -31,7 +31,7 @@ test('every navigation link responds', async ({ request }) => {
   expect(problems, problems.join('\n')).toEqual([]);
 });
 
-test('each resume version and its PDF are served', async ({ page, request }) => {
+test('each resume version and its PDF are served', { tag: ['@req-349'] }, async ({ page, request }) => {
   for (const variant of variants) {
     await page.goto(`/resume/${variant.id}/`);
     await expect(page.getByRole('heading', { level: 1, name: 'Steve Johnson' })).toBeVisible();
@@ -44,7 +44,7 @@ test('each resume version and its PDF are served', async ({ page, request }) => 
   }
 });
 
-test('the project archive lists the projects and a project page loads', async ({ page }) => {
+test('the project archive lists the projects and a project page loads', { tag: ['@req-349'] }, async ({ page }) => {
   await page.goto('/development-qa/');
   await expect(page.locator('[data-item]')).toHaveCount(projects.length);
   await page.getByRole('link', { name: projects[0].title }).click();
@@ -54,7 +54,7 @@ test('the project archive lists the projects and a project page loads', async ({
   }
 });
 
-test('the audio page lists the releases, each with one visible Bandcamp player', async ({ page }) => {
+test('the audio page lists the releases, each with one visible Bandcamp player', { tag: ['@req-349'] }, async ({ page }) => {
   await page.goto('/audio/');
   await expect(page.locator('.release')).toHaveCount(releases.length);
   // Each release has a light and a dark copy; CSS shows the one that matches the theme.
@@ -62,7 +62,7 @@ test('the audio page lists the releases, each with one visible Bandcamp player',
   await expect(page.locator('iframe[src^="https://bandcamp.com/EmbeddedPlayer/"]')).toHaveCount(releases.length * 2);
 });
 
-test('the art page serves its images', async ({ page, request }) => {
+test('the art page serves its images', { tag: ['@req-349'] }, async ({ page, request }) => {
   await page.goto('/art/');
   const sources = await page.locator('.piece > .zoom > img').evaluateAll((imgs) => imgs.slice(0, 3).map((img) => (img as HTMLImageElement).src));
   expect(sources.length).toBeGreaterThan(0);
@@ -73,14 +73,14 @@ test('the art page serves its images', async ({ page, request }) => {
   }
 });
 
-test('the contact page offers email, LinkedIn, and GitHub', async ({ page }) => {
+test('the contact page offers email, LinkedIn, and GitHub', { tag: ['@req-349'] }, async ({ page }) => {
   await page.goto('/contact/');
   await expect(page.locator('a[href^="mailto:"]')).toHaveCount(1);
   await expect(page.getByRole('link', { name: /linkedin\.com\/in\// })).toBeVisible();
   await expect(page.getByRole('link', { name: /github\.com\// })).toBeVisible();
 });
 
-test('the main pages have no console errors or failed requests', async ({ page, baseURL }) => {
+test('the main pages have no console errors or failed requests', { tag: ['@req-349'] }, async ({ page, baseURL }) => {
   const origin = new URL(baseURL!).origin;
   // The Audio page embeds real Bandcamp players. What those pages log, and the connections they keep
   // open, are Bandcamp's business, so only this site's own errors and requests are judged here.
@@ -106,7 +106,7 @@ test('the main pages have no console errors or failed requests', async ({ page, 
   expect(problems, problems.join('\n')).toEqual([]);
 });
 
-test('an unknown address returns a real 404', async ({ request }) => {
+test('an unknown address returns a real 404', { tag: ['@req-349'] }, async ({ request }) => {
   const response = await request.get('/this-page-does-not-exist/');
   expect(response.status()).toBe(404);
 });

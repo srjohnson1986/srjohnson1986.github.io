@@ -12,7 +12,7 @@ import { bulletById, dateRange, education, expectedSkills, rolesNewestFirst, var
 // The PDFs are printed from the print routes with the browser's print media, so this is what a reader of
 // the PDF sees. The text checks elsewhere use toContainText, which also matches text a print rule hides.
 for (const variant of variants) {
-  test(`the print route of "${variant.id}" shows everything, readable, within the page`, async ({ page }) => {
+  test(`the print route of "${variant.id}" shows everything, readable, within the page`, { tag: ['@req-316'] }, async ({ page }) => {
     await page.emulateMedia({ media: 'print' });
     await page.goto(`/resume/print/${variant.id}/`);
     const resume = page.locator('article.resume');
@@ -44,7 +44,7 @@ for (const variant of variants) {
   });
 }
 
-test.describe('the date format used by the checks below', () => {
+test.describe('the date format used by the checks below', { tag: ['@req-315'] }, () => {
   // Literal examples, so the helper is known to be right before the pages are compared with it.
   test('prints a range, a single year, and an ongoing role the way the resume does', () => {
     expect(dateRange(2012, 2024)).toBe('2012-2024');
@@ -97,7 +97,7 @@ for (const variant of variants) {
   ];
 
   for (const { name, url } of pages) {
-    test.describe(`resume "${variant.id}" ${name}`, () => {
+    test.describe(`resume "${variant.id}" ${name}`, { tag: ['@req-315'] }, () => {
       test('lists its roles newest first, each with its bullets in order', async ({ page }) => {
         await page.goto(url);
         expect(sections.length, 'roles shown by this version').toBeGreaterThan(0);

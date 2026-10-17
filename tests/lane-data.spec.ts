@@ -39,7 +39,7 @@ const sound = (): LaneData => ({
   combos: [{ id: 'a-combo', role: 'a', replaces: ['a1', 'a2'], lanes: ['qa', 'sdet'] }],
 });
 
-test.describe('lane data checks', () => {
+test.describe('lane data checks', { tag: ['@req-320'] }, () => {
   test('the real data files pass', () => {
     const data: LaneData = {
       lanes: load('lanes.yaml'),

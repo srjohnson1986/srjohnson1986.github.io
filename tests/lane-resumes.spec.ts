@@ -55,7 +55,7 @@ const expectedSkills = (lane: Lane) =>
 
 const countPages = (pdf: Buffer) => (pdf.toString('latin1').match(/\/Type\s*\/Page(?![s\w])/g) ?? []).length;
 
-test.describe('lane resumes: the saved fit', () => {
+test.describe('lane resumes: the saved fit', { tag: ['@req-318'] }, () => {
   test('every lane has a saved fit that is on two pages or fewer', () => {
     expect(fits.map((f) => f.id).sort()).toEqual(lanes.map((l) => l.id).sort());
     for (const fit of fits) {
@@ -66,7 +66,7 @@ test.describe('lane resumes: the saved fit', () => {
 });
 
 for (const lane of lanes) {
-  test.describe(`lane resume: ${lane.code}`, () => {
+  test.describe(`lane resume: ${lane.code}`, { tag: ['@req-318'] }, () => {
     const route = `/resume/print/lane-${lane.id}/`;
 
     test('the print route shows exactly the fitted bullets, by role newest first, in tier and position order', async ({ page }) => {
@@ -150,7 +150,7 @@ for (const lane of lanes) {
   });
 }
 
-test('the fit pages used to measure lanes are not part of the site', async ({ request }) => {
+test('the fit pages used to measure lanes are not part of the site', { tag: ['@req-318'] }, async ({ request }) => {
   for (const lane of lanes) {
     const response = await request.get(`/resume/lane-fit/${lane.id}/`, { failOnStatusCode: false });
     expect(response.status(), lane.id).toBe(404);

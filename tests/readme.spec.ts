@@ -43,7 +43,7 @@ const contentReadmes = fs
   .map((entry) => `src/content/${entry.name}/README.md`);
 const readmes = ['README.md', ...contentReadmes];
 
-test.describe('README', () => {
+test.describe('README', { tag: ['@req-348'] }, () => {
   test('there is enough in the README to check', () => {
     // Guards against a pattern that quietly stops matching and lets every other test pass for nothing.
     expect(commandsNamedIn(readme).length, 'npm commands found in the README').toBeGreaterThanOrEqual(5);

@@ -17,7 +17,7 @@ const pages: Record<string, string> = {
   'not-found': '/this-page-does-not-exist/',
 };
 
-test.describe('page titles and descriptions come from the file', () => {
+test.describe('page titles and descriptions come from the file', { tag: ['@req-328'] }, () => {
   for (const [id, path] of Object.entries(pages)) {
     test(`${id}: the title and description match`, async ({ page }) => {
       await page.goto(path);
@@ -39,7 +39,7 @@ test.describe('page titles and descriptions come from the file', () => {
   });
 });
 
-test.describe('lines with links', () => {
+test.describe('lines with links', { tag: ['@req-328'] }, () => {
   test('the Audio page links down to the studio rates, in the words from the file', async ({ page }) => {
     await page.goto('/audio/');
     const line = page.locator('p.studio-link');
@@ -63,7 +63,7 @@ test.describe('lines with links', () => {
 
 // The checks above compute their expected text with fill and linkParts from src/lib/copy.ts, the same
 // functions the pages use, so a mistake in them would be on both sides. These literal examples pin them.
-test.describe('the text helpers, with fixed examples', () => {
+test.describe('the text helpers, with fixed examples', { tag: ['@req-328'] }, () => {
   test('fill puts the name and area from site.ts into {name} and {area}', () => {
     expect(fill('Hello, I am {name}, from the {area}.')).toBe('Hello, I am Steve Johnson, from the Atlanta area.');
     expect(fill('{name} and {name}')).toBe('Steve Johnson and Steve Johnson');
@@ -84,7 +84,7 @@ test.describe('the text helpers, with fixed examples', () => {
 
 // CLAUDE.md: single hyphens only, with no em dash, en dash, or double hyphen in text. The content schema
 // enforces that for the YAML copy; text written straight into a page file is checked here on the built pages.
-test.describe('the single-hyphen rule on the built pages', () => {
+test.describe('the single-hyphen rule on the built pages', { tag: ['@req-339'] }, () => {
   const files = [...builtPages().map((p) => path.join(dist, p, 'index.html')), path.join(dist, '404.html')];
   const EM = String.fromCharCode(0x2014);
   const EN = String.fromCharCode(0x2013);
@@ -108,7 +108,7 @@ test.describe('the single-hyphen rule on the built pages', () => {
   });
 });
 
-test.describe('"no results" messages come from the file', () => {
+test.describe('"no results" messages come from the file', { tag: ['@req-328'] }, () => {
   // Two tags that never occur together on the same item give an empty result.
   const neverTogether = (lists: string[][]) => {
     const tags = [...new Set(lists.flat())].sort();

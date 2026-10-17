@@ -20,7 +20,7 @@ const good = 'Streamlined a long manual step into one scripted command that anyo
 const check = (text: string, extra: Record<string, unknown> = {}) =>
   checkBullet({ role, versions: version, text, ...extra }) as { errors: string[]; warnings: string[] };
 
-test.describe('add-resume-bullet skill', () => {
+test.describe('add-resume-bullet skill', { tag: ['@req-322'] }, () => {
   test('accepts a clean bullet', () => {
     expect(check(good).errors).toEqual([]);
   });

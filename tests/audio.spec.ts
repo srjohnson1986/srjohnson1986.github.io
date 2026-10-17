@@ -17,7 +17,7 @@ const card = (page: Page, title: string) => page.locator('.release', { has: page
 // The same address the site builds for the dark player: the dark card and accent colors.
 const darkEmbed = (embed: string) => embed.replace(/\/bgcol=[0-9a-f]+/i, '/bgcol=1b1b20').replace(/\/linkcol=[0-9a-f]+/i, '/linkcol=e0a070');
 
-test.describe('Audio players', () => {
+test.describe('Audio players', { tag: ['@req-334'] }, () => {
   test('every release has a light and a dark Bandcamp player, and no button or Bandcamp link around them', async ({ page }) => {
     await stubBandcamp(page);
     await page.goto('/audio/');
@@ -228,7 +228,7 @@ const ROLE_LABELS: Record<string, string> = {
   performed: 'Performed',
 };
 
-test.describe('Audio release cards', () => {
+test.describe('Audio release cards', { tag: ['@req-335'] }, () => {
   test('there are releases with a role line to check', () => {
     // Keeps the role line below real. (A release with no roles shows no role line, and is handled too.)
     expect(releases.some((r) => r.roles?.length), 'a release with roles').toBe(true);
@@ -249,7 +249,7 @@ test.describe('Audio release cards', () => {
   });
 });
 
-test.describe('Audio studio rates', () => {
+test.describe('Audio studio rates', { tag: ['@req-335'] }, () => {
   test('shows every rate, what is included, and how to prepare, in order', async ({ page }) => {
     await stubBandcamp(page);
     await page.goto('/audio/');

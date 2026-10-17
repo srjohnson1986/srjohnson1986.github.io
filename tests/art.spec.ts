@@ -5,7 +5,7 @@ const withStory = artworks.filter((a) => a.story || a.more || a.caption);
 const withoutStory = artworks.filter((a) => !a.story && !a.more && !a.caption);
 const series = artworks.filter((a) => a.more);
 
-test.describe('Art page', () => {
+test.describe('Art page', { tag: ['@req-331'] }, () => {
   test('shows every piece, and every image has real alt text', async ({ page }) => {
     await page.goto('/art/');
     await expect(page.locator('.piece')).toHaveCount(artworks.length);
@@ -195,7 +195,7 @@ test.describe('Art page', () => {
   });
 });
 
-test.describe('Larger view of an image', () => {
+test.describe('Larger view of an image', { tag: ['@req-332'] }, () => {
   // The first piece with a series, for the extra-image case.
   const seriesPiece = (page: import('@playwright/test').Page) =>
     page.locator('.piece', { has: page.getByText(series[0].title, { exact: true }) });
@@ -311,7 +311,7 @@ test.describe('Larger view of an image', () => {
   });
 });
 
-test.describe('Gallery alignment', () => {
+test.describe('Gallery alignment', { tag: ['@req-331'] }, () => {
   for (const width of [320, 375, 430, 500, 620, 768, 1100, 1600]) {
     test(`titles fit in two lines, and the date and Read more sit at the same height in every tile (${width}px)`, async ({ page }) => {
       await page.setViewportSize({ width, height: 900 });

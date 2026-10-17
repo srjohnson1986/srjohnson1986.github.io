@@ -25,7 +25,7 @@ const showsNight = async (page: import('@playwright/test').Page) => {
 };
 const background = (page: import('@playwright/test').Page) => page.evaluate(() => getComputedStyle(document.body).backgroundColor);
 
-test.describe('theme button, system set to light', () => {
+test.describe('theme button, system set to light', { tag: ['@req-340'] }, () => {
   test.use({ colorScheme: 'light' });
 
   test('starts light and offers dark; one click switches, another switches back', async ({ page }) => {
@@ -80,7 +80,7 @@ test.describe('theme button, system set to light', () => {
   });
 });
 
-test.describe('theme button, system set to dark', () => {
+test.describe('theme button, system set to dark', { tag: ['@req-340'] }, () => {
   test.use({ colorScheme: 'dark' });
 
   test('starts dark and offers light; a click switches to light', async ({ page }) => {
@@ -109,7 +109,7 @@ const contrast = (a: string, b: string) => {
   return (hi + 0.05) / (lo + 0.05);
 };
 
-test.describe('theme button scene', () => {
+test.describe('theme button scene', { tag: ['@req-340'] }, () => {
   test.use({ colorScheme: 'dark' });
 
   test('is already in place on load, with no animation', async ({ page }) => {
@@ -168,7 +168,7 @@ test.describe('theme button scene', () => {
   });
 });
 
-test.describe('theme button scene, reduced motion', () => {
+test.describe('theme button scene, reduced motion', { tag: ['@req-340'] }, () => {
   test.use({ colorScheme: 'light', reducedMotion: 'reduce' });
 
   test('changes at once, with nothing animating', async ({ page }) => {
@@ -181,7 +181,7 @@ test.describe('theme button scene, reduced motion', () => {
   });
 });
 
-test('with scripts off there is no button and the page follows the system setting', async ({ browser }) => {
+test('with scripts off there is no button and the page follows the system setting', { tag: ['@req-340'] }, async ({ browser }) => {
   const context = await browser.newContext({ javaScriptEnabled: false, colorScheme: 'dark' });
   const page = await context.newPage();
   await page.goto('/');
@@ -191,7 +191,7 @@ test('with scripts off there is no button and the page follows the system settin
   await context.close();
 });
 
-test('the print pages ignore the choice and stay on white paper', async ({ page }) => {
+test('the print pages ignore the choice and stay on white paper', { tag: ['@req-340'] }, async ({ page }) => {
   await page.addInitScript(() => localStorage.setItem('theme', 'dark'));
   await page.goto('/resume/print/qa/');
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
