@@ -26,3 +26,7 @@ traceability/
 
 # AI bullet eval: replies from the last live run (evals/resume-bullets/run.mjs)
 evals/resume-bullets/results/
+
+# Performance run output (scripts/perf.mjs): Lighthouse results and the report
+.lighthouseci/
+perf-results/

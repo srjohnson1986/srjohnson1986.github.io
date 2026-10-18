@@ -1,0 +1,83 @@
+name: Performance
+
+# Checks the performance budgets (Lighthouse CI) and runs a small load smoke test (k6) against a LOCAL
+# preview server of the built site. See the README section "Performance budgets and the k6 smoke test".
+#
+# It never touches the live GitHub Pages site: `npm run perf` starts `astro preview` on 127.0.0.1 and
+# points both tools at that address.
+#
+# It runs only on a pull request that changes site code or content (or the performance files themselves),
+# and on demand. It is NOT one of the required checks: a workflow that is skipped by a path filter never
+# reports a result, and a required check that never reports would block every pull request that does not
+# touch the site. Only `build` is required.
+on:
+  pull_request:
+    paths:
+      - 'src/**'
+      - 'public/**'
+      - 'astro.config.mjs'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'lighthouserc.cjs'
+      - 'perf/**'
+      - 'scripts/perf.mjs'
+      - 'scripts/lib/perf-report.mjs'
+      - '.github/workflows/performance.yml'
+  workflow_dispatch:
+
+# Read-only. The job writes nothing to the repository.
+permissions:
+  contents: read
+
+# A newer run replaces an older one on the same ref, so a quick second push does not wait behind the first.
+concurrency:
+  group: performance-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  performance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Set up Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      # Only the site: the resume PDFs are not part of what is measured, so the Chromium download for them is skipped.
+      - name: Build the site
+        run: npm run build:site
+
+      # Grafana's own action, pinned to a full commit (the v1.2.2 tag) because it is the one action here that is
+      # not from GitHub. k6 is pinned to the version the budgets were measured with.
+      - name: Install k6
+        uses: grafana/setup-k6-action@43b9fc21641a76002687994433dd586f56e791b1 # v1.2.2
+        with:
+          k6-version: '2.2.0'
+
+      # Lighthouse CI, then k6, then the report. The table of every measured value next to its budget goes to
+      # the job summary. The step fails when anything is over its budget.
+      - name: Check the performance budgets and run the k6 smoke test
+        run: npm run perf
+
+      - name: Keep the results
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: performance-results
+          path: |
+            perf-results/
+            .lighthouseci/
+          if-no-files-found: ignore
+          # .lighthouseci is a hidden folder, which the upload skips unless told otherwise.
+          include-hidden-files: true
+          retention-days: 14

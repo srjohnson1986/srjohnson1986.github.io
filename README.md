@@ -49,6 +49,7 @@ scripts/        PDF generation, the icon and link-preview image generators, the 
 contracts/      JSON Schemas for the GitHub API answers the site-totals script uses and for src/data/site-stats.json
 postman/        the Postman collection of the live API checks, run with Newman
 tests/          the Playwright suite
+perf/           the k6 smoke test script (see Performance budgets and the k6 smoke test); the Lighthouse CI budgets are in lighthouserc.cjs at the top level
 evals/          the AI bullet eval: scorer and report (lib/), the fixed prompts, the runner, and the recorded baseline (see AI evaluation: resume bullets)
 .claude/agents/ the test-reviewer subagent (see Testing)
 .claude/skills/ the add-resume-bullet skill (see Adding a resume bullet with a skill)
@@ -81,6 +82,7 @@ In VS Code, the YAML files autocomplete and flag mistakes as you type, using sch
 | `npm run test:smoke` | Runs only the short smoke checks against the live site |
 | `npm run fit-lanes` | Measures each lane resume and saves how many cuts it takes to fit two pages (`-- --check` only verifies the saved fits; see Lane resumes) |
 | `npm run traceability` | Builds the requirements traceability matrix from the last full test run and GitHub, and fails if a requirement has no test or a tag has no requirement (see Requirements traceability) |
+| `npm run perf` | Runs the performance checks against a local preview of the built site (build first with `npm run build:site`): Lighthouse CI budgets on three pages, then the k6 smoke test, then a table of every measured value next to its budget. Needs k6 installed (see Performance budgets and the k6 smoke test) |
 | `npm run eval:bullets` | Runs the AI bullet eval: Claude drafts resume bullets for fixed prompts, the replies are scored against the site's copy rules, and the run fails below the recorded threshold. It makes paid API calls and needs `ANTHROPIC_API_KEY` (see AI evaluation: resume bullets) |
 | `npm run eval:bullets:replay` | Scores saved replies from a file with the same scorer and gate, with no key and no network |
 | `npm run import-lanes` | Checks the private resume bullet bank and reports what it would import (lane tags, role ranks, combined bullets); add `-- --write` to update the YAML (see Importing lane data from the bank) |
@@ -117,6 +119,7 @@ The Playwright suite runs against the built site and is public on purpose. It re
 - **Site totals (API and contract):** `tests/site-stats.spec.ts`, `tests/site-stats-postman.spec.ts`, and the weekly `tests/site-stats-live.spec.ts`; see API and contract tests for the site totals. No browser needed.
 - **Traceability:** `tests/traceability.spec.ts` checks the requirements traceability check on made-up data (see Requirements traceability). No browser needed.
 - **AI bullet eval (without the API):** `tests/bullet-eval-scorer.spec.ts`, `tests/bullet-eval-gate.spec.ts`, and `tests/ai-eval-workflow.spec.ts`; see AI evaluation: resume bullets. No browser needed.
+- **Performance checks (without measuring):** `tests/performance.spec.ts`; see Performance budgets and the k6 smoke test. It checks the budget numbers, the k6 settings and local-address guard, the workflow settings, and the report builder on made-up results. No browser needed.
 - **Smoke test:** a handful of checks against the deployed site, including that the traceability report was published.
 
 A passing suite only means something if it can fail, so each area was checked by breaking the site on purpose (a dead link, a missing heading, a truncated PDF, pale text, players that load by themselves) and confirming the right tests failed.
@@ -327,6 +330,57 @@ The build refuses to run on a stale fit: changing a bullet, its tags, a rank, a 
 
 Run `npm run build` after any change. If an entry breaks a rule, the build stops and says which file and which field.
 
+## Performance budgets and the k6 smoke test
+
+Two checks watch how fast the site is, both in CI and both against a local copy of the built site, never the live one. **Lighthouse CI** opens real pages in Chrome and holds each to a performance budget. **k6** sends a few visitors' worth of plain requests at the server and checks it stays fast and error-free. The settings are in [`lighthouserc.cjs`](lighthouserc.cjs) and [`perf/k6-smoke.js`](perf/k6-smoke.js), the runner is [`scripts/perf.mjs`](scripts/perf.mjs), and the workflow is [`.github/workflows/performance.yml`](.github/workflows/performance.yml).
+
+**The terms.**
+
+- A **performance budget** is a limit on one measurement of one page, for example "largest contentful paint under 2 seconds" or "page under 125 KB". CI fails when the page goes over. It is a pass or fail check on a single visit.
+- A **load test** has many simulated visitors use a server at once, to see how it holds up. A **smoke test** is the smallest version of any test, just enough to show the basics work. The k6 test here is a load test shrunk to a smoke test: three virtual users for 20 seconds. It checks that the preview server answers every page, quickly and without errors, when a few visitors arrive together. It is not a capacity test.
+- **Lighthouse** measures what one visitor experiences on one page: when things appear and how many bytes were needed. **k6** measures the server side: how fast and how reliably it answers, with no browser, so it cannot see rendering, LCP, or layout shift.
+
+**What is measured.** Three pages: the home page (`/`), one resume page (`/resume/qa/`), and one archive page (`/art/`, the heaviest page and the only one with many images). Audio is left out on purpose because its Bandcamp players load from the internet, which would make a result depend on someone else's server. Each page is measured three times and the median is judged, so one odd run does not decide.
+
+| Measure | What it means | Home | Resume | Art |
+| --- | --- | --- | --- | --- |
+| Performance score | Lighthouse's overall mark, 0 to 100 | at least 95 | at least 95 | at least 90 |
+| Largest contentful paint (LCP) | When the biggest thing on screen has appeared | at most 2000 ms | at most 2000 ms | at most 2500 ms |
+| Total blocking time (TBT) | How long scripts froze the page after first paint | at most 200 ms | at most 200 ms | at most 200 ms |
+| Cumulative layout shift (CLS) | How much the page jumped around while loading | at most 0.05 | at most 0.05 | at most 0.05 |
+| Total page weight | Bytes needed to load the page (1 KB = 1024 bytes) | at most 125 KB | at most 75 KB | at most 1,400 KB |
+
+**Why the budgets sit where they do.** Each limit was set from repeated real runs per page, above the normal run-to-run spread and well below a real regression. On 2026-10-18 every page scored 100 with a blocking time of 0. LCP was about 1.5 s on all three pages (1,430 to 1,530 ms across runs), so 2,000 ms leaves about 500 ms of room, roughly what an extra 100 KB of images costs on the slow connection Lighthouse emulates. Layout shift was 0.003 on Home and Resume and 0.024 on Art, against a limit of 0.05 (Google calls 0.1 "good"). Weight is exactly the same on every run, so its limits only leave room for honest growth: Home is 81.5 KB against 125, Resume 48.6 KB against 75, and Art 1,122 KB against 1,400 (the flyers are most of it). Art's limits are looser on LCP and score because it is the page most likely to change.
+
+**Why the weight is higher than on the live site.** `astro preview` does not compress its answers, but GitHub Pages does, so a page here weighs more than a visitor downloads. The number is still steady, which is what a regression check needs.
+
+**How the k6 test fails.** Three thresholds, set from runs that all gave 0 failed requests and a p95 of about 3 ms: fewer than 1% of requests may fail, 95% of requests must finish in under 100 ms (p95 is the response time that 95 out of 100 requests beat, so one hiccup is ignored but a real slowdown is not), and more than 99% of its checks must pass (each page must answer 200 with HTML). 100 ms is about 30 times today's value, because a shared CI machine is slower than a laptop, and still far below what a real slowdown looks like. The script refuses to start if `BASE_URL` is not `127.0.0.1` or `localhost`, so it cannot be aimed at the live site by mistake.
+
+**Why the throttling setting matters.** Lighthouse's default, "simulate", replays a page load on paper. On this fast local server it made the Art page's LCP jump between 1.4 s and 4.2 s from run to run on identical code, because the real LCP was so early that a different number of image requests fell before it each time. (It first looked like a page problem, a flyer loading late, and a fix for that changed nothing; the page was fine and the measurement was the problem.) The config uses `devtools` throttling instead, which really slows the network and CPU in Chrome, and it held every page within about 40 ms. A budget on a number that wobbles by a factor of three would have been noise.
+
+**The report.** `npm run perf` prints, and the CI job summary shows, a table with one row per page and measure and one per k6 threshold: the measured value next to its budget and a pass or fail. Each failure also gets a line such as `/ Largest contentful paint: 2600 ms is over the budget of 2000 ms`. A result that is missing (a tool that did not run, a page that was not measured) counts as a failure, never as a pass. Lighthouse's own assertion step and k6's thresholds are what fail the run; the report adds the readable view and takes the budgets from the same `lighthouserc.cjs`.
+
+**Running it locally.** You need k6 once (Windows: `winget install GrafanaLabs.k6`; macOS: `brew install k6`; other systems: the k6 documentation has an install page) and Chrome.
+
+```bash
+npm run build:site
+npm run perf                      # Lighthouse CI, then k6, then the report
+npm run perf -- --only lighthouse # or --only k6
+```
+
+`npm run perf` starts `astro preview` on `127.0.0.1:4321` itself, so stop any other server on that port first (it refuses to run rather than measure the wrong thing). It takes about four minutes, most of it the nine real Lighthouse runs. Results are written to `.lighthouseci/` and `perf-results/` (neither is committed).
+
+**Changing a budget.** The numbers live in one table at the top of [`lighthouserc.cjs`](lighthouserc.cjs). To change one:
+
+1. Measure first (`npm run perf` a few times, or look at the report on recent pull requests) and decide from the spread, not from the last result. A budget that fails on a good day is noise; one that never fails is decoration.
+2. Edit the table, with a comment saying why. For the k6 thresholds, edit `thresholds` in [`perf/k6-smoke.js`](perf/k6-smoke.js).
+3. Update the `APPROVED` table in `tests/performance.spec.ts` and the tables above. The test fails if the config and the approved numbers disagree, so a limit cannot drift by accident.
+4. Say why in the pull request. Never raise a limit just to turn a run green: find out what changed first.
+
+**Required or not.** The workflow runs only on pull requests that change site code, content, or the performance files, so it is not one of the required checks (only `build` is). A workflow skipped by a path filter never reports a result, so making it required would block every pull request that does not touch the site. A red run is still a signal to read the job summary before merging.
+
+**What the tests cover.** `tests/performance.spec.ts` does not repeat the measurement (timings depend on the machine, so a copy inside the suite would be noisy). It checks what can be checked exactly: the budget numbers and pages, the k6 settings and its local-address guard, the workflow's triggers, permissions, and pinned action, and the report builder on made-up results, including a failing case, a value exactly on its limit, and a missing result. No browser needed.
+
 ## Workflow and deployment
 
 - **Issue first.** Every change starts as a GitHub issue, gets its own branch, and reaches `main` through a pull request. The conventions are written down in [CLAUDE.md](CLAUDE.md).
@@ -334,13 +388,14 @@ Run `npm run build` after any change. If an entry breaks a rule, the build stops
 - **CI** ([ci.yml](.github/workflows/ci.yml)) builds the site runs the full test suite, and checks requirements traceability on every pull request.
 - **Deploy** ([deploy.yml](.github/workflows/deploy.yml)) builds the site, runs the suite to build the requirements traceability matrix, and publishes both to GitHub Pages on every push to `main`.
 - **API live** ([api-live.yml](.github/workflows/api-live.yml)) runs the live GitHub API contract checks and the Newman run weekly and on demand, and never on a pull request.
+- **Performance** ([performance.yml](.github/workflows/performance.yml)) builds the site and runs Lighthouse CI budgets and the k6 smoke test against a local preview on every pull request that changes site code or content, and on demand. It is not a required check (see Performance budgets and the k6 smoke test).
 - **Smoke test** ([smoke.yml](.github/workflows/smoke.yml)) checks the live site after every deployment, weekly, and on demand. It is a separate workflow so a failure can never block a deployment.
 
 This site was built with an AI coding agent (Claude Code) working inside that workflow, with its changes going through pull requests and the checks above.
 
 ## Dependencies
 
-The site depends only on Astro, its official sitemap integration (`@astrojs/sitemap`), which writes `sitemap-index.xml` at build time, and the Atkinson Hyperlegible Next font package (`@fontsource/atkinson-hyperlegible-next`). Playwright (which also prints the PDFs in the build), axe-core, js-yaml (which lets the tests read the data files), and Ajv (a JSON Schema validator for the site-totals contracts) are development tools and are not shipped to visitors. The link-preview image `public/images/social-preview.jpg` is generated from the Home photo by `node scripts/make-social-image.mjs`; run it again if the photo, the name, or the colors change. The site icons (an "SJ" monogram in the accent color) come from `node scripts/make-icons.mjs`.
+The site depends only on Astro, its official sitemap integration (`@astrojs/sitemap`), which writes `sitemap-index.xml` at build time, and the Atkinson Hyperlegible Next font package (`@fontsource/atkinson-hyperlegible-next`). Playwright (which also prints the PDFs in the build), axe-core, Lighthouse CI (`@lhci/cli`, which runs Lighthouse and checks the performance budgets), js-yaml (which lets the tests read the data files), and Ajv (a JSON Schema validator for the site-totals contracts) are development tools and are not shipped to visitors. k6, the load-test tool, is not an npm package: install it once to run `npm run perf` locally, and the Performance workflow installs a pinned version. The link-preview image `public/images/social-preview.jpg` is generated from the Home photo by `node scripts/make-social-image.mjs`; run it again if the photo, the name, or the colors change. The site icons (an "SJ" monogram in the accent color) come from `node scripts/make-icons.mjs`.
 
 [Dependabot](.github/dependabot.yml) opens a pull request each Monday for npm and GitHub Actions updates, waiting 3 days after a release before proposing it. The [auto-merge workflow](.github/workflows/dependabot-auto-merge.yml) queues a merge on each one, so the CI check decides: green merges (and deploys), red waits. A weekly Claude routine, `website-dependency-repair`, runs in the Claude cloud rather than in this repository. It repairs red Dependabot pull requests by pushing a fix to their branch, and labels any it cannot fix `needs-human`. It never merges anything itself.
 
