@@ -12,7 +12,12 @@
   --card: #ffffff;
   --focus: #1a5fb4;
 
-  --font-body: 'Atkinson Hyperlegible Next', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  /* The font Atkinson is drawn in until its file arrives, and the one the page falls back to without it.
+     Arial comes first (Liberation Sans stands in for it on Linux, with the same widths) because it is almost
+     exactly as wide as Atkinson: measured on the resume text, Atkinson is 99% of Arial's width. Starting
+     with system-ui instead drew the text in a much wider font on Linux, and the page jumped when Atkinson
+     replaced it (a layout shift of 0.1 on the Resume page). */
+  --font-body: 'Atkinson Hyperlegible Next', Arial, 'Liberation Sans', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
   /* Headings use the body font for now. To give them their own font later, change this one line
      (and load that font in BaseLayout.astro). */
   --font-heading: var(--font-body);

@@ -4,6 +4,12 @@
 import '@fontsource/atkinson-hyperlegible-next/latin-400.css';
 import '@fontsource/atkinson-hyperlegible-next/latin-600.css';
 import '@fontsource/atkinson-hyperlegible-next/latin-700.css';
+// The same three files as a URL, to preload them (see the <link rel="preload"> tags below). They are
+// imported by path because the package does not export its font files by name. Vite gives each file one
+// hashed address, so these links and the url() in the CSS above point at the same file.
+import font400 from '@fontsource/atkinson-hyperlegible-next/files/atkinson-hyperlegible-next-latin-400-normal.woff2?url';
+import font600 from '@fontsource/atkinson-hyperlegible-next/files/atkinson-hyperlegible-next-latin-600-normal.woff2?url';
+import font700 from '@fontsource/atkinson-hyperlegible-next/files/atkinson-hyperlegible-next-latin-700-normal.woff2?url';
 import '../styles/global.css';
 import SiteHeader from '../components/SiteHeader.astro';
 import SiteFooter from '../components/SiteFooter.astro';
@@ -51,6 +57,11 @@ const imageUrl = new URL(image, Astro.site ?? site.url);
         </script>
       )
     }
+    {/* Without these, the browser only finds the fonts after the stylesheet has loaded, so it draws the text in a
+        fallback font first and the page jumps when Atkinson swaps in (a layout shift of 0.12 on the Resume page
+        on a Linux runner). `crossorigin` is required even for fonts from this site: fonts are always fetched
+        in anonymous CORS mode, and a preload without it would be fetched a second time. */}
+    {[font400, font600, font700].map((href) => <link rel="preload" as="font" type="font/woff2" href={href} crossorigin="anonymous" />)}
     <link rel="canonical" href={canonical.href} />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content={site.name} />
