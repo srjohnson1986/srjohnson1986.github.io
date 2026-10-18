@@ -91,6 +91,25 @@ test.describe('bullet eval report and threshold', { tag: ['@req-366'] }, () => {
     expect(RUNS_PER_PROMPT).toBeGreaterThanOrEqual(3);
   });
 
+  test('a baseline from a real run is recorded, and it matches the prompts, system prompt, and model in the repo', async () => {
+    const baseline = JSON.parse(fs.readFileSync(path.join(root, 'evals', 'resume-bullets', 'baseline.json'), 'utf8'));
+    // @ts-expect-error - plain JavaScript module with no type declarations
+    const { fingerprint } = await import('../evals/resume-bullets/run.mjs');
+    expect(baseline.threshold, 'a threshold is recorded').toBeGreaterThan(0.5);
+    expect(baseline.threshold).toBeLessThanOrEqual(1);
+    expect(baseline.model).toBe(MODEL);
+    expect(baseline.runsPerPrompt).toBe(RUNS_PER_PROMPT);
+    expect(baseline.prompts).toBe(PROMPTS.length);
+    expect(baseline.date).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+    expect(baseline.overall.total).toBe(PROMPTS.length * RUNS_PER_PROMPT);
+    expect(baseline.overall.rate, 'the recorded run passed its own threshold').toBeGreaterThanOrEqual(baseline.threshold);
+    expect(Object.keys(baseline.byRule).sort()).toEqual(['bare-one-sentence', 'count-floor', 'no-invented-numbers', 'no-leaked-strings', 'no-phone', 'past-tense-verb', 'single-hyphens', 'strong-verb']);
+    expect(Object.keys(baseline.byPrompt).sort()).toEqual(PROMPTS.map((p: { id: string }) => p.id).sort());
+    // If a prompt, the system prompt, the model, or the runs per prompt changed, the old baseline no longer
+    // describes what the eval asks. Run the eval again and record a new one (see the README).
+    expect(baseline.fingerprint, 'the prompts, system prompt, or model changed since the baseline was recorded: record a new baseline').toBe(fingerprint());
+  });
+
   test('replaying good replies passes the gate (exit 0)', () => {
     const result = run(['--replay', fixture('replay-good.json'), '--threshold', '0.9']);
     expect(result.status, result.stdout + result.stderr).toBe(0);

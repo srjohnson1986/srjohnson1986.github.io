@@ -13,6 +13,7 @@
 // counted as a quality failure, so a red 1 always means the replies got worse.
 
 import fs from 'node:fs';
+import { createHash } from 'node:crypto';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { PROMPTS } from './prompts.mjs';
@@ -25,7 +26,18 @@ export const SYSTEM_PROMPT = fs.readFileSync(path.join(here, 'system-prompt.md')
 export const BASELINE_FILE = path.join(here, 'baseline.json');
 export const RESULTS_FILE = path.join(here, 'results', 'last-run.json');
 
-export const userMessage = (prompt) => `Write one resume bullet for this work:\n\n${prompt.input}`;
+/**
+ * A short fingerprint of everything that decides what the eval asks: the prompts, the system prompt, the
+ * model, and the runs per prompt. It is saved in baseline.json, and a test fails when it no longer matches,
+ * so nobody can change a prompt or the model and keep comparing against a baseline from before the change.
+ */
+export const fingerprint = () =>
+  createHash('sha256')
+    .update(JSON.stringify({ prompts: PROMPTS, system: SYSTEM_PROMPT.replace(/\r\n/g, '\n'), model: MODEL, runs: RUNS_PER_PROMPT }))
+    .digest('hex')
+    .slice(0, 16);
+
+export const userMessage =(prompt) => `Write one resume bullet for this work:\n\n${prompt.input}`;
 const cost = (usage) => (usage.input * PRICE_PER_MTOK.input + usage.output * PRICE_PER_MTOK.output) / 1_000_000;
 
 class Stop extends Error {
@@ -189,6 +201,7 @@ export async function main(argv) {
       date: data.date,
       runsPerPrompt: data.runsPerPrompt,
       prompts: PROMPTS.length,
+      fingerprint: fingerprint(),
       overall: summary.overall,
       byRule: Object.fromEntries(RULES.map((r) => [r.id, summary.byRule[r.id]])),
       byPrompt: Object.fromEntries(Object.entries(summary.byPrompt).map(([id, s]) => [id, { passed: s.passed, total: s.total, failedRules: s.failedRules }])),
