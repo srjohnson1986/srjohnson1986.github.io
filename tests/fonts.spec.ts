@@ -73,6 +73,19 @@ test.describe('Every page preloads the three bundled fonts', { tag: ['@req-382']
     });
   }
 
+  test('the fallback is Arial (or Liberation Sans, its Linux stand-in), not system-ui, so the swap barely moves anything', () => {
+    // Atkinson is about as wide as Arial and much narrower than the system-ui font on Linux. Drawing the text in a
+    // wider fallback and then swapping made the Resume page jump by a layout shift of 0.1 on a Linux runner.
+    const css = fs.readFileSync(path.join(dist, '..', 'src', 'styles', 'global.css'), 'utf8');
+    const stack = /--font-body:\s*([^;]+);/.exec(css)![1].split(',').map((name) => name.trim().replace(/^['"]|['"]$/g, ''));
+    expect(stack[0]).toBe('Atkinson Hyperlegible Next');
+    expect(stack.indexOf('Arial'), 'Arial is in the stack').toBeGreaterThan(0);
+    expect(stack.indexOf('Liberation Sans'), 'Liberation Sans is in the stack').toBeGreaterThan(0);
+    expect(stack.indexOf('Arial')).toBeLessThan(stack.indexOf('system-ui'));
+    expect(stack.indexOf('Liberation Sans')).toBeLessThan(stack.indexOf('system-ui'));
+    expect(stack[stack.length - 1]).toBe('sans-serif');
+  });
+
   test('each preload is the same file the stylesheet uses, so nothing is fetched twice', () => {
     const css = fs
       .readdirSync(path.join(dist, '_astro'))
