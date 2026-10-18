@@ -85,4 +85,5 @@ console.log(`traceability: ${s.requirements} requirements (${s.covered} tested, 
 for (const p of matrix.problems) {
   console.error(process.env.GITHUB_ACTIONS ? `::error title=Traceability::${p.message}` : `  - ${p.message}`);
 }
-process.exit(matrix.problems.length && !allowProblems ? 1 : 0);
+// exitCode, not process.exit: on Windows, exiting right after fetch can trip a libuv assertion.
+process.exitCode = matrix.problems.length && !allowProblems ? 1 : 0;
