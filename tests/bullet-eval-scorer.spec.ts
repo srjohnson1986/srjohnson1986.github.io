@@ -129,7 +129,7 @@ test.describe('bullet eval scorer', { tag: ['@req-365'] }, () => {
     expect(source).toContain("from '../../src/lib/copy-rules.js'");
     // No second copy of a rule: the scorer calls the shared functions and defines none of its own.
     expect(source).not.toMatch(/const (noDashes|noPhone|startsWithPastTenseVerb|notWeakVerb|isBareOneSentence|countsAreFloors|WEAK_VERBS)\b/);
-    expect(source).not.toMatch(/—|–/);
+    expect(source).not.toMatch(/\u2014|\u2013/);
   });
 });
 

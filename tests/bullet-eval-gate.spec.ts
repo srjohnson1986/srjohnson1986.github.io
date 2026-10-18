@@ -64,7 +64,7 @@ test.describe('bullet eval report and threshold', { tag: ['@req-366'] }, () => {
     expect(report).toContain('## Pass rate per prompt');
     expect(report).toContain('## Manual review');
     expect(report).toContain('FAIL');
-    expect(report).not.toMatch(/—|–/);
+    expect(report).not.toMatch(/\u2014|\u2013/);
   });
 
   test('the decision passes at the threshold and fails just below it', () => {
