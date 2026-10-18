@@ -11,6 +11,7 @@ const cards = (await getCollection('homeCards')).map((card) => card.data).sort((
   title={fill(intro.title)}
   description={fill(intro.description)}
 >
+  <img src="/images/proof-unoptimized.bmp" alt="Proof image: a 1.4 MB unoptimized picture added on purpose to break the performance budgets." width="700" height="700" />
   <section class="intro" aria-labelledby="home-title">
     <div class="intro-text">
       <h1 id="home-title">{site.name}</h1>
