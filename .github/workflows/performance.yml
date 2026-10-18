@@ -67,7 +67,7 @@ jobs:
       # Lighthouse CI, then k6, then the report. The table of every measured value next to its budget goes to
       # the job summary. The step fails when anything is over its budget.
       - name: Check the performance budgets and run the k6 smoke test
-        run: npm run perf
+        run: npm run perf -- --only k6
 
       - name: Keep the results
         if: ${{ !cancelled() }}

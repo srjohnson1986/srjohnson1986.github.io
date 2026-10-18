@@ -72,7 +72,7 @@ if (alreadyUp) {
   process.exit(2);
 }
 // Started with node and the astro entry file (not npx), so stopping it later really stops it, on Windows too.
-const server = spawn(process.execPath, [path.join(root, 'node_modules', 'astro', 'bin', 'astro.mjs'), 'preview', '--host', HOST, '--port', String(PORT)], {
+const server = spawn(process.execPath, [path.join(root, 'scripts', 'slow-server.mjs')], {
   cwd: root,
   stdio: ['ignore', 'ignore', 'inherit'],
 });
