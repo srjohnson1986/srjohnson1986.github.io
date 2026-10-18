@@ -108,7 +108,8 @@ export const render = () => `${JSON.stringify(buildCollection(), null, 2)}\n`;
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   if (process.argv.includes('--check')) {
-    const same = fs.existsSync(collectionFile) && fs.readFileSync(collectionFile, 'utf8') === render();
+    // Line endings are ignored: a Windows checkout may turn the file's LF into CRLF.
+    const same = fs.existsSync(collectionFile) && fs.readFileSync(collectionFile, 'utf8').replaceAll('\r\n', '\n') === render();
     if (!same) console.error('build-postman: postman/site-stats.postman_collection.json is out of date. Run `npm run postman`.');
     process.exitCode = same ? 0 : 1;
   } else {
