@@ -4,7 +4,7 @@ import { builtPages, retiredPages } from './helpers/data';
 // Print routes exist only so the PDFs can be printed from them. Nothing links to them.
 const isPrintRoute = (p: string) => p.startsWith('/resume/print/');
 
-test('every internal link, anchor, and asset resolves, and no page is orphaned', { tag: ['@req-323'] }, async ({ page, request, baseURL }) => {
+test('every internal link, anchor, and asset resolves, and no page is orphaned', async ({ page, request, baseURL }) => {
   test.setTimeout(180_000);
 
   const origin = new URL(baseURL!).origin;
