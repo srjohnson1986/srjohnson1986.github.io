@@ -32,6 +32,9 @@ const httpsUrl = z
   .url()
   .refine((u) => u.startsWith('https://'), 'Use an https:// link');
 
+// A path inside this site, such as /development-qa/this-site/traceability/. Used by a project's report link.
+const sitePath = z.string().regex(/^(\/[a-z0-9-]+)+\/$/, 'Use a site path that starts and ends with /');
+
 const dateOrder = (v: { start: number; end: number | 'present' }) => v.end === 'present' || v.end >= v.start;
 
 // ---------------------------------------------------------------------------
@@ -484,7 +487,7 @@ const projects = defineCollection({
     // Optional headline numbers. Only figures from the source bank or given by the owner.
     facts: z.array(fact).max(6).optional(),
     links: z
-      .strictObject({ repo: httpsUrl.optional(), demo: httpsUrl.optional() })
+      .strictObject({ repo: httpsUrl.optional(), demo: httpsUrl.optional(), report: sitePath.optional() })
       .refine((l) => Boolean(l.repo || l.demo), 'Give at least a repo or a demo link'),
   }),
 });

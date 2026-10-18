@@ -10,7 +10,7 @@ const SITE = site.url;
 const isPrint = (p: string) => p.startsWith('/resume/print/');
 const publicPages = builtPages().filter((p) => !isPrint(p) && !redirectPages.includes(p));
 
-test.describe('link previews', () => {
+test.describe('link previews', { tag: ['@req-345'] }, () => {
   for (const url of publicPages) {
     test(`${url} has Open Graph tags that match the page`, async ({ page }) => {
       await page.goto(url);
@@ -49,7 +49,7 @@ test.describe('link previews', () => {
   });
 });
 
-test.describe('sitemap and robots.txt', () => {
+test.describe('sitemap and robots.txt', { tag: ['@req-346'] }, () => {
   const read = (file: string) => fs.readFileSync(path.join(dist, file), 'utf8');
   const locs = (xml: string) => [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
 

@@ -7,7 +7,7 @@ import { builtPages, redirectPages } from './helpers/data';
 const pages = [...builtPages().filter((p) => !p.startsWith('/resume/print/') && !redirectPages.includes(p)), '/404.html'];
 
 for (const url of pages) {
-  test(`${url} links the site icons`, async ({ page }) => {
+  test(`${url} links the site icons`, { tag: ['@req-345'] }, async ({ page }) => {
     await page.goto(url);
     await expect(page.locator('link[rel="icon"][type="image/svg+xml"]')).toHaveAttribute('href', '/favicon.svg');
     await expect(page.locator('link[rel="icon"][href="/favicon.ico"]')).toHaveCount(1);
@@ -15,7 +15,7 @@ for (const url of pages) {
   });
 }
 
-test('each icon file exists and is the right kind and size', async ({ page, request }) => {
+test('each icon file exists and is the right kind and size', { tag: ['@req-345'] }, async ({ page, request }) => {
   const svg = await request.get('/favicon.svg');
   expect(svg.status()).toBe(200);
   expect(svg.headers()['content-type']).toContain('svg');

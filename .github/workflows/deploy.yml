@@ -10,6 +10,7 @@ on:
 # Permissions the deploy needs: read the code, publish to Pages
 permissions:
   contents: read
+  issues: read # the traceability report reads the requirement issues
   pages: write
   id-token: write
 
@@ -21,6 +22,8 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - name: Check out the repository
         uses: actions/checkout@v7
@@ -29,7 +32,17 @@ jobs:
         with:
           # `npm run build` also prints the resume PDFs, which needs headless Chromium.
           # The action installs npm dependencies first, then runs this command in bash.
-          build-cmd: npx playwright install --with-deps chromium-headless-shell && npm run build
+          #
+          # Then it runs the test suite and writes the requirements traceability matrix into the site, over
+          # the stand-in page at /development-qa/this-site/traceability/. The suite already had to pass in the
+          # pull request, so a flaky failure here must not block a deploy: the test step and the report step
+          # both tolerate problems, and the matrix shows the last result honestly. The smoke test fails if the
+          # report did not make it into the site.
+          build-cmd: >-
+            npx playwright install --with-deps chromium-headless-shell &&
+            npm run build &&
+            (npx playwright test || true) &&
+            node scripts/traceability.mjs --into dist --allow-problems
 
   deploy:
     needs: build

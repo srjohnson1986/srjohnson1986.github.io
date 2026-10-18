@@ -9,7 +9,7 @@ import { PROJECT_TYPE_LABELS, projects } from './helpers/data';
 // Folded YAML text and the page both end up as one line of text, so compare with spaces collapsed.
 const oneLine = (text: string) => text.replace(/\s+/g, ' ').trim();
 
-test('there are projects to check, and with and without a demo link', () => {
+test('there are projects to check, and with and without a demo link', { tag: ['@req-330'] }, () => {
   // Guards against a loader that quietly returns nothing, and keeps the "no button" branch below real.
   expect(projects.length).toBeGreaterThan(0);
   expect(projects.some((p) => p.links.demo), 'a project with a demo link').toBe(true);
@@ -19,7 +19,7 @@ test('there are projects to check, and with and without a demo link', () => {
 for (const project of projects) {
   const url = `/development-qa/${project.slug}/`;
 
-  test.describe(`project page: ${project.title}`, () => {
+  test.describe(`project page: ${project.title}`, { tag: ['@req-330'] }, () => {
     test('has its own title and description', async ({ page }) => {
       await page.goto(url);
       await expect(page).toHaveTitle(`${project.title} | Development & QA | Steve Johnson`);
@@ -77,6 +77,10 @@ for (const project of projects) {
 
       if (project.links.demo) await expect(demo).toHaveAttribute('href', project.links.demo);
       else await expect(demo).toHaveCount(0);
+
+      const report = links.getByRole('link', { name: 'Requirements traceability report' });
+      if (project.links.report) await expect(report).toHaveAttribute('href', project.links.report);
+      else await expect(report).toHaveCount(0);
 
       await expect(links.getByRole('link')).toHaveCount(Object.values(project.links).filter(Boolean).length);
     });

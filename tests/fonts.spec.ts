@@ -5,7 +5,7 @@ import { test, expect } from './helpers/test';
 const pages = ['/', '/resume/qa/', '/development-qa/'];
 
 for (const path of pages) {
-  test(`${path} loads the bundled Atkinson font and no outside fonts`, async ({ page }) => {
+  test(`${path} loads the bundled Atkinson font and no outside fonts`, { tag: ['@req-344'] }, async ({ page }) => {
     const outside: string[] = [];
     page.on('request', (request) => {
       const url = new URL(request.url());

@@ -8,13 +8,13 @@ import { events } from './helpers/data';
 // Folded YAML text and the page both end up as one line of text, so compare with spaces collapsed.
 const oneLine = (text: string) => text.replace(/\s+/g, ' ').trim();
 
-test('there is at least one organization to check', () => {
+test('there is at least one organization to check', { tag: ['@req-336'] }, () => {
   // Guards against a loader that quietly returns nothing and lets every check below pass for no reason.
   expect(events.length).toBeGreaterThan(0);
 });
 
 for (const org of events) {
-  test.describe(`Jabroni Fest page: ${org.name}`, () => {
+  test.describe(`Jabroni Fest page: ${org.name}`, { tag: ['@req-336'] }, () => {
     test('shows the name, summary, and role', async ({ page }) => {
       await page.goto('/jabroni-fest/');
       const section = page.getByRole('region', { name: org.name });

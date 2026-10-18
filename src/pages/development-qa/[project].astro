@@ -62,6 +62,13 @@ const { title, summary, year, type, stack, problem, built, outcome, facts, links
         )
       }
       {
+        links.report && (
+          <li>
+            <a class="button secondary" href={links.report}>Requirements traceability report</a>
+          </li>
+        )
+      }
+      {
         links.demo && (
           <li>
             <a class="button secondary" href={links.demo} rel="noopener">Live demo</a>

@@ -11,7 +11,7 @@ import { site } from '../src/data/site';
 // rules are written out in this file on purpose: a test that only repeated site.ts could not notice
 // someone changing site.ts.
 
-test.describe('contact details', () => {
+test.describe('contact details', { tag: ['@req-337'] }, () => {
   test('site.ts still holds the details the pages are meant to show', () => {
     // Without this, an email set to undefined would hide the link and every check below would adapt.
     expect(site.email, 'the email address').toMatch(/^[^@\s]+@[^@\s]+\.[a-z]+$/i);
@@ -49,7 +49,7 @@ test.describe('contact details', () => {
   }
 });
 
-test.describe('privacy rules', () => {
+test.describe('privacy rules', { tag: ['@req-338'] }, () => {
   test('the location is "Atlanta area" and nothing more specific', () => {
     expect(site.area).toBe('Atlanta area');
   });

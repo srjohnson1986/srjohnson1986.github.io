@@ -8,7 +8,7 @@ test.use({ viewport: { width: 1100, height: 700 }, launchOptions: { ignoreDefaul
 
 // The header must not move when the page changes. The current link is semibold, which is wider, and a
 // page long enough to scroll has a scrollbar that makes the page narrower. Both used to shift things.
-test.describe('the header does not move between pages', () => {
+test.describe('the header does not move between pages', { tag: ['@req-343'] }, () => {
   const places = async (page: import('@playwright/test').Page) => {
     await page.evaluate(() => document.fonts.ready);
     return page.evaluate(() =>
@@ -41,7 +41,7 @@ test.describe('the header does not move between pages', () => {
 // every page. The current page's link is semibold and so a little wider, which once pushed the theme
 // button onto a second line, so each page is checked on its own. 736px is just inside the wide row,
 // and 735px is just inside the Menu button. Scrollbars are on (see the top of the file), as on a real desktop.
-test.describe('the header stays on one line', () => {
+test.describe('the header stays on one line', { tag: ['@req-343'] }, () => {
   const widths = [1100, 900, 768, 736, 735, 600, 375];
   // /resume/ is a redirect to the first version, so the page itself is listed instead.
   const paths = [...navPages.map((item) => item.href).filter((href) => href !== '/resume/'), '/resume/qa/', '/development-qa/care-communication-board/'];
@@ -66,7 +66,7 @@ test.describe('the header stays on one line', () => {
 // once reported their baseline at their bottom edge, which dropped the name and the button about
 // 8px below the link text. Their vertical centers must agree to within a few pixels. (The links
 // carry a 2px underline under their text, so the button is allowed to sit a little lower.)
-test.describe('the header parts sit level with each other', () => {
+test.describe('the header parts sit level with each other', { tag: ['@req-343'] }, () => {
   const centers = (page: import('@playwright/test').Page) =>
     page.evaluate(() => {
       const mid = (el: Element) => {

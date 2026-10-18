@@ -9,10 +9,13 @@ on:
 
 permissions:
   contents: read
+  issues: read # the traceability check reads the requirement issues
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - name: Check out the repository
         uses: actions/checkout@v7
@@ -37,6 +40,21 @@ jobs:
 
       - name: Run the Playwright test suite
         run: npx playwright test
+
+      # Every requirement needs a test (or the no-automated-test label with a written reason), and every
+      # test needs a real requirement. Runs even when a test failed, so the matrix is always produced.
+      # Writes the matrix to the job summary and to traceability/.
+      - name: Check requirements traceability
+        if: ${{ !cancelled() }}
+        run: node scripts/traceability.mjs
+
+      - name: Keep the traceability matrix
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: traceability
+          path: traceability/
+          retention-days: 14
 
       - name: Keep the test report when something fails
         if: failure()

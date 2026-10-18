@@ -56,7 +56,7 @@ const spread: Bullet[] = [
   b('r3-t2-a', 'r3', [2, 10]),
 ];
 
-test.describe('lane fit plan: the starting list', () => {
+test.describe('lane fit plan: the starting list', { tag: ['@req-319'] }, () => {
   test('keeps public bullets tagged for the lane, tier first and then position, inside each role', () => {
     const p = plan(base(spread));
     expect(ids(p.initial.filter((i) => i.role === 'r1'))).toEqual(['r1-t1-a', 'r1-t1-b', 'r1-t2-a', 'r1-t3-a', 'r1-t3-b']);
@@ -81,7 +81,7 @@ test.describe('lane fit plan: the starting list', () => {
   });
 });
 
-test.describe('lane fit plan: the cut order', () => {
+test.describe('lane fit plan: the cut order', { tag: ['@req-319'] }, () => {
   test('cuts tier 3 before tier 2, least relevant role first, and the lowest position first inside a role', () => {
     const p = plan(base(spread));
     expect(cutIds(p)).toEqual([
@@ -129,7 +129,7 @@ test.describe('lane fit plan: the cut order', () => {
   });
 });
 
-test.describe('lane fit plan: combined bullets', () => {
+test.describe('lane fit plan: combined bullets', { tag: ['@req-319'] }, () => {
   const longOnes = [
     b('p1', 'r1', [2, 10], { text: 'Wrote a long first sentence about the plans that goes on for quite some time.' }),
     b('p2', 'r1', [3, 10], { text: 'Wrote a long second sentence about the risks that also goes on for a while.' }),
@@ -190,7 +190,7 @@ test.describe('lane fit plan: combined bullets', () => {
   });
 });
 
-test.describe('lane fit plan: states and the fingerprint', () => {
+test.describe('lane fit plan: states and the fingerprint', { tag: ['@req-319'] }, () => {
   test('state 0 is the starting list, each state only removes content, and the last k is checked', () => {
     const p = plan(base(spread));
     expect(ids(apply(p, 0))).toEqual(ids(p.initial));
@@ -222,7 +222,7 @@ test.describe('lane fit plan: states and the fingerprint', () => {
 // ---------------------------------------------------------------- the real data
 const load = <T>(file: string): T => yaml.load(fs.readFileSync(path.join(root, 'src', 'data', 'resume', file), 'utf8')) as T;
 
-test.describe('lane fit plan: the real data', () => {
+test.describe('lane fit plan: the real data', { tag: ['@req-319'] }, () => {
   const lanes = load<{ id: string; code: string }[]>('lanes.yaml');
   const roles = load<{ id: string; start: number; end: number | 'present'; lane_rank: Record<string, number> }[]>('roles.yaml');
   const bullets = load<Bullet[]>('bullets.yaml');

@@ -38,7 +38,7 @@ function workspace(setup: Setup = {}) {
   return { dir, run, read, snapshot, bullet };
 }
 
-test.describe('import-lanes: a clean bank', () => {
+test.describe('import-lanes: a clean bank', { tag: ['@req-321'] }, () => {
   test('check mode reports and writes nothing', () => {
     const w = workspace();
     const before = w.snapshot();
@@ -128,7 +128,7 @@ test.describe('import-lanes: a clean bank', () => {
   });
 });
 
-test.describe('import-lanes: the bank has a problem', () => {
+test.describe('import-lanes: the bank has a problem', { tag: ['@req-321'] }, () => {
   // [name, change to the bank, change to bullets.yaml (optional), message expected in the report]
   const cases: [string, (b: string) => string, ((t: string) => string) | undefined, RegExp][] = [
     ['an id that is not in bullets.yaml', (b) => b.replace('alpha-wrote-plans |', 'alpha-ghost |'), undefined, /id "alpha-ghost" is not in bullets.yaml/],
@@ -188,7 +188,7 @@ test.describe('import-lanes: the bank has a problem', () => {
   });
 });
 
-test.describe('import-lanes: bullet wording', () => {
+test.describe('import-lanes: bullet wording', { tag: ['@req-321'] }, () => {
   const drifted = (b: string) => b.replace('Ran the checks every night. \\[alpha-ran-checks', 'Ran the checks every night and weekend. \\[alpha-ran-checks');
 
   test('check mode lists changed wording, and --write alone leaves it', () => {

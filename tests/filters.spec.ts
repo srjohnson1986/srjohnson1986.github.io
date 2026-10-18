@@ -43,7 +43,7 @@ const archives: Archive[] = [
 
 // The filters below compute their expected values with bandsOf and bandSlug from src/lib/band.ts, the same
 // functions the page uses, so a mistake in them would be on both sides. These literal examples pin them.
-test.describe('the band helpers, with fixed examples', () => {
+test.describe('the band helpers, with fixed examples', { tag: ['@req-335'] }, () => {
   test('bandSlug makes a short, space-free value', () => {
     expect(bandSlug('Naw X Asbestos Worker')).toBe('naw-x-asbestos-worker');
     expect(bandSlug('Fat Sally')).toBe('fat-sally');
@@ -67,7 +67,7 @@ const titlesWhere = (items: Item[], predicate: (i: Item) => boolean) => sorted(i
 const distinct = (items: Item[], facet: string) => [...new Set(items.flatMap((i) => i.facets[facet]))].sort();
 
 for (const archive of archives) {
-  test.describe(`${archive.name} filters`, () => {
+  test.describe(`${archive.name} filters`, { tag: ['@req-329'] }, () => {
     const { items } = archive;
 
     const pickTag = (page: Page, tag: string) =>
@@ -223,7 +223,7 @@ for (const archive of archives) {
   });
 }
 
-test('Development & QA filters by tag only, and each card still shows its year and type', async ({ page }) => {
+test('Development & QA filters by tag only, and each card still shows its year and type', { tag: ['@req-329'] }, async ({ page }) => {
   await page.goto('/development-qa/');
   await expect(page.locator('select')).toHaveCount(0);
   await expect(page.locator('fieldset input[type="checkbox"]').first()).toBeAttached();

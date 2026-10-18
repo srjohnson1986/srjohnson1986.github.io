@@ -4,7 +4,7 @@ import { intros, nav, navPages } from './helpers/data';
 // An address the site does not have must answer with a real 404 status and show the site's own
 // page, with the navigation, instead of the host's generic error page.
 for (const address of ['/this-page-does-not-exist/', '/resume/no-such-version/', '/missing.html']) {
-  test(`an unknown address ${address} shows the friendly page with a 404 status`, async ({ page }) => {
+  test(`an unknown address ${address} shows the friendly page with a 404 status`, { tag: ['@req-347'] }, async ({ page }) => {
     const response = await page.goto(address);
     expect(response!.status()).toBe(404);
     await expect(page.getByRole('heading', { level: 1, name: intros['not-found'].heading! })).toBeVisible();
@@ -13,7 +13,7 @@ for (const address of ['/this-page-does-not-exist/', '/resume/no-such-version/',
   });
 }
 
-test('the friendly page links home and to every main section, and each link works', async ({ page, request }) => {
+test('the friendly page links home and to every main section, and each link works', { tag: ['@req-347'] }, async ({ page, request }) => {
   await page.goto('/this-page-does-not-exist/');
   const main = page.getByRole('main');
   await expect(main.getByRole('link', { name: intros['not-found'].button! })).toHaveAttribute('href', '/');
@@ -25,7 +25,7 @@ test('the friendly page links home and to every main section, and each link work
   }
 });
 
-test('the page list groups each section\'s pages beneath it, the way the header does', async ({ page }) => {
+test('the page list groups each section\'s pages beneath it, the way the header does', { tag: ['@req-347'] }, async ({ page }) => {
   await page.goto('/this-page-does-not-exist/');
   const list = page.getByRole('main').locator('ul.sections');
   const sections = nav.filter((item) => item.href !== '/');

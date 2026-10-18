@@ -84,7 +84,7 @@ const defaultOrder = async (page: Page) => {
 const inPageOrder = (order: string[], keep: (a: (typeof artworks)[number]) => boolean) =>
   order.filter((title) => keep(artworks.find((a) => a.title === title)!));
 
-test.describe('Art filters', () => {
+test.describe('Art filters', { tag: ['@req-333'] }, () => {
   test('the data has enough variety to test', () => {
     expect(years.length).toBeGreaterThan(1);
     expect(formats.length).toBeGreaterThan(1);

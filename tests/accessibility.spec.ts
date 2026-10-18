@@ -34,7 +34,7 @@ const expectClean = async (page: Page, where: string) => {
 const pages = [...builtPages().filter((p) => !redirectPages.includes(p)), '/404.html'];
 
 for (const scheme of ['light', 'dark'] as const) {
-  test.describe(`axe scan, ${scheme} theme`, () => {
+  test.describe(`axe scan, ${scheme} theme`, { tag: ['@req-341'] }, () => {
     test.use({ colorScheme: scheme });
     for (const url of pages) {
       test(`${url}`, async ({ page }) => {
@@ -45,7 +45,7 @@ for (const scheme of ['light', 'dark'] as const) {
   });
 }
 
-test.describe('axe scan, phone width', () => {
+test.describe('axe scan, phone width', { tag: ['@req-341'] }, () => {
   test.use({ viewport: { width: 375, height: 812 } });
   for (const url of pages) {
     test(`${url}`, async ({ page }) => {
@@ -55,7 +55,7 @@ test.describe('axe scan, phone width', () => {
   }
 });
 
-test.describe('axe scan, states that change the page', () => {
+test.describe('axe scan, states that change the page', { tag: ['@req-341'] }, () => {
   for (const scheme of ['light', 'dark'] as const) {
     test.describe(scheme, () => {
       test.use({ colorScheme: scheme });
@@ -122,7 +122,7 @@ test.describe('axe scan, states that change the page', () => {
   }
 });
 
-test.describe('keyboard', () => {
+test.describe('keyboard', { tag: ['@req-342'] }, () => {
   test('the skip link is the first stop, is visible when focused, and jumps to the content', async ({ page }) => {
     await page.goto('/');
     await page.keyboard.press('Tab');
