@@ -1,0 +1,11 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "commits.schema.json",
+  "title": "GET /repos/{owner}/{repo}/commits - a list whose first item has a sha",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": ["sha"],
+    "properties": { "sha": { "type": "string", "pattern": "^[0-9a-f]{40}$" } }
+  }
+}

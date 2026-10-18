@@ -1,0 +1,36 @@
+{
+  "_comment": "Trimmed copies of real GitHub answers for the six endpoints scripts/site-stats.mjs calls (recorded 2026-10-18). Each entry is what the fake API returns: a status, the headers the script reads, and a body.",
+  "repo": {
+    "status": 200,
+    "headers": { "x-ratelimit-remaining": "4900" },
+    "body": { "id": 1403340624, "full_name": "srjohnson1986/srjohnson1986.github.io", "default_branch": "main", "private": false, "stargazers_count": 0 }
+  },
+  "issues": {
+    "status": 200,
+    "headers": { "x-ratelimit-remaining": "28" },
+    "body": { "total_count": 202, "incomplete_results": false, "items": [{ "number": 362, "state": "open" }] }
+  },
+  "pull_requests": {
+    "status": 200,
+    "headers": { "x-ratelimit-remaining": "27" },
+    "body": { "total_count": 160, "incomplete_results": false, "items": [{ "number": 360, "state": "closed" }] }
+  },
+  "pull_requests_merged": {
+    "status": 200,
+    "headers": { "x-ratelimit-remaining": "26" },
+    "body": { "total_count": 157, "incomplete_results": false, "items": [{ "number": 360, "state": "closed" }] }
+  },
+  "commits": {
+    "status": 200,
+    "headers": {
+      "x-ratelimit-remaining": "4899",
+      "link": "<https://api.github.com/repositories/1403340624/commits?per_page=1&page=2>; rel=\"next\", <https://api.github.com/repositories/1403340624/commits?per_page=1&page=329>; rel=\"last\""
+    },
+    "body": [{ "sha": "65d3e63aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "commit": { "message": "Merge pull request #360" } }]
+  },
+  "releases": {
+    "status": 200,
+    "headers": { "x-ratelimit-remaining": "4898" },
+    "body": []
+  }
+}

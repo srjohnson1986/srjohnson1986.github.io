@@ -1,0 +1,11 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "search-issues.schema.json",
+  "title": "GET /search/issues - only the fields the site-stats sync uses",
+  "type": "object",
+  "required": ["total_count", "incomplete_results"],
+  "properties": {
+    "total_count": { "type": "integer", "minimum": 0 },
+    "incomplete_results": { "type": "boolean" }
+  }
+}

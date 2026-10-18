@@ -1,0 +1,11 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "repo.schema.json",
+  "title": "GET /repos/{owner}/{repo} - only the fields the site-stats sync uses",
+  "type": "object",
+  "required": ["full_name", "default_branch"],
+  "properties": {
+    "full_name": { "type": "string", "pattern": "^[^/]+/[^/]+$" },
+    "default_branch": { "type": "string", "minLength": 1 }
+  }
+}

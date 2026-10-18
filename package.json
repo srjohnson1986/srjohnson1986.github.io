@@ -17,6 +17,9 @@
     "import-lanes": "node scripts/import-lanes.mjs",
     "fit-lanes": "node scripts/fit-lanes.mjs",
     "traceability": "node scripts/traceability.mjs",
+    "site-stats": "node scripts/site-stats.mjs",
+    "test:api-live": "node scripts/run-api-live.mjs",
+    "postman": "node scripts/build-postman.mjs",
     "astro": "astro"
   },
   "dependencies": {
@@ -30,6 +33,7 @@
   "devDependencies": {
     "@axe-core/playwright": "^4.13.0",
     "@playwright/test": "^1.64.0",
+    "ajv": "^8.20.0",
     "js-yaml": "^5.4.3"
   }
 }
