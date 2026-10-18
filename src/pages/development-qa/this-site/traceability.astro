@@ -1,0 +1,25 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+---
+
+<!--
+  A stand-in for the real report. The deploy workflow (.github/workflows/deploy.yml) runs the test
+  suite, builds the requirements traceability matrix with scripts/traceability.mjs, and replaces this
+  page's output with it. This page exists so a local build has a page for the link on the This site
+  project page to point at, and so the link checker finds one.
+-->
+<BaseLayout
+  title="Requirements traceability report"
+  description="Which requirements this site's Playwright tests verify, and the last result of each."
+>
+  <h1>Requirements traceability report</h1>
+  <p class="lead">
+    The live site shows a matrix here: every requirement, the tests that verify it, and each one's last result. It is
+    built when the site is deployed, so this local copy is only a stand-in.
+  </p>
+  <p>
+    To build the matrix yourself, run <code>npm test</code>, then <code>npm run traceability</code>, and open
+    <code>traceability/traceability.html</code>.
+  </p>
+  <p><a href="/development-qa/this-site/">Back to the This site page</a></p>
+</BaseLayout>

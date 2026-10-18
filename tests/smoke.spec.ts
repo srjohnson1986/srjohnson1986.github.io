@@ -106,6 +106,16 @@ test('the main pages have no console errors or failed requests', { tag: ['@req-3
   expect(problems, problems.join('\n')).toEqual([]);
 });
 
+// The deploy replaces a stand-in page with the real matrix (see .github/workflows/deploy.yml). The
+// stand-in has no table, so this fails if the deploy skipped that step.
+test('the requirements traceability report is published with a row per requirement', { tag: ['@req-349', '@req-355'] }, async ({ page }) => {
+  const response = await page.goto('/development-qa/this-site/traceability/');
+  expect(response!.status()).toBe(200);
+  await expect(page.getByRole('heading', { level: 1, name: 'Requirements traceability matrix' })).toBeVisible();
+  expect(await page.locator('tbody tr').count(), 'requirement rows').toBeGreaterThan(30);
+  await expect(page.locator('.problems'), 'the report lists no problems').toHaveCount(0);
+});
+
 test('an unknown address returns a real 404', { tag: ['@req-349'] }, async ({ request }) => {
   const response = await request.get('/this-page-does-not-exist/');
   expect(response.status()).toBe(404);

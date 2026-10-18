@@ -13,6 +13,8 @@ const PORT = 4173;
 const smokeOnly = Boolean(process.env.SMOKE_ONLY);
 const baseURL = process.env.BASE_URL ?? `http://127.0.0.1:${PORT}`;
 const smokeURL = process.env.SMOKE_URL ?? 'https://srjohnson1986.github.io';
+// A smoke run must not overwrite the report of the full run.
+const jsonFile = smokeOnly ? 'traceability/smoke-results.json' : 'traceability/results.json';
 const usingLocalServer = !smokeOnly && !process.env.BASE_URL;
 
 export default defineConfig({
@@ -20,7 +22,10 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: Boolean(process.env.CI),
   retries: process.env.CI ? 1 : 0,
-  reporter: process.env.CI ? [['github'], ['html', { open: 'never' }]] : [['list']],
+  // The JSON file is what scripts/traceability.mjs reads to link tests to requirements.
+  reporter: process.env.CI
+    ? [['github'], ['html', { open: 'never' }], ['json', { outputFile: jsonFile }]]
+    : [['list'], ['json', { outputFile: jsonFile }]],
   use: {
     baseURL,
     trace: 'on-first-retry',

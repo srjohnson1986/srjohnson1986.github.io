@@ -45,7 +45,7 @@ src/
   content/      one YAML file per item: projects/, releases/, art/
   assets/       images for the art page
   content.config.ts   every collection and its schema
-scripts/        PDF generation, the icon and link-preview image generators, and the smoke test runner
+scripts/        PDF generation, the icon and link-preview image generators, the smoke test runner, and the requirements traceability report
 tests/          the Playwright suite
 .claude/agents/ the test-reviewer subagent (see Testing)
 .claude/skills/ the add-resume-bullet skill (see Adding a resume bullet with a skill)
@@ -77,6 +77,7 @@ In VS Code, the YAML files autocomplete and flag mistakes as you type, using sch
 | `npm run test:only` | Runs the suite without rebuilding |
 | `npm run test:smoke` | Runs only the short smoke checks against the live site |
 | `npm run fit-lanes` | Measures each lane resume and saves how many cuts it takes to fit two pages (`-- --check` only verifies the saved fits; see Lane resumes) |
+| `npm run traceability` | Builds the requirements traceability matrix from the last full test run and GitHub, and fails if a requirement has no test or a tag has no requirement (see Requirements traceability) |
 | `npm run import-lanes` | Checks the private resume bullet bank and reports what it would import (lane tags, role ranks, combined bullets); add `-- --write` to update the YAML (see Importing lane data from the bank) |
 
 ## Testing
@@ -91,7 +92,7 @@ The Playwright suite runs against the built site and is public on purpose. It re
 - **Page text:** each page's browser title and description, the lines at the top of each page, and the "nothing here" messages match `src/data/intros.yaml`.
 - **Contact details and privacy:** `tests/contact.spec.ts` checks that the Contact page and the header of every resume page and print route show the email, LinkedIn, and GitHub links and the area, that the area is exactly "Atlanta area", and that no built page contains a phone number or a `tel:` link.
 - **Jabroni Fest page:** `tests/jabroni-fest.spec.ts` checks that the page shows every name, summary, role, fact, "How it runs" point, and cause from `src/data/events.yaml`, and the page description is checked against the summary.
-- **Project pages:** `tests/projects.spec.ts` checks that each Development & QA project page shows its title, year and type, summary, facts, problem, every "What I built" and outcome item, every stack chip, and the code and demo links it has (and no button for one it lacks), all read from the project's YAML file.
+- **Project pages:** `tests/projects.spec.ts` checks that each Development & QA project page shows its title, year and type, summary, facts, problem, every "What I built" and outcome item, every stack chip, and the code, demo, and report links it has (and no button for one it lacks), all read from the project's YAML file.
 - **Fonts:** the Atkinson font is bundled, each weight the site uses really loads, and no font comes from another site.
 - **Header:** the name, links, and theme button stay in the same place on every page, whatever the page length or the current link.
 - **Art order and filters:** the gallery runs newest first by date, and the build rejects a date the sort cannot read. The collapsible panel sorts and filters by year, format, and tag, with bands and venues shown as proper names. Results survive a reload or a shared link (a value in a link that a drop-down does not offer is ignored, so no drop-down is ever blank on Audio or Art), and cards in a row still line up after filtering.
@@ -106,7 +107,10 @@ The Playwright suite runs against the built site and is public on purpose. It re
 - **Lane resumes:** `tests/lane-resumes.spec.ts` checks, for every lane, that its print route shows exactly the bullets its saved fit says (by role newest first, in tier and position order, never a bullet the lane is not tagged for), every tier 1 bullet, the role floors, the lane summary, skills, and real organization names, that its PDF is two pages or fewer, that the content ends before the end of page 2, and that the page is kept out of search, the sitemap, and every link. It also checks that the pages used to measure the lanes are not part of the site.
 - **Lane fit plan:** `tests/lane-fit.spec.ts` checks `src/lib/lane-fit.js`, which decides which bullets a lane resume starts with and the order they are given up in to fit two pages: combined bullets are swapped in first, then tier 3 and tier 2 are cut starting with the least relevant role and the lowest position, tier 1 is never cut, and a role never goes below its floor. It runs on small made-up data, one rule at a time, and on the real data for all six lanes. No browser needed.
 - **Lane data:** `tests/lane-data.spec.ts` runs the checks in `src/lib/lane-data.js` (the same code the build runs) on the real data files and on one broken case per rule: unknown lanes, partial role ranks, and combined bullets that point at missing bullets, mix roles, or are used in a lane where a bullet they replace is not tagged. No browser needed.
-- **Smoke test:** a handful of checks against the deployed site.
+- **Private bank content:** `tests/bank-private.spec.ts` checks that no built page shows a private section name from the bank (Target Roles, the behavioral stories, the application answers), that no private file is copied into `dist/`, and, when the local bank snapshot is present, that none of its story titles appear on a page.
+- **Bullet verbs:** `tests/bullet-verbs.spec.ts` checks the past-tense verb rule on examples, on every bullet and combined bullet in the real data, and that the content schema applies it. No browser needed.
+- **Traceability:** `tests/traceability.spec.ts` checks the requirements traceability check on made-up data (see Requirements traceability). No browser needed.
+- **Smoke test:** a handful of checks against the deployed site, including that the traceability report was published.
 
 A passing suite only means something if it can fail, so each area was checked by breaking the site on purpose (a dead link, a missing heading, a truncated PDF, pale text, players that load by themselves) and confirming the right tests failed.
 
@@ -127,6 +131,41 @@ Use the test-reviewer agent on the whole suite
 ```
 
 For a pull request, pass it the specs the branch changed, which `git diff --name-only main...HEAD tests` lists. Its findings are leads to check against the code, not a gate: it is not part of CI, and it reads the tests without running them. If Claude Code says it cannot find the agent, restart the session so it picks up `.claude/agents/`.
+
+## Requirements traceability
+
+Requirements traceability links every requirement to the tests that verify it, and every test back to a requirement. It answers two questions: which requirements have no test, and which tests protect nothing anyone asked for. Here the links are checked by a script, so the answer cannot go stale.
+
+**What a requirement is.** A GitHub issue with the `requirement` label and a title that starts with `REQ:`. Its body has a `## Requirement` sentence and a `## Acceptance criteria` checklist (the [requirement template](.github/ISSUE_TEMPLATE/requirement.md) sets it up). It describes a behavior the site must keep, not a piece of work, so it stays open while it is in force. A pull request refers to it with `Refs #N`, not `Closes #N`. A requirement closed as "not planned" is retired and ignored; one closed as completed still counts. The ordinary change issues (the "Why, Scope, Done when" template) are history, not requirements.
+
+**How a test names its requirement.** With Playwright's built-in tags, on a test or on a `test.describe` (the tests inside inherit it):
+
+```ts
+test.describe('Contact details', { tag: ['@req-337'] }, () => { ... });
+test('the email is a mailto link', { tag: ['@req-337', '@req-338'] }, async ({ page }) => { ... });
+```
+
+`@req-N` is the issue number. A test may verify several requirements. `npx playwright test --grep @req-337` runs one requirement's tests.
+
+**What is checked.** `npm run traceability` (and CI, after the suite) reads the tags from the Playwright results (`traceability/results.json`, written by every run) and the requirements from GitHub, and fails when:
+
+- a requirement has no linked test and no exemption;
+- a requirement has the `no-automated-test` label but no written reason (a `## No automated test - reason` section in its body);
+- a test is tagged with a number that is not a requirement (no such issue, an issue without the `requirement` label, or a retired requirement);
+- a test has no requirement tag.
+
+The `no-automated-test` label is for things that stay manual, such as a judgment call or a repository setting. The reason says why a test cannot check it and how it is verified instead. The smoke tests run only against the live site, so the script lists them without running them and shows them as "not run" in a normal run.
+
+**The report.** The script writes `traceability/traceability.md` and `traceability/traceability.html` (requirement, coverage, linked tests, last result). CI adds the markdown to the job summary and keeps both files as the `traceability` artifact. The deploy workflow runs the suite after building the site and puts the HTML on the live site at [/development-qa/this-site/traceability/](https://srjohnson1986.github.io/development-qa/this-site/traceability/), linked from the This site project page. In the repository that page is a stand-in, so a local build still has a page for the link to reach. To see the real matrix locally, run `npm test` and then `npm run traceability`. A partial run (for example one spec) makes every other requirement look untested, so run the whole suite first.
+
+**Adding a feature.**
+
+1. Open a requirement issue (`REQ: ...`, with the `requirement` label and acceptance criteria) and note its number. Open the usual change issue for the work, which can mention the requirement.
+2. Write the test in the spec for that area and tag it `{ tag: ['@req-N'] }`. Break the feature on purpose to check that the test can fail.
+3. In the pull request, use `Refs #N` for the requirement. If it cannot be automated, add the `no-automated-test` label and the written reason instead.
+4. CI fails until every requirement has a test or a reason and every tag points at a real requirement.
+
+`tests/traceability.spec.ts` tests the check itself on made-up requirements and results: each failure above, the exemption, the retired and closed cases, and the exit codes. The logic is in `scripts/lib/traceability.mjs` and the command line in `scripts/traceability.mjs`.
 
 ## Exploratory testing with the Playwright MCP server
 
@@ -215,8 +254,8 @@ Run `npm run build` after any change. If an entry breaks a rule, the build stops
 
 - **Issue first.** Every change starts as a GitHub issue, gets its own branch, and reaches `main` through a pull request. The conventions are written down in [CLAUDE.md](CLAUDE.md).
 - **Keep this README current.** Each pull request either updates the README when it changes something the README describes (a page, a feature, a command, a dependency, a test area) or says in its description why no update was needed. The [pull request template](.github/pull_request_template.md) has a checkbox for it.
-- **CI** ([ci.yml](.github/workflows/ci.yml)) builds the site and runs the full test suite on every pull request.
-- **Deploy** ([deploy.yml](.github/workflows/deploy.yml)) builds the site and publishes it to GitHub Pages on every push to `main`.
+- **CI** ([ci.yml](.github/workflows/ci.yml)) builds the site runs the full test suite, and checks requirements traceability on every pull request.
+- **Deploy** ([deploy.yml](.github/workflows/deploy.yml)) builds the site, runs the suite to build the requirements traceability matrix, and publishes both to GitHub Pages on every push to `main`.
 - **Smoke test** ([smoke.yml](.github/workflows/smoke.yml)) checks the live site after every deployment, weekly, and on demand. It is a separate workflow so a failure can never block a deployment.
 
 This site was built with an AI coding agent (Claude Code) working inside that workflow, with its changes going through pull requests and the checks above.

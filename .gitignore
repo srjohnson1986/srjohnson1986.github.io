@@ -20,3 +20,6 @@ Thumbs.db
 
 # Playwright MCP session output (screenshots, snapshots)
 .playwright-mcp/
+
+# Traceability report output (scripts/traceability.mjs)
+traceability/

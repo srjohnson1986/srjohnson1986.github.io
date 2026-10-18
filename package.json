@@ -16,6 +16,7 @@
     "test:smoke": "node scripts/run-smoke.mjs",
     "import-lanes": "node scripts/import-lanes.mjs",
     "fit-lanes": "node scripts/fit-lanes.mjs",
+    "traceability": "node scripts/traceability.mjs",
     "astro": "astro"
   },
   "dependencies": {

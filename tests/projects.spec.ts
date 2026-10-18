@@ -78,6 +78,10 @@ for (const project of projects) {
       if (project.links.demo) await expect(demo).toHaveAttribute('href', project.links.demo);
       else await expect(demo).toHaveCount(0);
 
+      const report = links.getByRole('link', { name: 'Requirements traceability report' });
+      if (project.links.report) await expect(report).toHaveAttribute('href', project.links.report);
+      else await expect(report).toHaveCount(0);
+
       await expect(links.getByRole('link')).toHaveCount(Object.values(project.links).filter(Boolean).length);
     });
   });
