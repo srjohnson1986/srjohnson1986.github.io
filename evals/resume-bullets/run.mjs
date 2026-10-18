@@ -181,7 +181,8 @@ export async function main(argv) {
   if (process.env.GITHUB_STEP_SUMMARY) fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, report + '\n');
 
   if (opts.updateBaseline) {
-    if (opts.mode === 'replay') throw new Stop('--update-baseline needs a live run, not a replay', 2);
+    // A baseline must come from a real run: a live run now, or the file a live run saved (it names the model and date).
+    if (opts.mode === 'replay' && !(data.model && data.date)) throw new Stop('--update-baseline needs a live run, or the results file a live run saved (it names the model and date)', 2);
     if (typeof threshold !== 'number') throw new Stop('--update-baseline needs a threshold: pass --threshold 0.9 (or whatever you chose)', 2);
     const record = {
       model: data.model,

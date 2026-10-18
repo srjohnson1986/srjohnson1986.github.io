@@ -49,6 +49,7 @@ scripts/        PDF generation, the icon and link-preview image generators, the 
 contracts/      JSON Schemas for the GitHub API answers the site-totals script uses and for src/data/site-stats.json
 postman/        the Postman collection of the live API checks, run with Newman
 tests/          the Playwright suite
+evals/          the AI bullet eval: scorer and report (lib/), the fixed prompts, the runner, and the recorded baseline (see AI evaluation: resume bullets)
 .claude/agents/ the test-reviewer subagent (see Testing)
 .claude/skills/ the add-resume-bullet skill (see Adding a resume bullet with a skill)
 docs/          exploratory testing charter, notes template, and session notes (see Exploratory testing)
@@ -80,6 +81,8 @@ In VS Code, the YAML files autocomplete and flag mistakes as you type, using sch
 | `npm run test:smoke` | Runs only the short smoke checks against the live site |
 | `npm run fit-lanes` | Measures each lane resume and saves how many cuts it takes to fit two pages (`-- --check` only verifies the saved fits; see Lane resumes) |
 | `npm run traceability` | Builds the requirements traceability matrix from the last full test run and GitHub, and fails if a requirement has no test or a tag has no requirement (see Requirements traceability) |
+| `npm run eval:bullets` | Runs the AI bullet eval: Claude drafts resume bullets for fixed prompts, the replies are scored against the site's copy rules, and the run fails below the recorded threshold. It makes paid API calls and needs `ANTHROPIC_API_KEY` (see AI evaluation: resume bullets) |
+| `npm run eval:bullets:replay` | Scores saved replies from a file with the same scorer and gate, with no key and no network |
 | `npm run import-lanes` | Checks the private resume bullet bank and reports what it would import (lane tags, role ranks, combined bullets); add `-- --write` to update the YAML (see Importing lane data from the bank) |
 
 ## Testing
@@ -113,6 +116,7 @@ The Playwright suite runs against the built site and is public on purpose. It re
 - **Bullet verbs:** `tests/bullet-verbs.spec.ts` checks the past-tense verb rule on examples, on every bullet and combined bullet in the real data, and that the content schema applies it. No browser needed.
 - **Site totals (API and contract):** `tests/site-stats.spec.ts`, `tests/site-stats-postman.spec.ts`, and the weekly `tests/site-stats-live.spec.ts`; see API and contract tests for the site totals. No browser needed.
 - **Traceability:** `tests/traceability.spec.ts` checks the requirements traceability check on made-up data (see Requirements traceability). No browser needed.
+- **AI bullet eval (without the API):** `tests/bullet-eval-scorer.spec.ts`, `tests/bullet-eval-gate.spec.ts`, and `tests/ai-eval-workflow.spec.ts`; see AI evaluation: resume bullets. No browser needed.
 - **Smoke test:** a handful of checks against the deployed site, including that the traceability report was published.
 
 A passing suite only means something if it can fail, so each area was checked by breaking the site on purpose (a dead link, a missing heading, a truncated PDF, pale text, players that load by themselves) and confirming the right tests failed.

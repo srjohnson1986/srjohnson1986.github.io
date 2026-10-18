@@ -128,7 +128,7 @@ test.describe('bullet eval report and threshold', { tag: ['@req-366'] }, () => {
     expect(run(['--replay', fixture('does-not-exist.json')]).status).toBe(2);
     expect(run(['--bogus']).status).toBe(2);
     expect(run(['--threshold', '2']).status).toBe(2);
-    expect(run(['--replay', fixture('replay-good.json'), '--update-baseline', '--threshold', '0.9']).status, 'a replay cannot become a baseline').toBe(2);
+    expect(run(['--replay', fixture('replay-good.json'), '--update-baseline', '--threshold', '0.9']).status, 'replies that do not name a model and date cannot become a baseline').toBe(2);
   });
 
   test('an API error exits 2 and never prints the key', async () => {
