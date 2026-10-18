@@ -195,6 +195,55 @@ collects and checks the totals without writing anything (add `-- --write` to sav
 
 **The routine.** `website-site-stats` is a Claude routine that runs each Monday in the Claude cloud, not in this repository. It runs `node scripts/site-stats.mjs --json` in its clone and uses the checked numbers to refresh the Totals sentence in the private bank. It changes nothing in the repository. The file `src/data/site-stats.json` is refreshed by running the script with `--write` and opening a pull request.
 
+## AI evaluation: resume bullets
+
+Claude can draft resume bullets for this site, and the site already enforces rules on bullet text. This suite measures how often Claude's drafts follow those rules. It exists to show how to test output that is different on every run: instead of one exact answer, it runs each prompt several times, scores every reply with ordinary code, and fails when the pass rate drops below a recorded threshold. The pieces are in [`evals/`](evals/).
+
+**Why this is not an ordinary test.** The same prompt can give different text each time, so one passing run proves little, and a model or prompt change can make drafts worse without any code changing. So the suite (1) repeats each prompt, (2) reports pass rates per rule and per prompt, (3) compares the overall rate with a threshold chosen from real results, and (4) runs on a schedule as well as on changes. The scorer itself is plain code, so it has exact tests; only the model calls are statistical.
+
+**What it checks.** Eight rules are checked in code by [`evals/lib/score.mjs`](evals/lib/score.mjs). Five come straight from [`src/lib/copy-rules.js`](src/lib/copy-rules.js), the same file the content schema and the add-resume-bullet skill use, so the rules live in one place:
+
+| Rule | Where it comes from |
+| --- | --- |
+| Single hyphens only (no em dash, en dash, or double hyphen) | shared copy rules |
+| Opens with a past-tense verb | shared copy rules |
+| Opening verb is not a weak one (Reviewed, Asked, Helped, Worked) | shared copy rules |
+| Bare text: one line, one sentence, no list marker, quotes, or lead-in | shared copy rules |
+| Project counts are written as a floor with a plus sign ("155+ issues") | shared copy rules |
+| No phone numbers | shared copy rules |
+| No invented numbers: every number appears in the description it was given | eval only |
+| Does not repeat strings it was told to keep out (a planted street address and city) | eval only |
+
+A rule that does not apply to a reply (for example the count rule when the reply has no count) is left out of that rule's rate instead of being counted as a pass.
+
+**What it does not check.** Five things need a person, and every report lists them: that the bullet is faithful to the description (no tools, scope, or claims it did not give), that it states an outcome only when one was given, that it is strong and clear, that it has no confidential employer detail and uses only "Atlanta area" for location, and that numbers written as words match the description. The first run showed why this matters: all 40 replies passed every coded rule, but reading them found about ten that added small claims the description never made ("open-source", "automated", "keeping communication fast when it mattered most", "Maintained" for "helped with"). A perfect code score is not a reviewed bullet. The suite also does not judge writing quality, test other models, or use a second model as a grader.
+
+**The prompts.** [`evals/resume-bullets/prompts.mjs`](evals/resume-bullets/prompts.mjs) holds eight fixed prompts, each a plain-language description of work: three normal cases, a project count that must come out as a floor, work with no clear outcome (which tempts the model to invent one), a description full of weak verbs, an input that contains em dashes and double hyphens and asks to keep them, and an input with a made-up phone number and address that asks to put them in the bullet. All of it is already public in this repository, and the contact details are made up. The instructions the model is given are in [`evals/resume-bullets/system-prompt.md`](evals/resume-bullets/system-prompt.md), so the thing under test is the model together with that prompt.
+
+**How a run works.** Each prompt runs five times on `claude-haiku-5-5`, the cheapest current model (40 calls, a hard cap of 60, at most 300 output tokens each). The report shows the pass rate per rule and per prompt and the worst failures with the model's actual output. The run then compares the overall pass rate (replies that passed every rule that applied) with the threshold in [`evals/resume-bullets/baseline.json`](evals/resume-bullets/baseline.json). Exit codes: 0 passed, 1 below the threshold, 2 the run could not be done (no key, an API error, too many calls). An outage is never counted as a quality drop.
+
+**The baseline.** Recorded on 2026-10-18 from the first live run: 40 of 40 replies passed every coded rule (100%). The threshold is 95%, which allows two stray failures in 40 and fails at three or more; a regression that breaks one whole prompt (five replies) fails it. One run cannot show how much the rate moves by chance, so the number is worth revisiting after a few weekly runs. A second run on the same prompts gave the same 40 of 40. The baseline also stores a fingerprint of the prompts, the system prompt, the model, and the runs per prompt, and a test fails if any of them changes without a new baseline.
+
+**Proving the gate fails.** A throwaway pull request (never merged) removed the dash, number, count, and contact rules from the system prompt, simulating a careless prompt edit. The eval run fell to 62.5% (25 of 40), below the threshold, and exited 1: every dash-bait reply kept the dashes, every count reply dropped the plus sign, and every contact-details reply repeated the made-up phone number and address. The scorer and the gate also have fixed-input tests, and each rule, the gate, the exit codes, and the workflow protections were broken on purpose to confirm the tests fail.
+
+**Running it.** Set `ANTHROPIC_API_KEY` in your shell first (never commit it or paste it into a command).
+
+```bash
+npm run eval:bullets -- --estimate
+```
+
+counts tokens and prints the cost without drafting anything. `npm run eval:bullets` makes the 40 calls (about $0.003 each time; the hard ceiling is under a cent), prints the report, and saves the replies to `evals/resume-bullets/results/` (not committed). `npm run eval:bullets:replay -- some-file.json` scores saved replies with the same scorer and gate, with no key and no network. The workflow [`.github/workflows/ai-eval.yml`](.github/workflows/ai-eval.yml) runs it on manual dispatch, every Tuesday, and on pull requests that change `evals/`, `src/lib/copy-rules.js`, or the workflow itself; it keeps the replies as an artifact for 30 days. It is not a required check, because a statistical result should not block a merge.
+
+**Safety and cost.** The key exists only as the `ANTHROPIC_API_KEY` Actions secret, and the workflow gives it to one step only. The workflow uses `pull_request`, never `pull_request_target`, skips pull requests from forks and from Dependabot, has read-only permissions and a 10-minute timeout, and uses only first-party actions. The runner never prints the key, even if an error message contains it. `tests/ai-eval-workflow.spec.ts` fails if any of that changes. Only text that is already public in the repository is sent, and the normal build, tests, and CI never call the API. A spend-limited key in its own Anthropic workspace is the second cap.
+
+**Changing a prompt or a rule.**
+
+1. To change a prompt, edit [`evals/resume-bullets/prompts.mjs`](evals/resume-bullets/prompts.mjs) (or the system prompt, or `config.mjs`). To change a rule, edit [`src/lib/copy-rules.js`](src/lib/copy-rules.js) for the shared ones, or [`evals/lib/score.mjs`](evals/lib/score.mjs) for the eval-only ones. The schema enforces only the dash, phone, and verb rules; the weak-verb, count, and one-sentence rules are enforced by the add-resume-bullet skill and this eval, and some existing bullets deliberately break them (a finished count written without a plus sign, one two-sentence bullet, one old "Reviewed" bullet).
+2. Add the case to `tests/bullet-eval-scorer.spec.ts` (a clean sample and a bad one for a new rule; the test fails if a rule has no bad sample), and check that it can fail.
+3. Run `npm run eval:bullets` and read the report and the replies. If the pass rate moved on purpose, record a new baseline with `npm run eval:bullets -- --update-baseline --threshold 0.95` (or the number you choose), and explain the change in the pull request. Never lower the threshold only to turn a run green.
+
+The scorer, the report and gate, and the workflow are tested without calling the API by `tests/bullet-eval-scorer.spec.ts`, `tests/bullet-eval-gate.spec.ts` (which includes a local stand-in server for the live path), and `tests/ai-eval-workflow.spec.ts`.
+
 ## Exploratory testing with the Playwright MCP server
 
 The Playwright suite checks what I thought to check. Exploratory testing finds what I did not: Claude Code drives a real browser against the live site, follows its nose, and reports anything a visitor or recruiter would trip over. Findings that a test would catch next time then become Playwright tests.
