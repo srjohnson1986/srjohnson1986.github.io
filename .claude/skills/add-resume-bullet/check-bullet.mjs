@@ -18,19 +18,15 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import * as yaml from 'js-yaml';
-import { noDashes, noPhone, startsWithPastTenseVerb } from '../../../src/lib/copy-rules.js';
+import { noDashes, noPhone, startsWithPastTenseVerb, WEAK_VERBS, unflooredCounts } from '../../../src/lib/copy-rules.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
 const dataDir = path.join(root, 'src', 'data', 'resume');
 const file = (name) => path.join(dataDir, name);
 
-// ---- The rules this script adds (edit these lists to change a rule) -------------------------------
-
-// Past-tense verbs that pass the schema's shape check but are not strong action verbs.
-const WEAK_VERBS = ['reviewed', 'asked', 'helped', 'worked'];
-
-// Things a project accumulates over time. A count of these is a floor ("152+ issues"), not an exact figure.
-const COUNT_NOUNS = ['issues', 'pull requests', 'PRs', 'commits', 'releases', 'tests', 'test cases', 'merges', 'updates', 'changes', 'defects', 'tickets'];
+// ---- The rules this script adds ------------------------------------------------------------------
+// The weak-verb list and the project-count check live in src/lib/copy-rules.js (shared with the AI bullet
+// eval in evals/); edit them there. The suggested strong verbs below are only suggestions.
 
 // Strong verbs offered as alternatives. Each must pass the schema's past-tense check (see the test).
 export const STRONG_VERBS = [
@@ -95,11 +91,9 @@ export function checkBullet({ role, versions, text, theme, tags, id, exactOk = f
     errors.push(`"${verb}" is not a strong action verb (weak verbs: ${WEAK_VERBS.map((v) => v[0].toUpperCase() + v.slice(1)).join(', ')}). Start with what you changed or delivered instead.`);
   }
 
-  const countPattern = new RegExp(`(?<![\\w$.,])(\\d[\\d,]*)(?![\\d,+])((?:\\s+[\\w-]+){0,2}?)\\s+(${COUNT_NOUNS.join('|')})\\b`, 'gi');
-  for (const m of clean.matchAll(countPattern)) {
-    const phrase = m[0];
-    if (!exactOk) {
-      errors.push(`"${phrase}": write a project count as a floor with a plus sign, for example "${m[1]}+${m[2]} ${m[3]}". (If the count is final because the project is finished, say so and use --exact-ok.)`);
+  if (!exactOk) {
+    for (const { phrase, number, between, noun } of unflooredCounts(clean)) {
+      errors.push(`"${phrase}": write a project count as a floor with a plus sign, for example "${number}+${between} ${noun}". (If the count is final because the project is finished, say so and use --exact-ok.)`);
     }
   }
 
