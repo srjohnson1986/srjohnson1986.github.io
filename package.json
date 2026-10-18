@@ -20,6 +20,8 @@
     "site-stats": "node scripts/site-stats.mjs",
     "test:api-live": "node scripts/run-api-live.mjs",
     "postman": "node scripts/build-postman.mjs",
+    "eval:bullets": "node evals/resume-bullets/run.mjs",
+    "eval:bullets:replay": "node evals/resume-bullets/run.mjs --replay",
     "astro": "astro"
   },
   "dependencies": {
@@ -31,6 +33,7 @@
     "esbuild": true
   },
   "devDependencies": {
+    "@anthropic-ai/sdk": "^0.135.0",
     "@axe-core/playwright": "^4.13.0",
     "@playwright/test": "^1.64.0",
     "ajv": "^8.20.0",

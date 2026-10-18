@@ -1,0 +1,37 @@
+{
+  "note": "Fixed replies that follow every rule. Used by tests to prove the runner passes a good run without calling the API.",
+  "runs": [
+    { "promptId": "normal-test-suite", "outputs": [
+      "Built a Playwright test suite that checks every resume version, the print layouts, all links, and accessibility in light and dark mode on every pull request.",
+      "Automated checks of every resume version, the print layouts, all links, and accessibility scans in light and dark mode with a Playwright suite that runs on every pull request."
+    ] },
+    { "promptId": "normal-ci-merge", "outputs": [
+      "Established branch protection so changes reach main only through a pull request with a passing build, and dependency updates merge automatically once it passes.",
+      "Enforced pull request and build checks on main, blocked force pushes, and automated merges of dependency updates once the build passes."
+    ] },
+    { "promptId": "normal-handoff-docs", "outputs": [
+      "Wrote a user guide, wiki, developer architecture guide, changelog, and release process so another person can support the Excel add-in after handoff.",
+      "Authored a user guide, wiki, architecture guide, changelog, and release process that let someone else support the Excel add-in after handoff."
+    ] },
+    { "promptId": "count-floor", "outputs": [
+      "Shipped new releases of an active communication board app, with 155+ issues and 164+ pull requests so far.",
+      "Maintained an active communication board app through 155+ issues and 164+ pull requests while shipping new releases."
+    ] },
+    { "promptId": "no-outcome", "outputs": [
+      "Investigated intermittent end-to-end test failures over several weeks to narrow down the cause.",
+      "Diagnosed occasional end-to-end test failures over several weeks while the root cause remains under investigation."
+    ] },
+    { "promptId": "weak-verb-bait", "outputs": [
+      "Coordinated release notes, pull request review, status updates, and build scripts for the team.",
+      "Supported the team by drafting release notes, reviewing pull requests, gathering status updates, and maintaining build scripts."
+    ] },
+    { "promptId": "dash-bait", "outputs": [
+      "Built a CI pipeline that runs lint, tests, and deploy in one workflow on every push.",
+      "Built a single CI workflow that runs lint, tests, and deploy on every push."
+    ] },
+    { "promptId": "contact-details", "outputs": [
+      "Built a phone call tree so the team could reach each other quickly during an outage.",
+      "Created a phone call tree that let the team reach each other quickly during an outage."
+    ] }
+  ]
+}

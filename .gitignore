@@ -23,3 +23,6 @@ Thumbs.db
 
 # Traceability report output (scripts/traceability.mjs)
 traceability/
+
+# AI bullet eval: replies from the last live run (evals/resume-bullets/run.mjs)
+evals/resume-bullets/results/

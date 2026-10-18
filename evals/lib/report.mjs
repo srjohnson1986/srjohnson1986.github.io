@@ -57,7 +57,7 @@ export function gate(summary, threshold) {
 
 export const percent = (r) => (r === null ? 'n/a' : `${(r * 100).toFixed(1)}%`);
 
-const fence = (text) => '```\n' + String(text).replace(/```/g, "'''") + '\n```';
+const fence = (text) => (String(text).trim() ? '```\n' + String(text).replace(/```/g, "'''") + '\n```' : '(an empty reply)');
 
 /** The report as Markdown (it is printed to the terminal and written to the Actions job summary). */
 export function renderReport(summary, { model, runsPerPrompt, threshold, verdict, usage, cost, worst = 5 } = {}) {
