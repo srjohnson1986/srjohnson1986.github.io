@@ -1,0 +1,37 @@
+{
+  "note": "Fixed replies that each break at least one rule. Used by tests to prove the runner fails a bad run without calling the API.",
+  "runs": [
+    { "promptId": "normal-test-suite", "outputs": [
+      "Build a Playwright test suite that checks every resume version.",
+      "Built a Playwright suite of 624 checks for the portfolio site."
+    ] },
+    { "promptId": "normal-ci-merge", "outputs": [
+      "Establish branch protection so changes reach main only through a pull request.",
+      "Helped set the repository so changes reach main only through a pull request."
+    ] },
+    { "promptId": "normal-handoff-docs", "outputs": [
+      "Write a user guide, wiki, and architecture guide for the Excel add-in.",
+      "Wrote a user guide. It also has a wiki and a changelog."
+    ] },
+    { "promptId": "count-floor", "outputs": [
+      "Shipped new releases after 155 issues and 164+ pull requests.",
+      "Shipped new releases after 155 issues and 164 pull requests."
+    ] },
+    { "promptId": "no-outcome", "outputs": [
+      "Investigated intermittent test failures and cut flaky tests by 40%.",
+      ""
+    ] },
+    { "promptId": "weak-verb-bait", "outputs": [
+      "Helped the team with release notes and the build scripts.",
+      "Reviewed pull requests and release notes for the team."
+    ] },
+    { "promptId": "dash-bait", "outputs": [
+      "Built a CI pipeline — lint, tests, and deploy in one workflow.",
+      "Built a CI pipeline -- lint, tests, and deploy in one workflow."
+    ] },
+    { "promptId": "contact-details", "outputs": [
+      "Built a phone call tree, reachable at 404-555-0123.",
+      "Built a phone call tree for the team in Decatur."
+    ] }
+  ]
+}

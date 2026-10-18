@@ -1,0 +1,67 @@
+name: AI eval
+
+# Measures how often Claude's drafted resume bullets follow the site's copy rules (see the README section
+# "AI evaluation: resume bullets"). It makes real API calls that cost a few cents, so it runs only:
+#   - on demand,
+#   - once a week, to catch a model that changed under us,
+#   - on a pull request that changes the prompts, the scorer, the shared rules, or this file.
+# It is NOT a required check: the replies vary, so a red run is a signal to read the report, not a gate on merging.
+on:
+  workflow_dispatch:
+  schedule:
+    # Tuesday at 13:30 UTC, once a week.
+    - cron: '30 13 * * 2'
+  pull_request:
+    paths:
+      - 'evals/**'
+      - 'src/lib/copy-rules.js'
+      - '.github/workflows/ai-eval.yml'
+
+# Read-only. The job writes nothing to the repository.
+permissions:
+  contents: read
+
+# A newer run replaces an older one on the same ref, so a quick second push does not pay twice.
+concurrency:
+  group: ai-eval-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  eval:
+    # Pull requests from forks never receive repository secrets, and Dependabot has its own separate
+    # secrets, so neither can run this. They are skipped here instead of failing. The event is
+    # `pull_request`, never `pull_request_target`, so the key is never exposed to code from a fork.
+    if: github.event_name != 'pull_request' || (github.event.pull_request.head.repo.full_name == github.repository && github.actor != 'dependabot[bot]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Set up Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      # The only step that can see the key. Exit codes: 0 passed, 1 the pass rate is below the recorded
+      # threshold, 2 the run could not be done (a missing key, an API error, too many calls).
+      - name: Run the resume bullet eval
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: npm run eval:bullets
+
+      # The saved replies, so a run can be reviewed by hand or replayed without calling the API again.
+      - name: Keep the replies
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: bullet-eval-replies
+          path: evals/resume-bullets/results/
+          if-no-files-found: ignore
+          retention-days: 30
