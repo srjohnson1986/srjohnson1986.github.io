@@ -1,0 +1,45 @@
+name: API live
+
+# Contract checks against the REAL GitHub API for the project totals (scripts/site-stats.mjs).
+# Weekly and on demand only, never on a pull request: they use the network and the rate limit.
+# The mocked and negative tests run on every pull request in the CI workflow.
+#
+# Two ways of checking the same thing, on purpose: the Playwright live spec (tests/site-stats-live.spec.ts,
+# using Playwright's request fixture) and a Postman collection run with Newman. Each makes six calls.
+on:
+  workflow_dispatch:
+  # Monday, an hour before the weekly website-site-stats routine reads the same numbers.
+  schedule:
+    - cron: '15 12 * * 1'
+
+permissions:
+  contents: read
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    env:
+      # The token Actions already provides. It is read-only here and is never printed.
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v7
+
+      - name: Set up Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      # No browser is needed: the checks use Playwright's request fixture only.
+      - name: Playwright live contract checks
+        run: npm run test:api-live
+
+      # The committed totals become the "never lower than" values for the collection.
+      - name: Postman collection with Newman
+        run: |
+          mins=$(node -e "const s=JSON.parse(require('fs').readFileSync('src/data/site-stats.json','utf8')); console.log(['issues','pull_requests','pull_requests_merged','commits','releases'].map(k=>'--env-var min_'+k+'='+s[k]).join(' '))")
+          npx --yes newman@6.2.3 run postman/site-stats.postman_collection.json --env-var "token=$GITHUB_TOKEN" $mins

@@ -40,12 +40,14 @@ src/
   layouts/      the base layout
   lib/          loaders that join content collections and enforce cross-collection rules; copy-rules.js holds the text rules the schema and the bullet skill share
   styles/       global.css and the print stylesheet for the PDFs
-  data/         site settings and navigation (site.ts), page text (intros.yaml), Home cards, events and studio info (YAML)
+  data/         site settings and navigation (site.ts), page text (intros.yaml), Home cards, events and studio info (YAML), and the project totals (site-stats.json)
     resume/     roles, bullets, summaries, skills, education, resume versions, the lane list, and the lane data imported from the bank (YAML)
   content/      one YAML file per item: projects/, releases/, art/
   assets/       images for the art page
   content.config.ts   every collection and its schema
-scripts/        PDF generation, the icon and link-preview image generators, the smoke test runner, and the requirements traceability report
+scripts/        PDF generation, the icon and link-preview image generators, the smoke test runner, the requirements traceability report, and the site-totals collection (site-stats.mjs) and Postman collection builder
+contracts/      JSON Schemas for the GitHub API answers the site-totals script uses and for src/data/site-stats.json
+postman/        the Postman collection of the live API checks, run with Newman
 tests/          the Playwright suite
 .claude/agents/ the test-reviewer subagent (see Testing)
 .claude/skills/ the add-resume-bullet skill (see Adding a resume bullet with a skill)
@@ -109,6 +111,7 @@ The Playwright suite runs against the built site and is public on purpose. It re
 - **Lane data:** `tests/lane-data.spec.ts` runs the checks in `src/lib/lane-data.js` (the same code the build runs) on the real data files and on one broken case per rule: unknown lanes, partial role ranks, and combined bullets that point at missing bullets, mix roles, or are used in a lane where a bullet they replace is not tagged. No browser needed.
 - **Private bank content:** `tests/bank-private.spec.ts` checks that no built page shows a private section name from the bank (Target Roles, the behavioral stories, the application answers), that no private file is copied into `dist/`, and, when the local bank snapshot is present, that none of its story titles appear on a page.
 - **Bullet verbs:** `tests/bullet-verbs.spec.ts` checks the past-tense verb rule on examples, on every bullet and combined bullet in the real data, and that the content schema applies it. No browser needed.
+- **Site totals (API and contract):** `tests/site-stats.spec.ts`, `tests/site-stats-postman.spec.ts`, and the weekly `tests/site-stats-live.spec.ts`; see API and contract tests for the site totals. No browser needed.
 - **Traceability:** `tests/traceability.spec.ts` checks the requirements traceability check on made-up data (see Requirements traceability). No browser needed.
 - **Smoke test:** a handful of checks against the deployed site, including that the traceability report was published.
 
@@ -166,6 +169,27 @@ The `no-automated-test` label is for things that stay manual, such as a judgment
 4. CI fails until every requirement has a test or a reason and every tag points at a real requirement.
 
 `tests/traceability.spec.ts` tests the check itself on made-up requirements and results: each failure above, the exemption, the retired and closed cases, and the exit codes. The logic is in `scripts/lib/traceability.mjs` and the command line in `scripts/traceability.mjs`.
+
+## API and contract tests for the site totals
+
+The project totals (issues, pull requests, merged pull requests, commits, releases, lines of code, and Playwright tests) come from the GitHub API. [`scripts/site-stats.mjs`](scripts/site-stats.mjs) collects them and writes [`src/data/site-stats.json`](src/data/site-stats.json). It is the code the weekly Claude routine `website-site-stats` runs (see below), so the numbers that go into the resume bank pass through the checks described here first.
+
+**How the collection works.** It makes six GitHub API calls (the repository, then issues, pull requests, merged pull requests, commits, and releases) and reuses each answer within a run. Every answer is checked against a JSON Schema in [`contracts/`](contracts/), and the schemas list only the fields the script uses, so a harmless new field in GitHub's answer does not break anything. The final data is checked against `contracts/site-stats.schema.json`. A bad answer stops the script with one clear line and a non-zero exit, and nothing is written. Counts for issues, pull requests, merged pull requests, commits, and releases may never be lower than the committed file, because a drop means a wrong or partial answer. Lines of code and test counts are allowed to fall, since deleting code is normal.
+
+**What is tested.**
+
+- **On every pull request (no network):** `tests/site-stats.spec.ts` runs the script's code against recorded GitHub answers (`tests/fixtures/github-api/good.json`) and a local stand-in server. It checks that each recorded answer and the committed data file match their schemas, and that the failure cases each stop the run with a clear message: a missing field, a wrong type, a negative count, an empty commit list, an incomplete search, an answer that is not JSON, a different repository, a rate-limit answer (403 or 429, with the reset time), a 404, a rejected token, a server error, and a network failure. It also checks that a failed run leaves the file untouched, that a count lower than the committed value is refused, that a run makes six calls and reuses answers, and that the token is sent only as a header and never appears in any output. `tests/site-stats-postman.spec.ts` checks that the Postman collection matches the script's endpoints and the schemas and holds no secret.
+- **Weekly and on demand (real API):** `tests/site-stats-live.spec.ts` uses Playwright's `request` fixture against the real endpoints. It checks the status codes, the schemas, that the searches are complete, that counts are non-negative integers, that merged pull requests do not exceed all pull requests, that no count is lower than the committed file, and that the rate limit has room. The [API live workflow](.github/workflows/api-live.yml) runs it on Mondays and by manual dispatch, never on a pull request, with the token Actions already provides. The same workflow then runs the Postman collection with Newman, so the same checks exist both ways. They are redundant on purpose, to show both approaches. Live calls come to twelve a week.
+
+**Running it.**
+
+```bash
+npm run site-stats
+```
+
+collects and checks the totals without writing anything (add `-- --write` to save `src/data/site-stats.json`; run `npm run build` first, because the test count comes from `playwright test --list`). Set `GITHUB_TOKEN` to raise the rate limit; the token is never printed. The live checks run with `npm run test:api-live`. `npm run postman` rewrites the Postman collection from the script's endpoints and the schemas, and the collection runs with `npx newman@6.2.3 run postman/site-stats.postman_collection.json --env-var token=$GITHUB_TOKEN`, optionally with `--env-var min_issues=N` (and `min_pull_requests`, `min_pull_requests_merged`, `min_commits`, `min_releases`) for the never-lower checks. The mocked tests run with the rest of the suite in `npm test`.
+
+**The routine.** `website-site-stats` is a Claude routine that runs each Monday in the Claude cloud, not in this repository. It runs `node scripts/site-stats.mjs --json` in its clone and uses the checked numbers to refresh the Totals sentence in the private bank. It changes nothing in the repository. The file `src/data/site-stats.json` is refreshed by running the script with `--write` and opening a pull request.
 
 ## Exploratory testing with the Playwright MCP server
 
@@ -256,13 +280,14 @@ Run `npm run build` after any change. If an entry breaks a rule, the build stops
 - **Keep this README current.** Each pull request either updates the README when it changes something the README describes (a page, a feature, a command, a dependency, a test area) or says in its description why no update was needed. The [pull request template](.github/pull_request_template.md) has a checkbox for it.
 - **CI** ([ci.yml](.github/workflows/ci.yml)) builds the site runs the full test suite, and checks requirements traceability on every pull request.
 - **Deploy** ([deploy.yml](.github/workflows/deploy.yml)) builds the site, runs the suite to build the requirements traceability matrix, and publishes both to GitHub Pages on every push to `main`.
+- **API live** ([api-live.yml](.github/workflows/api-live.yml)) runs the live GitHub API contract checks and the Newman run weekly and on demand, and never on a pull request.
 - **Smoke test** ([smoke.yml](.github/workflows/smoke.yml)) checks the live site after every deployment, weekly, and on demand. It is a separate workflow so a failure can never block a deployment.
 
 This site was built with an AI coding agent (Claude Code) working inside that workflow, with its changes going through pull requests and the checks above.
 
 ## Dependencies
 
-The site depends only on Astro, its official sitemap integration (`@astrojs/sitemap`), which writes `sitemap-index.xml` at build time, and the Atkinson Hyperlegible Next font package (`@fontsource/atkinson-hyperlegible-next`). Playwright (which also prints the PDFs in the build), axe-core, and js-yaml (which lets the tests read the data files) are development tools and are not shipped to visitors. The link-preview image `public/images/social-preview.jpg` is generated from the Home photo by `node scripts/make-social-image.mjs`; run it again if the photo, the name, or the colors change. The site icons (an "SJ" monogram in the accent color) come from `node scripts/make-icons.mjs`.
+The site depends only on Astro, its official sitemap integration (`@astrojs/sitemap`), which writes `sitemap-index.xml` at build time, and the Atkinson Hyperlegible Next font package (`@fontsource/atkinson-hyperlegible-next`). Playwright (which also prints the PDFs in the build), axe-core, js-yaml (which lets the tests read the data files), and Ajv (a JSON Schema validator for the site-totals contracts) are development tools and are not shipped to visitors. The link-preview image `public/images/social-preview.jpg` is generated from the Home photo by `node scripts/make-social-image.mjs`; run it again if the photo, the name, or the colors change. The site icons (an "SJ" monogram in the accent color) come from `node scripts/make-icons.mjs`.
 
 [Dependabot](.github/dependabot.yml) opens a pull request each Monday for npm and GitHub Actions updates, waiting 3 days after a release before proposing it. The [auto-merge workflow](.github/workflows/dependabot-auto-merge.yml) queues a merge on each one, so the CI check decides: green merges (and deploys), red waits. A weekly Claude routine, `website-dependency-repair`, runs in the Claude cloud rather than in this repository. It repairs red Dependabot pull requests by pushing a fix to their branch, and labels any it cannot fix `needs-human`. It never merges anything itself.
 
