@@ -106,7 +106,7 @@ export function buildMatrix(requirements, tests) {
   const seen = new Set();
   const unique = problems.filter((p) => (seen.has(p.message) ? false : seen.add(p.message)));
   const retired = requirements.filter((r) => r.retired);
-  return { rows, problems: unique, retired, testCount: tests.length };
+  return { rows, problems: unique, retired, testCount: tests.length, linkedCount: tests.filter((t) => t.reqs.some((n) => known.has(n) && !known.get(n).retired)).length };
 }
 
 const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -132,7 +132,8 @@ export function summarize(matrix) {
     exempt: rows.filter((r) => r.coverage === 'exempt').length,
     gaps: rows.filter((r) => r.coverage === 'gap' || r.coverage === 'exempt-no-reason').length,
     tests: matrix.testCount,
-    linked: new Set(rows.flatMap((r) => r.tests.map((t) => `${t.project}|${t.file}|${t.line}|${t.title}`))).size,
+    // Counted per test, not per title: parametrized tests can share a title.
+    linked: matrix.linkedCount,
   };
 }
 

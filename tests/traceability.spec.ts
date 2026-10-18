@@ -106,6 +106,12 @@ test.describe('the traceability check', { tag: ['@req-355'] }, () => {
     expect(m.rows[0].result).toBe('not run');
   });
 
+  test('linked tests are counted per test, even when titles repeat', () => {
+    const { m } = run([issue(1)], [report(spec('same', ['req-1']), spec('same', ['req-1']), spec('stray', []))]);
+    expect(m.testCount).toBe(3);
+    expect(m.linkedCount).toBe(2);
+  });
+
   test('the markdown and HTML list every requirement and escape what they print', () => {
     const odd = issue(5, { title: 'REQ: Handles <b>markup</b> | pipes' });
     const { m } = run([issue(1), odd], [report(spec('ok', ['req-1', 'req-5']))]);
