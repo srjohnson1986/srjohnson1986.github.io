@@ -120,7 +120,7 @@ if (runLighthouse) {
 let k6Status = 0;
 if (runK6) {
   console.log('\n=== k6: smoke test ===');
-  k6Status = spawnSync(k6, ['run', '--summary-export', k6Summary, '-e', `BASE_URL=${ORIGIN}`, path.join('perf', 'k6-smoke.js')], { cwd: root, stdio: 'inherit' }).status ?? 1;
+  k6Status = spawnSync(k6, ['run', '--quiet', '--summary-export', k6Summary, '-e', `BASE_URL=${ORIGIN}`, path.join('perf', 'k6-smoke.js')], { cwd: root, stdio: 'inherit' }).status ?? 1;
 }
 
 stopServer();
