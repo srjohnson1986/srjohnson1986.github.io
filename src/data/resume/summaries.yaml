@@ -32,3 +32,60 @@
     about a week at Verizon, and trained about 100 users across three continents at Procter &
     Gamble. Currently a digital transformation consultant who also built a communication app for
     non-technical caregivers with zero-setup boards, large-text modes, and screen-reader support.
+
+# Summaries for the six lane resumes (lanes.yaml). Written from the bullet bank; every number appears in the bank.
+# Work done with Claude Code is described as built under guardrails, with the owner making the design,
+# review, and content decisions.
+
+- id: summary-lane-qa
+  text: >-
+    QA lead with 10+ years at Verizon testing high-traffic eCommerce and launch-critical
+    releases, including a site serving 70M monthly visitors. Led onshore and offshore testers,
+    wrote test plans, and investigated defects through log evidence in Kibana. Recent personal
+    projects, built with Claude Code under issue, pull request, and CI guardrails while owning
+    design, review, and testing decisions, add hands-on automation, including a 458+ test
+    suite behind a 90% coverage gate.
+
+- id: summary-lane-sdet
+  text: >-
+    QA engineer growing into test automation, with 10+ years at Verizon testing a site serving
+    70M monthly visitors. Builds and proves test suites in personal projects made with Claude
+    Code under issue, pull request, and CI guardrails, owning every design, review, and
+    testing decision: a public Playwright suite, requirements traceability linking 760+ tests
+    to requirement issues, API and contract tests, and a 458+ test suite behind a 90% coverage
+    gate. Each check is proven able to fail before it is trusted.
+
+- id: summary-lane-con
+  text: >-
+    Digital transformation consultant and implementation specialist with a QA and process
+    background. At Thermal Process Development, delivered 11+ versioned releases of an
+    open-source Excel add-in that cut a 4+ hour manual build to about 10 seconds, and coached
+    a colleague and a client onto Claude-based workflows. Previously owned governance for a
+    Jira instance with 10,000+ users at Verizon and validated 20 third-party subscription
+    integrations end to end.
+
+- id: summary-lane-adp
+  text: >-
+    Training and adoption specialist with a QA and process background. Wrote user guides that
+    reached tens of thousands of views at Verizon, trained about 100 users across three
+    continents at Procter & Gamble, and now coaches a colleague and a client in adopting
+    Claude at Thermal Process Development. Also built a communication app for non-technical
+    caregivers with zero-setup boards and screen-reader support, using Claude Code under
+    guardrails while owning the design and review decisions.
+
+- id: summary-lane-pmba
+  text: >-
+    Project manager and business analyst with a QA and process background. Developed a
+    dual-baseline Smartsheet schedule template through stakeholder interviews at Thermal
+    Process Development, and led QA across project teams of up to 20 at Verizon, where defects
+    were traced back to flawed requirements. Delivered a communication app to Android and the
+    web in 13 days using Claude Code under issue, branch, and pull request guardrails, with
+    scoping, design, and review decisions owned throughout.
+
+- id: summary-lane-it
+  text: >-
+    Systems and tooling generalist with a QA background. Owned governance for a Jira instance
+    with 10,000+ users at Verizon, cutting unauthorized feature additions by 90% within three
+    months and consolidating thousands of inconsistent labels to a couple hundred. Automates
+    builds, releases, and dependency updates through CI in personal projects made with Claude
+    Code under guardrails, and diagnosed desktop and laptop hardware problems at Geek Squad.

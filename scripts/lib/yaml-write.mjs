@@ -94,7 +94,7 @@ export function editRoles(text, ranksByRole, laneOrder) {
   return out.join(eol);
 }
 
-const COMBOS_HEADER = `# Combined bullets: one bullet that can stand in for two or more bullets of the same role when a lane's
+const COMBOS_HEADER = `# Combined bullets: one bullet that can stand in for one or more bullets of the same role (one means a shorter wording of a single bullet) when a lane's
 # resume runs over two pages. Each entry names the bullets it replaces and the lanes it may be used in;
 # it is only usable in a lane where every bullet it replaces is also tagged for that lane (the build checks
 # this, see src/lib/lane-data.js). Text follows the same copy rules as a bullet.

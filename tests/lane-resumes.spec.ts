@@ -12,12 +12,12 @@ import { planLane, applySteps } from '../src/lib/lane-fit.js';
 
 const load = <T>(file: string): T => yaml.load(fs.readFileSync(path.join(root, 'src', 'data', 'resume', file), 'utf8')) as T;
 
-type Lane = { id: string; code: string; label: string; order: number; summary_id: string; org_labels: 'real' | 'neutral'; skills_from: string; role_floor?: Record<string, number> };
+type Lane = { id: string; code: string; label: string; order: number; summary_id: string; org_labels: 'real' | 'neutral'; skills: Record<string, string[]>; role_floor?: Record<string, number> };
 type Role = { id: string; org: string; neutral_org?: string; start: number; end: number | 'present'; lane_rank: Record<string, number> };
 type Bullet = { id: string; role: string; public: boolean; text: string; lanes?: Record<string, number[]> };
 type Combo = { id: string; role: string; replaces: string[]; lanes: string[]; text: string };
 type Fit = { id: string; steps: number; fingerprint: string; pages: number };
-type SkillGroup = { order: number; group: string; items: (string | { name: string; only?: string[] })[] };
+type SkillGroup = { id: string; order: number; group: string; items: (string | { name: string; only?: string[]; lane_only?: boolean })[] };
 type Item = { id: string; role: string; tier: number; text: string; kind: string; replaces?: string[] };
 
 const lanes = load<Lane[]>('lanes.yaml').sort((a, b) => a.order - b.order);
@@ -48,10 +48,7 @@ function expectedItems(lane: Lane): Item[] {
   return applySteps(plan, fit.steps) as Item[];
 }
 
-const expectedSkills = (lane: Lane) =>
-  skillGroups
-    .map((g) => ({ group: g.group, items: g.items.flatMap((i) => (typeof i === 'string' ? [i] : !i.only || i.only.includes(lane.skills_from) ? [i.name] : [])) }))
-    .filter((g) => g.items.length > 0);
+const expectedSkills = (lane: Lane) => skillGroups.filter((g) => lane.skills[g.id]).map((g) => ({ group: g.group, items: lane.skills[g.id] }));
 
 const countPages = (pdf: Buffer) => (pdf.toString('latin1').match(/\/Type\s*\/Page(?![s\w])/g) ?? []).length;
 

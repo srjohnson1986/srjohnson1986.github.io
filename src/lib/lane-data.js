@@ -68,7 +68,7 @@ export function checkLaneData({ lanes, roles, bullets, combos = [] }) {
     comboIds.add(combo.id);
     if (bulletsById.has(combo.id)) problems.push(`${where} has the same id as a bullet`);
     if (!roleIds.has(combo.role)) problems.push(`${where} uses role "${combo.role}", which is not in roles.yaml`);
-    if (combo.replaces.length < 2) problems.push(`${where} replaces fewer than two bullets`);
+    if (combo.replaces.length < 1) problems.push(`${where} replaces no bullets`);
     if (new Set(combo.replaces).size !== combo.replaces.length) problems.push(`${where} lists a replaced bullet twice`);
     if (combo.lanes.length === 0) problems.push(`${where} lists no lanes`);
 

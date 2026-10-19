@@ -7,7 +7,7 @@
 //         - Built a thing. [tpd-built-a-thing | QA1.20 SDET2.10]      (no lane = never used there)
 //         - Whatever.      [tpd-other-thing | ]                         (empty list = never used in any lane)
 //   - a bullet that is not in bullets.yaml yet has the id `new` and is matched by its text
-//   - a combined bullet stands in for two or more bullets:
+//   - a combined bullet stands in for one or more bullets:
 //         - Combined text. [tpd-combo-x replaces tpd-a tpd-b | QA SDET]
 // The export escapes square brackets as \[ and \]; both forms are accepted.
 

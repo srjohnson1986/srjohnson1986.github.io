@@ -6,62 +6,86 @@
 # Per lane:
 #   summary_id    the summary printed on the lane's resume (summaries.yaml)
 #   org_labels    real or neutral employer names
-#   skills_from   PLACEHOLDER: borrow the Core Skills shown on this resume version, until the lane has its own list
+#   skills        the lane's own Core Skills: skill group id (skills.yaml) -> names in display order. Each name
+#                 must exist in that group in skills.yaml (a skill with lane_only: true shows on lanes only)
 #   role_floor    the fewest bullets a role keeps when the resume is trimmed to fit two pages
 #
-# PLACEHOLDER: the summaries below are the existing hand-written ones, reused until each lane has its own.
 # The lane resumes are built at /resume/print/lane-<id>/ and as PDFs, but nothing links to them yet.
 
 - id: qa
   code: QA
   label: QA Engineer
   order: 1
-  summary_id: summary-qa
+  summary_id: summary-lane-qa
   org_labels: real
-  skills_from: qa
+  skills:
+    quality-testing: [Automated and Manual Testing, Regression, Test Planning, Test Case Management, Exploratory Testing, Defect Analysis, Requirements Traceability, Environment Validation, SDLC, Agile]
+    tools-platforms: [Jira, qTest, Zephyr, Postman, Kibana, Chrome DevTools, Burp Suite, Playwright, Selenium, GitHub Actions CI/CD]
+    technical: [Troubleshooting, Software Documentation]
+    languages: [SQL, Python, HTML, CSS]
   role_floor: { tpd: 2, verizon: 2 }
 
 - id: sdet
   code: SDET
   label: Automation / SDET
   order: 2
-  summary_id: summary-qa
+  summary_id: summary-lane-sdet
   org_labels: real
-  skills_from: qa
+  skills:
+    quality-testing: [Automated and Manual Testing, Regression, Requirements Traceability, API and Contract Testing, Accessibility Testing, Performance Testing, Defect Analysis, DevOps]
+    tools-platforms: [Playwright, GitHub Actions CI/CD, Postman, Newman, JSON Schema, axe-core, Lighthouse CI, k6, JUnit, Robolectric, Roborazzi, Puppeteer, Kover, Git and GitHub, Claude Code]
+    technical: ["Process & Workflow Optimization & Automation (AI-assisted, VBA/Macro Development)", Troubleshooting]
+    languages: [Kotlin, Python, SQL, VBA, HTML, CSS]
   role_floor: { tpd: 2, verizon: 2 }
 
 - id: con
   code: CON
   label: Implementation / Consulting
   order: 3
-  summary_id: summary-consulting
+  summary_id: summary-lane-con
   org_labels: real
-  skills_from: consulting
+  skills:
+    quality-testing: [Test Planning, Requirements Traceability, Defect Analysis, Agile, SDLC]
+    tools-platforms: [Jira, Confluence, Smartsheet, SharePoint, Postman, Microsoft Office, Google Workspace, Git and GitHub, Claude Code, Copilot, Windows Server]
+    technical: ["Process & Workflow Optimization & Automation (AI-assisted, VBA/Macro Development)", Software Documentation, Troubleshooting]
+    languages: [SQL, VBA, VB.NET, Python, HTML, CSS]
   role_floor: { tpd: 2, verizon: 2 }
 
 - id: adp
   code: ADP
   label: Digital Adoption / Training
   order: 4
-  summary_id: summary-adoption
+  summary_id: summary-lane-adp
   org_labels: real
-  skills_from: adoption
+  skills:
+    quality-testing: [Exploratory Testing, Defect Analysis, Requirements Traceability]
+    tools-platforms: [Confluence, Jira, Google Workspace, Microsoft Office, Prezi, Nielsen Answers Builder, SharePoint, Smartsheet, Claude, Claude Code, Copilot]
+    technical: [Software Documentation, "Process & Workflow Optimization & Automation (AI-assisted, VBA/Macro Development)", Troubleshooting, Progressive web apps (PWA)]
+    languages: [SQL, HTML, CSS]
   role_floor: { tpd: 2, verizon: 2 }
 
 - id: pmba
   code: PMBA
   label: Project Management / Business Analysis
   order: 5
-  summary_id: summary-consulting
+  summary_id: summary-lane-pmba
   org_labels: real
-  skills_from: consulting
+  skills:
+    quality-testing: [Requirements Traceability, Defect Analysis, Test Planning, Agile, SDLC, Exploratory Testing]
+    tools-platforms: [Jira, Confluence, Smartsheet, Microsoft Office, Google Workspace, Postman, SharePoint, Spotfire, Git and GitHub]
+    technical: ["Process & Workflow Optimization & Automation (AI-assisted, VBA/Macro Development)", Software Documentation]
+    languages: [SQL, VBA, VB.NET]
   role_floor: { tpd: 2, verizon: 2 }
 
 - id: it
   code: IT
   label: IT Generalist
   order: 6
-  summary_id: summary-consulting
+  summary_id: summary-lane-it
   org_labels: real
-  skills_from: consulting
+  skills:
+    quality-testing: [Defect Analysis, Environment Validation, DevOps, Regression]
+    tools-platforms: [Jira, Confluence, Smartsheet, Kibana, Chrome DevTools, Git and GitHub, GitHub Actions CI/CD, Dependabot, PowerShell build scripting, Windows Server, SharePoint, Microsoft Office, Google Workspace]
+    technical: [Troubleshooting, Hardware Diagnostics, "Process & Workflow Optimization & Automation (AI-assisted, VBA/Macro Development)", Software Documentation]
+    languages: [SQL, VBA, Python]
   role_floor: { tpd: 2, verizon: 2 }

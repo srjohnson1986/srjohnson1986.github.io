@@ -60,6 +60,12 @@ test.describe('lane data checks', { tag: ['@req-320'] }, () => {
     expect(check(bare)).toEqual([]);
   });
 
+  test('accepts a combo that replaces a single bullet (a shorter wording of it)', () => {
+    const one = sound();
+    one.combos[0].replaces = ['a1'];
+    expect(check(one)).toEqual([]);
+  });
+
   const broken: [string, (d: LaneData) => void, RegExp][] = [
     ['a lane id listed twice', (d) => d.lanes.push({ id: 'qa', code: 'QAX' }), /lane id "qa" twice/],
     ['a lane code listed twice', (d) => d.lanes.push({ id: 'other', code: 'QA' }), /lane code "QA" twice/],
@@ -69,7 +75,7 @@ test.describe('lane data checks', { tag: ['@req-320'] }, () => {
     ['a role missing a rank once others have ranks', (d) => delete d.roles[1].lane_rank!.sdet, /role "b" has no lane_rank for "sdet"/],
     ['a role with no ranks at all once others have ranks', (d) => delete d.roles[1].lane_rank, /role "b" has no lane_rank for "qa"/],
     ['a combo that replaces a bullet that does not exist', (d) => d.combos[0].replaces.push('ghost'), /replaces "ghost".*not in bullets.yaml/],
-    ['a combo that replaces fewer than two bullets', (d) => (d.combos[0].replaces = ['a1']), /fewer than two/],
+    ['a combo that replaces no bullets', (d) => (d.combos[0].replaces = []), /replaces no bullets/],
     ['a combo that lists a bullet twice', (d) => (d.combos[0].replaces = ['a1', 'a1']), /replaced bullet twice/],
     ['a combo that mixes roles', (d) => (d.combos[0].replaces = ['a1', 'b1']), /role "a" but replaces "b1" from role "b"/],
     ['a combo that replaces a bullet that is not public', (d) => (d.bullets[1].public = false), /"a2", which is not public/],

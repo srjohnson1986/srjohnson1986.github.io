@@ -242,7 +242,7 @@ export function expectedSkills(variantId: string): { group: string; items: strin
     .map((g) => ({
       group: g.group,
       items: g.items.flatMap((item) =>
-        typeof item === 'string' ? [item] : !item.only || item.only.includes(variantId) ? [item.name] : [],
+        typeof item === 'string' ? [item] : item.lane_only ? [] : !item.only || item.only.includes(variantId) ? [item.name] : [],
       ),
     }))
     .filter((g) => g.items.length > 0);
