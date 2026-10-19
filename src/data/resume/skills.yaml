@@ -1,6 +1,6 @@
 # Core Skills, in the four groups that match the Core Skills block on the resumes.
 # Items are plain strings, or objects with:
-#   only: [variant ids]    show the skill on those resume versions only
+#   only: [variant ids]    show the skill on those resume versions only (today the only version is creative)
 #   lane_only: true        never shown on a resume version; only a lane resume (lanes.yaml) can list it
 #   training_only: true    keep the skill in the list, but fail the build if any public
 #                          bullet mentions it
@@ -46,30 +46,30 @@
     - Eclipse
     # Backed by the bank (Care Communication Board, TPD add-in, Nucor, P&G).
     - Git and GitHub
-    - { name: GitHub Releases, only: [consulting] }
-    - { name: Open-source licensing, only: [consulting] }
-    - { name: GitHub Actions CI/CD, only: [qa, consulting] }
-    - { name: JUnit, only: [qa] }
-    - { name: Robolectric, only: [qa] }
-    - { name: Roborazzi, only: [qa] }
-    - { name: Puppeteer, only: [qa] }
-    - { name: Kover, only: [qa] }
-    - { name: Rubberduck (VBA unit testing), only: [qa, consulting] }
-    - { name: PowerShell build scripting, only: [qa, consulting] }
-    - { name: Claude Code, only: [qa, consulting] }
+    - { name: GitHub Releases, lane_only: true }
+    - { name: Open-source licensing, lane_only: true }
+    - { name: GitHub Actions CI/CD, lane_only: true }
+    - { name: JUnit, lane_only: true }
+    - { name: Robolectric, lane_only: true }
+    - { name: Roborazzi, lane_only: true }
+    - { name: Puppeteer, lane_only: true }
+    - { name: Kover, lane_only: true }
+    - { name: Rubberduck (VBA unit testing), lane_only: true }
+    - { name: PowerShell build scripting, lane_only: true }
+    - { name: Claude Code, lane_only: true }
     - ElevenLabs
-    - { name: SharePoint, only: [consulting, adoption] }
-    - { name: Windows Server, only: [consulting, adoption] }
-    - { name: Spotfire, only: [consulting, adoption] }
-    - { name: Nielsen Answers Builder, only: [consulting, adoption] }
-    - { name: Prezi, only: [consulting, adoption] }
+    - { name: SharePoint, lane_only: true }
+    - { name: Windows Server, lane_only: true }
+    - { name: Spotfire, lane_only: true }
+    - { name: Nielsen Answers Builder, lane_only: true }
+    - { name: Prezi, lane_only: true }
     # Version-specific tools.
     - { name: Studio One, only: [creative] }
     - { name: MIDI, only: [creative] }
     - { name: Procreate, only: [creative] }
-    - { name: Zephyr, only: [consulting] }
-    - { name: Copilot, only: [qa, consulting] }
-    - { name: Claude, only: [qa] }
+    - { name: Zephyr, lane_only: true }
+    - { name: Copilot, lane_only: true }
+    - { name: Claude, lane_only: true }
     # Shown on the lane resumes only (lanes.yaml); backed by the portfolio site bullets.
     - { name: Newman, lane_only: true }
     - { name: JSON Schema, lane_only: true }
@@ -86,10 +86,10 @@
     - Software Documentation
     - Troubleshooting
     - Hardware Diagnostics
-    - { name: Kotlin Multiplatform, only: [qa, consulting] }
-    - { name: Jetpack Compose / Compose Multiplatform, only: [qa, consulting] }
-    - { name: WebAssembly, only: [qa, consulting] }
-    - { name: Progressive web apps (PWA), only: [qa, consulting] }
+    - { name: Kotlin Multiplatform, lane_only: true }
+    - { name: Jetpack Compose / Compose Multiplatform, lane_only: true }
+    - { name: WebAssembly, lane_only: true }
+    - { name: Progressive web apps (PWA), lane_only: true }
 
 - id: languages
   order: 4
@@ -103,4 +103,4 @@
     - Python
     - { name: "C#", training_only: true }
     - VB.NET
-    - { name: Kotlin, only: [qa, consulting] }
+    - { name: Kotlin, lane_only: true }

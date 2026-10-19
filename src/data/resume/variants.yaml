@@ -1,67 +1,10 @@
-# A variant is a summary, a label mode, and its bullets: optional shared groups (see
+# The hand-written resume versions. Only Creative is left: the QA, Consulting, and Adoption versions were replaced by the
+# six lane resumes (lanes.yaml), which are built from the bullet bank. A variant is a summary, a label mode, and its bullets: optional shared groups (see
 # bullet-groups.yaml) followed by its own list of bullet ids. The web Resume page and
 # every PDF render from this file, so they cannot drift apart. Within a variant, bullets are
 # grouped under their role; the order here (groups first, then its own list) is the display
 # order inside each role. The build
 # fails if a bullet is missing or not public. A repeated opening verb only prints a warning.
-
-- id: qa
-  order: 1
-  label: QA Engineer
-  summary_id: summary-qa
-  org_labels: neutral
-  include:
-    - qa-consulting-shared
-  bullets:
-    - vz-led-qa-across-project
-    - vz-managed-test-cases-zephyr-qtest
-    - vz-wrote-test-plans-defined-scope
-    - vz-defined-defect-assignment-escalation-paths
-    - vz-owned-end-to-end-testing-site
-    - vz-explored-features-hands-on-alongside
-    - vz-served-launch-war-rooms
-    - vz-ran-man-in-the-middle-cross-site
-    - vz-investigated-defects-through-kibana
-    - vz-inspected-network-logs-session-data
-    - vz-enforced-requirements-traceability-linking
-    - vz-built-credit-check-test-coverage
-    - vz-applied-risk-based-boundary-testing
-    - vz-executed-automated-test-cases-selenium
-    - cb-engineered-413-test-suite-runs
-    - cb-implemented-ci-coverage-gate
-    - cb-wrote-automated-smoke-test
-    - cb-diagnosed-fixed-race-condition
-    - cb-diagnosed-intermittent-ci-hangs-browser
-    - tpd-added-github-actions-workflow
-    - tpd-split-business-logic-out
-    - ps-proved-suite-could-fail
-    - ps-automated-accessibility-scanning
-
-- id: consulting
-  order: 2
-  label: Implementation / Consulting
-  summary_id: summary-consulting
-  org_labels: neutral
-  include:
-    - qa-consulting-shared
-  bullets:
-    - tpd-built-maintained-open-source-vba
-    - tpd-developed-dual-baseline-smartsheet-schedule
-    - tpd-coordinated-cross-functional-delivery-capital
-    - tpd-delivered-11-versioned-releases
-    - tpd-released-add-in-open-source-mit
-    - tpd-built-python-generator-fabricated-sample-workbooks
-    - tpd-drafted-add-in-initial-design
-    - tpd-wrote-user-guide-wiki
-    - vz-owned-governance-jira-instance
-    - vz-consolidated-jira-labels-thousands
-    - vz-created-confluence-guides-recorded
-    - vz-published-user-guides-tens-thousands-views
-    - cb-gathered-requirements-caregivers-prioritized
-    - cb-directed-claude-code-through
-    - nu-replaced-paper-based-personnel-change-of-status
-    - nu-trained-hr-users-developers
-    - nu-developed-vb-net-forms-sharepoint-web-parts
 
 - id: creative
   order: 3
@@ -83,31 +26,5 @@
     - tpd-built-maintained-open-source-vba
     - cb-combined-ai-coding-agent
     - cb-delivered-v1-two-platforms
-    - gs-diagnosed-desktop-laptop-problems-running
-    - gs-replaced-upgraded-components-customers-computers
-
-- id: adoption
-  order: 4
-  label: Digital Adoption / Training
-  summary_id: summary-adoption
-  org_labels: neutral
-  bullets:
-    - vz-published-user-guides-tens-thousands-views
-    - vz-created-confluence-guides-recorded
-    - vz-educated-product-owners-distinction
-    - vz-restricted-label-editing-small
-    - pg-trained-about-100-users
-    - pg-designed-tool-input-teams
-    - pg-presented-results-leadership-using
-    - nu-trained-hr-users-developers
-    - nu-replaced-paper-based-personnel-change-of-status
-    - tpd-wrote-user-guide-wiki
-    - cb-removed-every-barrier-adoption
-    - cb-kept-documentation-current-without-manual
-    - cb-improved-legibility-accessibility-automatically
-    - cb-tailored-features-real-care
-    - cb-turned-caretaker-feedback-text-to-speech
-    - cb-gathered-requirements-caregivers-prioritized
-    - jp-provided-on-the-spot-technical-support
     - gs-diagnosed-desktop-laptop-problems-running
     - gs-replaced-upgraded-components-customers-computers
