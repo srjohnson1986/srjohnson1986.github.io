@@ -98,7 +98,7 @@ export const MANUAL_REVIEW = [
   'Faithful to the description: no tools, scope, or claims the description did not give.',
   'States an outcome only when the description gave one (a bullet for work with no result should not invent a result).',
   'Strong and clear: says what was changed or delivered, reads naturally, and would hold up in an interview.',
-  'No confidential employer detail, and location only as "Atlanta area".',
+  'No confidential employer detail, and location only as "Decatur, GA".',
   'Numbers written as words ("twelve", "two") match the description; only digits are checked in code.',
 ];
 

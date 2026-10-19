@@ -65,7 +65,7 @@ test.describe('lines with links', { tag: ['@req-328'] }, () => {
 // functions the pages use, so a mistake in them would be on both sides. These literal examples pin them.
 test.describe('the text helpers, with fixed examples', { tag: ['@req-328'] }, () => {
   test('fill puts the name and area from site.ts into {name} and {area}', () => {
-    expect(fill('Hello, I am {name}, from the {area}.')).toBe('Hello, I am Steve Johnson, from the Atlanta area.');
+    expect(fill('Hello, I am {name}, from {area}.')).toBe('Hello, I am Steve Johnson, from Decatur, GA, a suburb of Atlanta.');
     expect(fill('{name} and {name}')).toBe('Steve Johnson and Steve Johnson');
     expect(fill('Nothing to fill')).toBe('Nothing to fill');
   });

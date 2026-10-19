@@ -1,5 +1,6 @@
 // Site-wide facts used by layouts and the resume. Public site rules (see CLAUDE.md):
-// no phone number, location is "Atlanta area" only, contact is email plus LinkedIn and GitHub.
+// no phone number, location is "Decatur, GA" (with "a suburb of Atlanta" in page text; the owner chose to publish the city), no street
+// address, contact is email plus LinkedIn and GitHub.
 
 export interface NavItem {
   label: string;
@@ -13,7 +14,10 @@ export const site = {
   name: 'Steve Johnson',
   url: 'https://srjohnson1986.github.io',
   repo: 'https://github.com/srjohnson1986/srjohnson1986.github.io',
-  area: 'Atlanta area',
+  // Filled into {area} in page text, such as "I am based in {area}."
+  area: 'Decatur, GA, a suburb of Atlanta',
+  // The short form, shown in the header of every resume page, print route, and PDF.
+  resumeArea: 'Decatur, GA',
   // Photo for the Home page. Leave undefined to show a placeholder. To use a real photo, put the
   // file in public/images/ and set { src: '/images/<file>', alt: '<description of the photo>' }.
   photo: {

@@ -6,7 +6,7 @@ import { site } from '../src/data/site';
 
 // The contact details appear in three places: the Contact page and the header of every resume page
 // and print route. The privacy rules from CLAUDE.md are checked here against the built pages: the
-// location is "Atlanta area" only, there is no phone number, and the contact is a mailto link plus
+// location is "Decatur, GA" (a suburb of Atlanta, in page text; the owner chose to publish the city) with no street address, there is no phone number, and the contact is a mailto link plus
 // LinkedIn and GitHub. The links are read from src/data/site.ts, where they live, but the privacy
 // rules are written out in this file on purpose: a test that only repeated site.ts could not notice
 // someone changing site.ts.
@@ -39,7 +39,7 @@ test.describe('contact details', { tag: ['@req-337'] }, () => {
     test(`the ${name} header shows the area, email, LinkedIn, and GitHub`, async ({ page }) => {
       await page.goto(url);
       const items = page.locator('.resume-contact li');
-      await expect(items).toHaveText(['Atlanta area', site.email!, site.links.linkedin.label, site.links.github.label]);
+      await expect(items).toHaveText(['Decatur, GA', site.email!, site.links.linkedin.label, site.links.github.label]);
       const links = items.locator('a');
       await expect(links).toHaveCount(3);
       await expect(links.nth(0)).toHaveAttribute('href', `mailto:${site.email}`);
@@ -50,8 +50,9 @@ test.describe('contact details', { tag: ['@req-337'] }, () => {
 });
 
 test.describe('privacy rules', { tag: ['@req-338'] }, () => {
-  test('the location is "Atlanta area" and nothing more specific', () => {
-    expect(site.area).toBe('Atlanta area');
+  test('the resumes say "Decatur, GA", page text says "Decatur, GA, a suburb of Atlanta", and nothing is more specific', () => {
+    expect(site.resumeArea).toBe('Decatur, GA');
+    expect(site.area).toBe('Decatur, GA, a suburb of Atlanta');
   });
 
   // Every built page, plus the 404 page (it is /404.html, which the page list does not include).

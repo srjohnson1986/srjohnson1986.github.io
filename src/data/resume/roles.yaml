@@ -1,7 +1,7 @@
 # Roles: employers, projects, volunteer work. File order is the tie-break when two
 # roles share a start year. `org` is the real name; `neutral_org` is used by variants
-# with org_labels: neutral. Location is intentionally absent: the public site only
-# ever says "Atlanta area", and only on the Contact page.
+# with org_labels: neutral. Location is intentionally absent: it is written once, in
+# src/data/site.ts ("Decatur, GA" on the resume headers, "Decatur, GA, a suburb of Atlanta" in page text).
 
 - id: tpd
   title: Digital Transformation Consultant / Project Manager (Contract)
