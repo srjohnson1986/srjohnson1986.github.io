@@ -28,17 +28,17 @@
   "dependencies": {
     "@astrojs/sitemap": "^3.7.4",
     "@fontsource/atkinson-hyperlegible-next": "^5.3.0",
-    "astro": "^7.3.8"
+    "astro": "^7.4.0"
   },
   "allowScripts": {
     "esbuild": true
   },
   "devDependencies": {
     "@anthropic-ai/sdk": "^0.135.0",
-    "@axe-core/playwright": "^4.13.0",
+    "@axe-core/playwright": "^4.14.0",
     "@lhci/cli": "^0.15.1",
-    "@playwright/test": "^1.64.0",
+    "@playwright/test": "^1.64.1",
     "ajv": "^8.20.0",
-    "js-yaml": "^5.4.3"
+    "js-yaml": "^5.5.0"
   }
 }
