@@ -1,6 +1,7 @@
 # Core Skills, in the four groups that match the Core Skills block on the resumes.
 # Items are plain strings, or objects with:
 #   only: [variant ids]    show the skill on those resume versions only
+#   lane_only: true        never shown on a resume version; only a lane resume (lanes.yaml) can list it
 #   training_only: true    keep the skill in the list, but fail the build if any public
 #                          bullet mentions it
 # Reorder items within a group to match what a posting emphasizes.
@@ -20,6 +21,10 @@
     - Test Case Management
     - Exploratory Testing
     - Requirements Traceability
+    # Shown on the lane resumes only (lanes.yaml); backed by the portfolio site bullets.
+    - { name: API and Contract Testing, lane_only: true }
+    - { name: Accessibility Testing, lane_only: true }
+    - { name: Performance Testing, lane_only: true }
 
 - id: tools-platforms
   order: 2
@@ -65,6 +70,13 @@
     - { name: Zephyr, only: [consulting] }
     - { name: Copilot, only: [qa, consulting] }
     - { name: Claude, only: [qa] }
+    # Shown on the lane resumes only (lanes.yaml); backed by the portfolio site bullets.
+    - { name: Newman, lane_only: true }
+    - { name: JSON Schema, lane_only: true }
+    - { name: axe-core, lane_only: true }
+    - { name: Lighthouse CI, lane_only: true }
+    - { name: k6, lane_only: true }
+    - { name: Dependabot, lane_only: true }
 
 - id: technical
   order: 3
