@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { test, expect } from './helpers/test';
-import { builtPages, dist, variants } from './helpers/data';
+import { builtPages, dist, shownResumes } from './helpers/data';
 import { site } from '../src/data/site';
 
 // The contact details appear in three places: the Contact page and the header of every resume page
@@ -31,9 +31,9 @@ test.describe('contact details', { tag: ['@req-337'] }, () => {
     await expect(contact.getByRole('link', { name: site.links.github.label })).toHaveAttribute('href', site.links.github.href);
   });
 
-  const headers = variants.flatMap((v) => [
-    { page: `/resume/${v.id}/`, name: `resume "${v.id}"` },
-    { page: `/resume/print/${v.id}/`, name: `print route "${v.id}"` },
+  const headers = shownResumes.flatMap((v) => [
+    { page: `/resume/${v.route}/`, name: `resume "${v.route}"` },
+    { page: `/resume/print/${v.printRoute}/`, name: `print route "${v.printRoute}"` },
   ]);
   for (const { page: url, name } of headers) {
     test(`the ${name} header shows the area, email, LinkedIn, and GitHub`, async ({ page }) => {

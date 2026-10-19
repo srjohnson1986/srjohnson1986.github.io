@@ -5,6 +5,8 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import * as yaml from 'js-yaml';
 import { nav as baseNav, flattenNav, withProjectPages } from '../../src/data/site';
+// @ts-expect-error - plain JavaScript module with no type declarations
+import { planLane, applySteps } from '../../src/lib/lane-fit.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 export const root = path.resolve(here, '..', '..');
@@ -61,7 +63,7 @@ export interface Summary {
   id: string;
   text: string;
 }
-export type SkillItem = string | { name: string; only?: string[]; training_only?: boolean };
+export type SkillItem = string | { name: string; only?: string[]; lane_only?: boolean; training_only?: boolean };
 export interface SkillGroup {
   id: string;
   order: number;
@@ -248,14 +250,23 @@ export function expectedSkills(variantId: string): { group: string; items: strin
     .filter((g) => g.items.length > 0);
 }
 
+/** The QA, Consulting, and Adoption versions were replaced by lane resumes. Old address -> where it forwards. */
+export const retiredResumeAddresses: Record<string, string> = { '/resume/consulting/': '/resume/con/', '/resume/adoption/': '/resume/adp/' };
+/** Their old PDF names still download: old name -> the lane PDF it is a copy of. */
+export const pdfAliases: Record<string, string> = {
+  'steve-johnson-resume-qa.pdf': 'steve-johnson-resume-lane-qa.pdf',
+  'steve-johnson-resume-consulting.pdf': 'steve-johnson-resume-lane-con.pdf',
+  'steve-johnson-resume-adoption.pdf': 'steve-johnson-resume-lane-adp.pdf',
+};
+
 /**
  * Pages that only forward the visitor to another page. They are built, but they are not real pages:
  * they are not in the sitemap, not scanned, and (for the retired ones) nothing links to them.
- * "/resume/" forwards to the first resume version and the navigation links to it. "/events/" is the
+ * "/resume/" forwards to the first resume (the QA lane) and the navigation links to it, and "/resume/consulting/" and "/resume/adoption/" forward to the lane resumes that replaced those versions. "/events/" is the
  * old address of the Jabroni Fest page, and "/development/" with a page for each project under it is
  * the old address of Development & QA. They are kept so old links still work, and nothing links to them.
  */
-export const retiredPages = ['/events/', '/development/', ...projects.map((p) => `/development/${p.slug}/`)];
+export const retiredPages = ['/events/', '/development/', '/resume/consulting/', '/resume/adoption/', ...projects.map((p) => `/development/${p.slug}/`)];
 export const redirectPages = ['/resume/', ...retiredPages];
 
 /** Every page in the built site as a URL path, such as "/" or "/resume/qa/". */
@@ -275,3 +286,92 @@ export function builtPages(): string[] {
   walk(dist);
   return pages.sort();
 }
+
+// ---------------------------------------------------------------------------------------------------------------
+// Every resume the public site shows: the six lane resumes, then the hand-written versions. A lane shows what its
+// saved fit (lane-fit.yaml) leaves of its plan; a hand-written version shows the bullets it lists.
+// ---------------------------------------------------------------------------------------------------------------
+
+export interface LaneDef {
+  id: string;
+  code: string;
+  label: string;
+  order: number;
+  summary_id: string;
+  org_labels: 'neutral' | 'real';
+  skills: Record<string, string[]>;
+  role_floor?: Record<string, number>;
+}
+export interface ShownItem {
+  id: string;
+  role: string;
+  text: string;
+  kind: string;
+  tier?: number;
+  replaces?: string[];
+}
+export const lanes = load<LaneDef[]>('src/data/resume/lanes.yaml').sort((a, b) => a.order - b.order);
+const laneCombos = load<{ id: string; role: string; replaces: string[]; lanes: string[]; text: string }[]>('src/data/resume/combos.yaml');
+const laneFits = load<{ id: string; steps: number }[]>('src/data/resume/lane-fit.yaml');
+const byIdOrder = (a: { id: string }, b: { id: string }) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0); // code-point order, as the build uses
+
+/** The bullets and combined bullets a lane resume shows: the lane's cut plan with its saved number of steps applied. */
+export function laneItems(lane: LaneDef): ShownItem[] {
+  const plan = planLane({
+    lane: lane.id,
+    roleOrder: rolesNewestFirst.map((r) => r.id),
+    roleRanks: Object.fromEntries(roles.map((r) => [r.id, (r as Role & { lane_rank?: Record<string, number> }).lane_rank])),
+    bullets: [...bullets].sort(byIdOrder),
+    combos: [...laneCombos].sort(byIdOrder),
+    floors: lane.role_floor ?? {},
+  });
+  const fit = laneFits.find((f) => f.id === lane.id)!;
+  return applySteps(plan, fit.steps) as ShownItem[];
+}
+
+/** A lane's Core Skills: its own list, group by group, in the order of skills.yaml. */
+export const laneSkills = (lane: LaneDef): { group: string; items: string[] }[] =>
+  [...skillGroups].sort((a, b) => a.order - b.order).filter((g) => lane.skills[g.id]).map((g) => ({ group: g.group, items: lane.skills[g.id] }));
+
+export interface ShownResume {
+  /** The web address is /resume/<route>/. */
+  route: string;
+  /** The print route is /resume/print/<printRoute>/. */
+  printRoute: string;
+  /** The PDF file name under /resume/. */
+  pdf: string;
+  label: string;
+  org_labels: 'neutral' | 'real';
+  summary: string;
+  skills: { group: string; items: string[] }[];
+  items: ShownItem[];
+  /** Set for a lane resume. */
+  lane?: LaneDef;
+}
+
+export const shownResumes: ShownResume[] = [
+  ...lanes.map((lane): ShownResume => ({
+    route: lane.id,
+    printRoute: `lane-${lane.id}`,
+    pdf: `steve-johnson-resume-lane-${lane.id}.pdf`,
+    label: lane.label,
+    org_labels: lane.org_labels,
+    summary: summaryById.get(lane.summary_id)!.text,
+    skills: laneSkills(lane),
+    items: laneItems(lane),
+    lane,
+  })),
+  ...variants.map((v): ShownResume => ({
+    route: v.id,
+    printRoute: v.id,
+    pdf: `steve-johnson-resume-${v.id}.pdf`,
+    label: v.label,
+    org_labels: v.org_labels,
+    summary: summaryById.get(v.summary_id)!.text,
+    skills: expectedSkills(v.id),
+    items: variantBulletIds(v).map((id) => {
+      const b = bulletById.get(id)!;
+      return { id, role: b.role, text: b.text, kind: 'bullet' };
+    }),
+  })),
+];

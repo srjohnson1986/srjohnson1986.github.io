@@ -29,17 +29,22 @@ export default defineConfig({
   redirects: {
     '/events': '/jabroni-fest/',
     '/development': '/development-qa/',
+    // The Consulting and Adoption versions became the Implementation / Consulting and Digital Adoption lane resumes.
+    '/resume/consulting': '/resume/con/',
+    '/resume/adoption': '/resume/adp/',
     ...oldProjectPages,
   },
   integrations: [
     sitemap({
       // Not meant to be found in search: the print routes (they feed the PDFs), the 404 page, /resume/,
-      // which only redirects to the first resume version, /events/, which redirects to Jabroni Fest, and the old /development/ pages, which redirect to /development-qa/.
+      // which only redirects to the first resume, /resume/consulting/ and /resume/adoption/, which redirect to the lane resumes that replaced them, /events/, which redirects to Jabroni Fest, and the old /development/ pages, which redirect to /development-qa/.
       filter: (page) =>
         !page.includes('/resume/print/') &&
         !page.endsWith('/404.html') &&
         !page.endsWith('/404/') &&
         !page.endsWith('/resume/') &&
+        !page.endsWith('/resume/consulting/') &&
+        !page.endsWith('/resume/adoption/') &&
         !page.endsWith('/events/') &&
         !page.includes('/development/'),
     }),

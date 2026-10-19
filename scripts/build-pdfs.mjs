@@ -6,7 +6,8 @@
 //   2. Serve dist/ on a throwaway local port, so the pages load their CSS and icons the
 //      same way they do on the live site.
 //   3. Open each print route in headless Chromium and save it as
-//      dist/resume/steve-johnson-resume-<variant>.pdf. Page size and margins come from
+//      dist/resume/steve-johnson-resume-<variant>.pdf (a lane's id is lane-<id>; three retired names are kept as copies,
+//      see PDF_ALIASES). Page size and margins come from
 //      the @page rule in src/styles/print.css.
 //
 // Any problem exits non-zero, so a missing or broken PDF fails the build and the deploy.
@@ -20,6 +21,10 @@ import { chromium } from '@playwright/test';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const dist = path.join(root, 'dist');
 const printDir = path.join(dist, 'resume', 'print');
+
+// The QA, Consulting, and Adoption versions were replaced by lane resumes. Their old PDF names keep working as copies of
+// the PDFs that replaced them, so a link someone saved (on an application, in an email) still downloads a current resume.
+const PDF_ALIASES = { 'lane-qa': 'qa', 'lane-con': 'consulting', 'lane-adp': 'adoption' };
 
 const MIN_PDF_BYTES = 5_000;
 const MAX_EXPECTED_PAGES = 2;
@@ -111,6 +116,11 @@ try {
 
     const file = path.join(dist, 'resume', `steve-johnson-resume-${id}.pdf`);
     await writeFile(file, pdf);
+    if (PDF_ALIASES[id]) {
+      const alias = path.join(dist, 'resume', `steve-johnson-resume-${PDF_ALIASES[id]}.pdf`);
+      await writeFile(alias, pdf);
+      console.log(`build-pdfs: ${path.relative(root, alias)}  (copy of ${path.basename(file)}, the old name)`);
+    }
 
     const pages = countPages(pdf);
     const kb = Math.round(pdf.length / 1024);

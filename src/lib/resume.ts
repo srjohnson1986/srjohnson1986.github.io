@@ -140,11 +140,10 @@ function laneSkills(skillGroupsInOrder: Skill[], laneId: string, wanted: Record<
  * warning: varied verbs are the goal, but the owner does not want uniqueness forced.
  */
 export async function getResumeVariants(options: { labels?: 'real' } = {}): Promise<ResumeVariant[]> {
-  const [roleEntries, bulletEntries, groupEntries, summaryEntries, variantEntries, skillEntries, educationEntries, laneEntries, comboEntries] =
+  const [roleEntries, bulletEntries, summaryEntries, variantEntries, skillEntries, educationEntries, laneEntries, comboEntries] =
     await Promise.all([
       getCollection('roles'),
       getCollection('bullets'),
-      getCollection('bulletGroups'),
       getCollection('summaries'),
       getCollection('variants'),
       getCollection('skills'),
@@ -154,6 +153,9 @@ export async function getResumeVariants(options: { labels?: 'real' } = {}): Prom
     ]);
 
   const bulletsById = new Map<string, Bullet>(bulletEntries.map((b) => [b.id, b]));
+  // Astro warns when it loads an empty collection, and no version may share a group (bullet-groups.yaml can be empty),
+  // so groups are only loaded when a version includes one.
+  const groupEntries = variantEntries.some((v) => v.data.include?.length) ? await getCollection('bulletGroups') : [];
   const groupsById = new Map(groupEntries.map((g) => [g.id, g]));
   const summariesById = new Map(summaryEntries.map((s) => [s.id, s]));
 
@@ -430,4 +432,28 @@ export async function getLaneResumes(options: { candidates?: boolean } = {}): Pr
         plan: options.candidates ? plan : undefined,
       };
     });
+}
+
+/** One resume the public site shows: its web address, its PDF, and the content. */
+export interface SiteResume {
+  /** The address segment: /resume/<route>/. A lane's own id (qa, sdet, con, adp, pmba, it), or a hand-written version's id. */
+  route: string;
+  label: string;
+  /** The PDF file name under /resume/. */
+  pdf: string;
+  resume: ResumeVariant;
+}
+
+/**
+ * Every resume on the public site, in the order the version switcher lists them: the six lane resumes in
+ * lanes.yaml order, then the hand-written versions in variants.yaml order. The fit script builds a throwaway
+ * copy of the site with LANE_FIT=1, where the lane resumes cannot be built yet, so it gets the hand-written versions only.
+ */
+export async function getSiteResumes(): Promise<SiteResume[]> {
+  const lanes = process.env.LANE_FIT === '1' ? [] : await getLaneResumes();
+  const variants = await getResumeVariants({ labels: 'real' });
+  return [
+    ...lanes.map((l) => ({ route: l.laneId, label: l.label, pdf: `steve-johnson-resume-${l.id}.pdf`, resume: l as ResumeVariant })),
+    ...variants.map((v) => ({ route: v.id, label: v.label, pdf: `steve-johnson-resume-${v.id}.pdf`, resume: v })),
+  ];
 }

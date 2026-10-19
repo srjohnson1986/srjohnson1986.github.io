@@ -2,20 +2,18 @@ import fs from 'node:fs';
 import path from 'node:path';
 import * as yaml from 'js-yaml';
 import { test, expect } from './helpers/test';
-import { root, dist } from './helpers/data';
-// @ts-expect-error - plain JavaScript module with no type declarations
-import { planLane, applySteps } from '../src/lib/lane-fit.js';
+import { root, dist, laneItems, retiredResumeAddresses } from './helpers/data';
 
-// The lane resumes: one generic, auto-fitted resume per job lane, at /resume/print/lane-<id>/ and as a PDF. They are
-// not linked from anywhere yet. The expected content is worked out here from the data files and the saved fit
-// (lane-fit.yaml); the order of the cuts themselves is covered by lane-fit.spec.ts.
+// The lane resumes: one generic, auto-fitted resume per job lane. Each is a page of the site at /resume/<id>/, a print
+// route at /resume/print/lane-<id>/ (which the PDF is printed from), and a PDF. This file checks the print route and the PDF
+// against the saved fit (lane-fit.yaml); resume.spec.ts and resume-details.spec.ts check the web page the same way as
+// every other resume. The order of the cuts themselves is covered by lane-fit.spec.ts.
 
 const load = <T>(file: string): T => yaml.load(fs.readFileSync(path.join(root, 'src', 'data', 'resume', file), 'utf8')) as T;
 
 type Lane = { id: string; code: string; label: string; order: number; summary_id: string; org_labels: 'real' | 'neutral'; skills: Record<string, string[]>; role_floor?: Record<string, number> };
 type Role = { id: string; org: string; neutral_org?: string; start: number; end: number | 'present'; lane_rank: Record<string, number> };
 type Bullet = { id: string; role: string; public: boolean; text: string; lanes?: Record<string, number[]> };
-type Combo = { id: string; role: string; replaces: string[]; lanes: string[]; text: string };
 type Fit = { id: string; steps: number; fingerprint: string; pages: number };
 type SkillGroup = { id: string; order: number; group: string; items: (string | { name: string; only?: string[]; lane_only?: boolean })[] };
 type Item = { id: string; role: string; tier: number; text: string; kind: string; replaces?: string[] };
@@ -23,30 +21,16 @@ type Item = { id: string; role: string; tier: number; text: string; kind: string
 const lanes = load<Lane[]>('lanes.yaml').sort((a, b) => a.order - b.order);
 const roles = load<Role[]>('roles.yaml');
 const bullets = load<Bullet[]>('bullets.yaml');
-const combos = load<Combo[]>('combos.yaml');
 const fits = load<Fit[]>('lane-fit.yaml');
 const summaries = load<{ id: string; text: string }[]>('summaries.yaml');
 const skillGroups = load<SkillGroup[]>('skills.yaml').sort((a, b) => a.order - b.order);
-
-// Plain code-point order, as the build uses.
-const byId = (a: { id: string }, b: { id: string }) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0);
 
 // Newest first, written out again here rather than imported from the site.
 const end = (r: Role) => (r.end === 'present' ? Infinity : r.end);
 const rolesNewestFirst = [...roles].sort((a, c) => end(c) - end(a) || c.start - a.start || a.id.localeCompare(c.id));
 
-function expectedItems(lane: Lane): Item[] {
-  const plan = planLane({
-    lane: lane.id,
-    roleOrder: rolesNewestFirst.map((r) => r.id),
-    roleRanks: Object.fromEntries(roles.map((r) => [r.id, r.lane_rank])),
-    bullets: [...bullets].sort(byId),
-    combos: [...combos].sort(byId),
-    floors: lane.role_floor ?? {},
-  });
-  const fit = fits.find((f) => f.id === lane.id)!;
-  return applySteps(plan, fit.steps) as Item[];
-}
+// What the lane shows: its cut plan with the saved fit applied (worked out in tests/helpers/data.ts).
+const expectedItems = (lane: Lane): Item[] => laneItems(lane) as Item[];
 
 const expectedSkills = (lane: Lane) => skillGroups.filter((g) => lane.skills[g.id]).map((g) => ({ group: g.group, items: lane.skills[g.id] }));
 
@@ -136,13 +120,23 @@ for (const lane of lanes) {
       expect(height).toBeLessThanOrEqual(2 * 960);
     });
 
-    test('is kept out of search and not linked from anywhere', async ({ page, request }) => {
+    test('the print route is kept out of search and out of the sitemap, and is not linked', async ({ page, request }) => {
       await page.goto(route);
       await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', /noindex/);
       const sitemap = await (await request.get('/sitemap-0.xml')).text();
-      expect(sitemap).not.toContain(`lane-${lane.id}`);
-      await page.goto('/resume/qa/');
-      await expect(page.locator(`a[href*="lane-${lane.id}"]`)).toHaveCount(0);
+      expect(sitemap).not.toContain(`/resume/print/lane-${lane.id}/`);
+      await page.goto(`/resume/${lane.id}/`);
+      await expect(page.locator('a[href*="/resume/print/"]')).toHaveCount(0);
+    });
+
+    test('the web page is a real page of the site: searchable, in the sitemap, with a version switcher entry and its PDF', async ({ page, request }) => {
+      await page.goto(`/resume/${lane.id}/`);
+      await expect(page.locator('meta[name="robots"]')).toHaveCount(0);
+      const entry = page.getByRole('navigation', { name: 'Resume versions' }).getByRole('link', { name: lane.label, exact: true });
+      await expect(entry).toHaveAttribute('href', `/resume/${lane.id}/`);
+      await expect(page.getByRole('link', { name: /Download this version as a PDF/ })).toHaveAttribute('href', `/resume/steve-johnson-resume-lane-${lane.id}.pdf`);
+      const sitemap = await (await request.get('/sitemap-0.xml')).text();
+      expect(sitemap).toContain(`/resume/${lane.id}/`);
     });
   });
 }
@@ -151,5 +145,15 @@ test('the fit pages used to measure lanes are not part of the site', { tag: ['@r
   for (const lane of lanes) {
     const response = await request.get(`/resume/lane-fit/${lane.id}/`, { failOnStatusCode: false });
     expect(response.status(), lane.id).toBe(404);
+  }
+});
+
+test('the old Consulting and Adoption addresses forward to the lane resumes that replaced them', { tag: ['@req-318'] }, async ({ page, request }) => {
+  const sitemap = await (await request.get('/sitemap-0.xml')).text();
+  for (const [from, to] of Object.entries(retiredResumeAddresses)) {
+    await page.goto(from);
+    await page.waitForURL(`**${to}`);
+    await expect(page.getByRole('heading', { level: 1, name: 'Steve Johnson' })).toBeVisible();
+    expect(sitemap, `${from} is only a forwarding page`).not.toContain(from);
   }
 });

@@ -193,7 +193,7 @@ test('with scripts off there is no button and the page follows the system settin
 
 test('the print pages ignore the choice and stay on white paper', { tag: ['@req-340'] }, async ({ page }) => {
   await page.addInitScript(() => localStorage.setItem('theme', 'dark'));
-  await page.goto('/resume/print/qa/');
+  await page.goto('/resume/print/lane-qa/');
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
   await expect(page.locator('.theme-toggle')).toHaveCount(0);
 });

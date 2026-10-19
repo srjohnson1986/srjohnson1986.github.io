@@ -1,6 +1,6 @@
 ---
 name: add-resume-bullet
-description: Add a new resume bullet to this site's data files (src/data/resume/bullets.yaml and variants.yaml) after checking the owner's bullet rules. Use when the user asks to add, write in, or put a bullet on the resume or on specific resume versions (qa, consulting, creative, adoption). Not for editing or deleting a bullet, or for roles, skills, or summaries.
+description: Add a new resume bullet to this site's data files (src/data/resume/bullets.yaml and variants.yaml) after checking the owner's bullet rules. Use when the user asks to add, write in, or put a bullet on the resume or on the hand-written resume version (creative; the six lane resumes take their bullets from the bank). Not for editing or deleting a bullet, or for roles, skills, or summaries.
 ---
 
 # Add a resume bullet
@@ -15,7 +15,7 @@ Get these from the user. If one is missing and has no safe default, ask once, wi
 
 1. **Text.** Use the user's wording. Never invent or adjust a metric: numbers come from the resume bullet bank (the artifact, via the refreshed snapshot `private/bank-export.md`; see CLAUDE.md) or from the user.
 2. **Role id** from `src/data/resume/roles.yaml` (tpd, care-board, portfolio-site, verizon, kingdom-hell, jabroni, nucor, pg, geek-squad).
-3. **Versions** by id: qa, consulting, creative, adoption. At least one. A bullet in `bullet-groups.yaml` is shared by several versions; the script does not edit groups, so if the user wants a shared group, say so and do that edit by hand.
+3. **Versions** by id: creative (the only hand-written version; the QA, Consulting, and Adoption versions were replaced by the six lane resumes, which take their bullets from the bank, so a bullet for a lane goes in the bank and is imported with `npm run import-lanes`). At least one. A bullet in `bullet-groups.yaml` is shared by several versions; the script does not edit groups, so if the user wants a shared group, say so and do that edit by hand.
 4. **Theme and tags.** Default: reuse the theme and tags of the closest existing bullet in that role (`grep -A4 "role: <id>" src/data/resume/bullets.yaml`) and say which you chose. `public` is always `true`.
 
 ## Steps

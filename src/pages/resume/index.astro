@@ -1,14 +1,14 @@
 ---
-// /resume has no content of its own. It sends visitors straight to the first variant, so a
-// plain "/resume" link works while each variant keeps a single canonical URL. Astro's built-in
+// /resume has no content of its own. It sends visitors straight to the first resume (the QA lane), so a
+// plain "/resume" link works while each resume keeps a single canonical URL. Astro's built-in
 // Astro.redirect() waits 2 seconds before moving on, so this page redirects immediately instead.
-import { getResumeVariants } from '../../lib/resume';
+import { getSiteResumes } from '../../lib/resume';
 import { site } from '../../data/site';
 
-const [first] = await getResumeVariants({ labels: 'real' });
-if (!first) throw new Error('No resume variants found in src/data/resume/variants.yaml');
+const [first] = await getSiteResumes();
+if (!first) throw new Error('No resumes found (lanes.yaml, variants.yaml)');
 
-const target = `/resume/${first.id}/`;
+const target = `/resume/${first.route}/`;
 const canonical = new URL(target, Astro.site ?? site.url).href;
 ---
 

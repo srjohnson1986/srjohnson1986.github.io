@@ -2,20 +2,21 @@
 import type { GetStaticPaths } from 'astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import ResumeDocument from '../../components/ResumeDocument.astro';
-import { getResumeVariants } from '../../lib/resume';
+import { getSiteResumes } from '../../lib/resume';
 import { site } from '../../data/site';
 
 export const getStaticPaths = (async () => {
-  // The public site always uses real organization names.
-  const variants = await getResumeVariants({ labels: 'real' });
-  const choices = variants.map(({ id, label }) => ({ id, label }));
-  return variants.map((variant) => ({
-    params: { variant: variant.id },
-    props: { variant, choices },
+  // The six lane resumes, then the hand-written versions. The public site always uses real organization names.
+  const versions = await getSiteResumes();
+  const choices = versions.map(({ route, label }) => ({ id: route, label }));
+  return versions.map((version) => ({
+    params: { variant: version.route },
+    props: { version, choices },
   }));
 }) satisfies GetStaticPaths;
 
-const { variant, choices } = Astro.props;
+const { version, choices } = Astro.props;
+const variant = version.resume;
 const firstSentence = variant.summary.split('. ')[0].replace(/\.$/, '') + '.';
 ---
 
@@ -31,7 +32,7 @@ const firstSentence = variant.summary.split('. ')[0].replace(/\.$/, '') + '.';
           <li>
             <a
               href={`/resume/${choice.id}/`}
-              aria-current={choice.id === variant.id ? 'page' : undefined}
+              aria-current={choice.id === version.route ? 'page' : undefined}
             >
               {choice.label}
             </a>
@@ -42,7 +43,7 @@ const firstSentence = variant.summary.split('. ')[0].replace(/\.$/, '') + '.';
   </nav>
 
   <p class="download no-print">
-    <a href={`/resume/steve-johnson-resume-${variant.id}.pdf`} type="application/pdf">
+    <a href={`/resume/${version.pdf}`} type="application/pdf">
       Download this version as a PDF
     </a>
   </p>
