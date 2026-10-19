@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { variants, releases, projects, navPages } from './helpers/data';
+import { shownResumes, releases, projects, navPages } from './helpers/data';
 
 // Short checks that the real, public site is alive and serving what it should. They run against
 // the deployed site (see playwright.config.ts) and deliberately do few things, quickly.
@@ -32,13 +32,13 @@ test('every navigation link responds', { tag: ['@req-349'] }, async ({ request }
 });
 
 test('each resume version and its PDF are served', { tag: ['@req-349'] }, async ({ page, request }) => {
-  for (const variant of variants) {
-    await page.goto(`/resume/${variant.id}/`);
+  for (const version of shownResumes) {
+    await page.goto(`/resume/${version.route}/`);
     await expect(page.getByRole('heading', { level: 1, name: 'Steve Johnson' })).toBeVisible();
     await expect(page.getByRole('heading', { level: 2, name: 'Experience' })).toBeVisible();
 
-    const pdf = await request.get(`/resume/steve-johnson-resume-${variant.id}.pdf`);
-    expect(pdf.status(), `${variant.id} PDF`).toBe(200);
+    const pdf = await request.get(`/resume/${version.pdf}`);
+    expect(pdf.status(), `${version.route} PDF`).toBe(200);
     expect(pdf.headers()['content-type']).toContain('application/pdf');
     expect((await pdf.body()).subarray(0, 5).toString()).toBe('%PDF-');
   }

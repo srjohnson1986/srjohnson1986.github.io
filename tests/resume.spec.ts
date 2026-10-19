@@ -1,5 +1,5 @@
 import { test, expect } from './helpers/test';
-import { bulletById, bulletGroups, roleById, summaryById, variants, variantBulletIds, expectedSkills } from './helpers/data';
+import { bulletById, bulletGroups, roleById, shownResumes, summaryById, variants, variantBulletIds } from './helpers/data';
 
 test.describe('resume data', { tag: ['@req-314'] }, () => {
   test('every bullet a version lists exists, is public, and has a known role', () => {
@@ -66,15 +66,16 @@ test.describe('resume data', { tag: ['@req-314'] }, () => {
   });
 });
 
-for (const variant of variants) {
-  const listed = variantBulletIds(variant).map((id) => bulletById.get(id)!);
-  const summary = summaryById.get(variant.summary_id)!.text;
+// The six lane resumes, then the hand-written versions: what the public site shows.
+for (const version of shownResumes) {
+  const listed = version.items;
+  const summary = version.summary;
 
-  test.describe(`resume version "${variant.id}" (${variant.label})`, () => {
+  test.describe(`resume version "${version.route}" (${version.label})`, () => {
     test('web page shows the summary, skills, experience, and education', { tag: ['@req-315'] }, async ({ page }) => {
-      await page.goto(`/resume/${variant.id}/`);
+      await page.goto(`/resume/${version.route}/`);
 
-      await expect(page).toHaveTitle(new RegExp(variant.label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+      await expect(page).toHaveTitle(new RegExp(version.label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
       await expect(page.getByRole('heading', { level: 1, name: 'Steve Johnson' })).toBeVisible();
       for (const name of ['Summary', 'Core Skills', 'Experience', 'Education and Certifications']) {
         await expect(page.getByRole('heading', { level: 2, name })).toBeVisible();
@@ -87,8 +88,8 @@ for (const variant of variants) {
     });
 
     test('shows exactly the skills meant for this version', { tag: ['@req-315'] }, async ({ page }) => {
-      await page.goto(`/resume/${variant.id}/`);
-      const expected = expectedSkills(variant.id);
+      await page.goto(`/resume/${version.route}/`);
+      const expected = version.skills;
 
       const labels = await page.locator('.skills dt').allTextContents();
       const lists = await page.locator('.skills dd').allTextContents();
@@ -97,22 +98,22 @@ for (const variant of variants) {
     });
 
     test('marks the current version and links to its PDF', { tag: ['@req-315'] }, async ({ page }) => {
-      await page.goto(`/resume/${variant.id}/`);
+      await page.goto(`/resume/${version.route}/`);
       const switcher = page.getByRole('navigation', { name: 'Resume versions' });
-      await expect(switcher.locator('[aria-current="page"]')).toHaveText(variant.label);
-      await expect(switcher.getByRole('link')).toHaveCount(variants.length);
-      // In the order of variants.yaml, each going to its own version.
-      await expect(switcher.getByRole('link')).toHaveText(variants.map((v) => v.label));
-      for (const [i, v] of variants.entries()) {
-        await expect(switcher.getByRole('link').nth(i)).toHaveAttribute('href', `/resume/${v.id}/`);
+      await expect(switcher.locator('[aria-current="page"]')).toHaveText(version.label);
+      await expect(switcher.getByRole('link')).toHaveCount(shownResumes.length);
+      // The lanes in lanes.yaml order, then the hand-written versions, each going to its own version.
+      await expect(switcher.getByRole('link')).toHaveText(shownResumes.map((v) => v.label));
+      for (const [i, v] of shownResumes.entries()) {
+        await expect(switcher.getByRole('link').nth(i)).toHaveAttribute('href', `/resume/${v.route}/`);
       }
 
       const pdf = page.getByRole('link', { name: /Download this version as a PDF/ });
-      await expect(pdf).toHaveAttribute('href', `/resume/steve-johnson-resume-${variant.id}.pdf`);
+      await expect(pdf).toHaveAttribute('href', `/resume/${version.pdf}`);
     });
 
     test('web page uses real organization names', { tag: ['@req-315'] }, async ({ page }) => {
-      await page.goto(`/resume/${variant.id}/`);
+      await page.goto(`/resume/${version.route}/`);
       const headings = await page.locator('.role h3').allTextContents();
       const expectedOrgs = [...new Set(listed.map((b) => roleById.get(b.role)!.org))];
       expect([...headings].sort()).toEqual([...expectedOrgs].sort());
@@ -120,27 +121,27 @@ for (const variant of variants) {
 
     test('print route carries the version\'s summary, bullets, and skills', { tag: ['@req-316'] }, async ({ page }) => {
       // The PDF is printed from this page, so what is missing here is missing from the download.
-      await page.goto(`/resume/print/${variant.id}/`);
+      await page.goto(`/resume/print/${version.printRoute}/`);
 
       const resume = page.locator('article.resume');
       await expect(resume).toContainText(summary);
       for (const bullet of listed) await expect(resume).toContainText(bullet.text);
       await expect(resume.locator('.bullets li')).toHaveCount(listed.length);
 
-      const expected = expectedSkills(variant.id);
+      const expected = version.skills;
       await expect(page.locator('.skills dt')).toHaveText(expected.map((g) => g.group));
       await expect(page.locator('.skills dd')).toHaveText(expected.map((g) => g.items.join(', ')));
     });
 
     test('print route follows the version\'s label mode and has no site chrome', { tag: ['@req-316'] }, async ({ page }) => {
-      await page.goto(`/resume/print/${variant.id}/`);
+      await page.goto(`/resume/print/${version.printRoute}/`);
 
       const headings = await page.locator('.role h3').allTextContents();
       const expectedOrgs = [
         ...new Set(
           listed.map((b) => {
             const role = roleById.get(b.role)!;
-            return variant.org_labels === 'neutral' && role.neutral_org ? role.neutral_org : role.org;
+            return version.org_labels === 'neutral' && role.neutral_org ? role.neutral_org : role.org;
           }),
         ),
       ];
@@ -184,8 +185,8 @@ test('a neutral version shows alternate organization names in print and real nam
   }
 });
 
-test('/resume/ sends visitors to the first version', { tag: ['@req-315'] }, async ({ page }) => {
+test('/resume/ sends visitors to the first resume, the QA lane', { tag: ['@req-315'] }, async ({ page }) => {
   await page.goto('/resume/');
-  await page.waitForURL(`**/resume/${variants[0].id}/`);
+  await page.waitForURL(`**/resume/${shownResumes[0].route}/`);
   await expect(page.getByRole('heading', { level: 1, name: 'Steve Johnson' })).toBeVisible();
 });

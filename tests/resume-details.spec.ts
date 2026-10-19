@@ -1,5 +1,5 @@
 import { test, expect } from './helpers/test';
-import { bulletById, dateRange, education, expectedSkills, rolesNewestFirst, variantBulletIds, variants } from './helpers/data';
+import { dateRange, education, rolesNewestFirst, shownResumes } from './helpers/data';
 
 // The resume pages and the print routes (which the PDFs are printed from) show more than a version's
 // summary, skills, and bullet text: the order of the roles, each role's dates, title, note, and
@@ -11,12 +11,12 @@ import { bulletById, dateRange, education, expectedSkills, rolesNewestFirst, var
 
 // The PDFs are printed from the print routes with the browser's print media, so this is what a reader of
 // the PDF sees. The text checks elsewhere use toContainText, which also matches text a print rule hides.
-for (const variant of variants) {
-  test(`the print route of "${variant.id}" shows everything, readable, within the page`, { tag: ['@req-316'] }, async ({ page }) => {
+for (const version of shownResumes) {
+  test(`the print route of "${version.route}" shows everything, readable, within the page`, { tag: ['@req-316'] }, async ({ page }) => {
     await page.emulateMedia({ media: 'print' });
-    await page.goto(`/resume/print/${variant.id}/`);
+    await page.goto(`/resume/print/${version.printRoute}/`);
     const resume = page.locator('article.resume');
-    const listed = variantBulletIds(variant).map((id) => bulletById.get(id)!);
+    const listed = version.items;
 
     await expect(resume.getByRole('heading', { level: 1 })).toBeVisible();
     for (const name of ['Summary', 'Core Skills', 'Experience', 'Education and Certifications']) {
@@ -25,8 +25,8 @@ for (const variant of variants) {
     await expect(resume.locator('section[aria-labelledby="resume-summary"] p')).toBeVisible();
     // Every one of these is checked for being shown, not just present in the markup.
     await expect(resume.locator('.bullets li:visible')).toHaveCount(listed.length);
-    await expect(resume.locator('.skills dt:visible')).toHaveCount(expectedSkills(variant.id).length);
-    await expect(resume.locator('.skills dd:visible')).toHaveCount(expectedSkills(variant.id).length);
+    await expect(resume.locator('.skills dt:visible')).toHaveCount(version.skills.length);
+    await expect(resume.locator('.skills dd:visible')).toHaveCount(version.skills.length);
     await expect(resume.locator('ul.education > li:visible')).toHaveCount(education.length);
     await expect(resume.locator('.role-head:visible')).toHaveCount(await resume.locator('section.role').count());
 
@@ -73,10 +73,7 @@ test.describe('the date format used by the checks below', { tag: ['@req-315'] },
   test('the data has the kinds of role the checks below are meant to cover', () => {
     // Keeps the position and note branches real: if the data stopped having one, those checks would
     // quietly run on nothing.
-    const shown = variants.flatMap((v) => {
-      const listed = variantBulletIds(v).map((id) => bulletById.get(id)!);
-      return rolesNewestFirst.filter((role) => listed.some((b) => b.role === role.id));
-    });
+    const shown = shownResumes.flatMap((v) => rolesNewestFirst.filter((role) => v.items.some((b) => b.role === role.id)));
     expect(shown.some((r) => r.positions), 'a shown role with several positions').toBe(true);
     expect(shown.some((r) => !r.positions && r.note), 'a shown single-title role with a note').toBe(true);
     expect(shown.some((r) => !r.positions && !r.note), 'a shown single-title role without a note').toBe(true);
@@ -84,20 +81,20 @@ test.describe('the date format used by the checks below', { tag: ['@req-315'] },
   });
 });
 
-for (const variant of variants) {
-  const listed = variantBulletIds(variant).map((id) => bulletById.get(id)!);
-  // The roles this version shows (a role with no bullet in it is left out), newest first, with their bullets in the version's order.
+for (const version of shownResumes) {
+  const listed = version.items;
+  // The roles this resume shows (a role with no bullet in it is left out), newest first, with their bullets in the resume's order.
   const sections = rolesNewestFirst
     .map((role) => ({ role, bullets: listed.filter((b) => b.role === role.id) }))
     .filter((s) => s.bullets.length > 0);
 
   const pages = [
-    { name: 'web page', url: `/resume/${variant.id}/` },
-    { name: 'print route', url: `/resume/print/${variant.id}/` },
+    { name: 'web page', url: `/resume/${version.route}/` },
+    { name: 'print route', url: `/resume/print/${version.printRoute}/` },
   ];
 
   for (const { name, url } of pages) {
-    test.describe(`resume "${variant.id}" ${name}`, { tag: ['@req-315'] }, () => {
+    test.describe(`resume "${version.route}" ${name}`, { tag: ['@req-315'] }, () => {
       test('lists its roles newest first, each with its bullets in order', async ({ page }) => {
         await page.goto(url);
         expect(sections.length, 'roles shown by this version').toBeGreaterThan(0);
@@ -116,7 +113,7 @@ for (const variant of variants) {
           // The organization name belongs to this very role. (resume.spec.ts compares the names only as a
           // sorted set, which two swapped names would still satisfy.) The web page always shows real names;
           // the print route follows the version's label mode.
-          const org = name === 'print route' && variant.org_labels === 'neutral' && role.neutral_org ? role.neutral_org : role.org;
+          const org = name === 'print route' && version.org_labels === 'neutral' && role.neutral_org ? role.neutral_org : role.org;
           await expect(el.locator(`h3#role-${role.id}`), `organization of ${role.id}`).toHaveText(org);
           await expect(el.locator('.role-head .dates'), `dates of ${role.id}`).toHaveText(dateRange(role.start, role.end));
 

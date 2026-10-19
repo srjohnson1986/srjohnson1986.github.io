@@ -42,14 +42,14 @@ test.describe('navigation on a wide screen', { tag: ['@req-324'] }, () => {
       // A page under a section is reached through the section's list, which opens on hover.
       if (parent) await main.getByRole('link', { name: parent.label, exact: true }).hover();
       await main.getByRole('link', { name: item.label, exact: true }).click();
-      // /resume/ redirects to the first version, so the destination may be inside the linked section.
+      // /resume/ redirects to the first resume, so the destination may be inside the linked section.
       await expect(page).toHaveURL((url) => (item.href === '/' ? url.pathname === '/' : url.pathname.startsWith(item.href)));
       await expect(main.locator('[aria-current="page"]')).toHaveText(item.label);
     });
   }
 
   test('Resume stays marked on the pages inside it', async ({ page }) => {
-    await page.goto('/resume/consulting/');
+    await page.goto('/resume/con/');
     await expect(page.getByRole('navigation', { name: 'Main' }).locator('[aria-current="page"]')).toHaveText('Resume');
   });
 });
