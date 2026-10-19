@@ -10,7 +10,7 @@
 - id: home
   title: "{name} | QA, automation, process improvement, and audio"
   description: >-
-    {name}: QA, automation, process improvement, audio engineer, and digital transformation consultant in the {area}.
+    {name}: QA, automation, process improvement, audio engineer, and digital transformation consultant in {area}.
     Resume, projects, audio, and art.
   # The line under the name.
   lead: Find it, understand it, fix it, automate it.
@@ -73,7 +73,7 @@
   email_note: Email is the best way to reach me.
   # The line under the Contact heading. {area} is replaced with the area set in src/data/site.ts,
   # which is the only place the location is written.
-  lead: I am based in the {area}.
+  lead: I am based in {area}.
 
 - id: not-found
   title: "Page not found | {name}"

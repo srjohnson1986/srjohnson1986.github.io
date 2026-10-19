@@ -13,7 +13,7 @@ const { variant } = Astro.props;
   <header class="resume-header">
     <h1 id="resume-name">{site.name}</h1>
     <ul class="resume-contact">
-      <li>{site.area}</li>
+      <li>{site.resumeArea}</li>
       {site.email && <li><a href={`mailto:${site.email}`}>{site.email}</a></li>}
       <li><a href={site.links.linkedin.href}>{site.links.linkedin.label}</a></li>
       <li><a href={site.links.github.href}>{site.links.github.label}</a></li>
