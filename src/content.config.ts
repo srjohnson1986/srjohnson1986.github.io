@@ -115,8 +115,9 @@ const lanes = defineCollection({
     summary_id: reference('summaries'),
     // neutral: use each role's neutral_org where one exists. real: use real names.
     org_labels: z.enum(['neutral', 'real']),
-    // Placeholder until the lane has its own Core Skills list: borrow the skills shown on this resume version.
-    skills_from: reference('variants'),
+    // The lane's own Core Skills: skill group id (see skills.yaml) -> skill names in display order. Every name must
+    // exist in that group in skills.yaml; a group left out is not shown.
+    skills: z.record(kebab, z.array(copy).min(1)),
     // The fewest bullets a role keeps on this lane's resume when it is trimmed to fit (role id -> number).
     role_floor: z.record(kebab, z.number().int().min(0)).optional(),
   }),
@@ -134,14 +135,14 @@ const laneFit = defineCollection({
   }),
 });
 
-// A combined bullet that stands in for two or more bullets of one role, in the lanes it lists. Written by
+// A combined bullet that stands in for one or more bullets of one role (one means a shorter wording of a single bullet), in the lanes it lists. Written by
 // scripts/import-lanes.mjs from the bank; src/lib/lane-data.js checks the rest.
 const combos = defineCollection({
   loader: file('src/data/resume/combos.yaml'),
   schema: z.strictObject({
     id: z.string(),
     role: reference('roles'),
-    replaces: z.array(reference('bullets')).min(2),
+    replaces: z.array(reference('bullets')).min(1),
     lanes: z.array(kebab).min(1),
     text: copy.refine(startsWithPastTenseVerb, 'Start with a strong past-tense verb'),
   }),
@@ -180,6 +181,8 @@ const skills = defineCollection({
             name: copy,
             // Limit the skill to these resume versions. Omit to show it on every version.
             only: z.array(reference('variants')).min(1).optional(),
+            // Never shown on the resume versions; only a lane resume (lanes.yaml) can list it.
+            lane_only: z.boolean().optional(),
             // Keep the skill listed, but no public bullet may mention it.
             training_only: z.boolean().optional(),
           }),

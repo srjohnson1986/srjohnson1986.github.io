@@ -100,10 +100,33 @@ function skillsFor(skillGroupsInOrder: Skill[], variantId: string): ResumeSkillG
       group: data.group,
       items: data.items.flatMap((item) => {
         if (typeof item === 'string') return [item];
+        if (item.lane_only) return [];
         return !item.only || item.only.some((v) => v.id === variantId) ? [item.name] : [];
       }),
     }))
     .filter((g) => g.items.length > 0);
+}
+
+/**
+ * Core Skills as shown on one lane resume: the names the lane lists, group by group, in the lane's order.
+ * Each name must exist in that group in skills.yaml, so a skill is spelled in one place and the
+ * training-only rule still covers it.
+ */
+function laneSkills(skillGroupsInOrder: Skill[], laneId: string, wanted: Record<string, string[]>): ResumeSkillGroup[] {
+  const groupIds = new Set(skillGroupsInOrder.map((g) => g.id));
+  for (const id of Object.keys(wanted)) {
+    if (!groupIds.has(id)) throw new Error(`Lane "${laneId}" lists skills for the group "${id}", which is not in skills.yaml`);
+  }
+  return skillGroupsInOrder.flatMap(({ id, data }) => {
+    const names = wanted[id];
+    if (!names) return [];
+    const known = new Set(data.items.map((item) => (typeof item === 'string' ? item : item.name)));
+    for (const name of names) {
+      if (!known.has(name)) throw new Error(`Lane "${laneId}" lists the skill "${name}", which is not in the "${data.group}" group in skills.yaml`);
+    }
+    if (new Set(names).size !== names.length) throw new Error(`Lane "${laneId}" lists a skill twice in "${data.group}"`);
+    return [{ group: data.group, items: names }];
+  });
 }
 
 /**
@@ -353,7 +376,7 @@ export async function getLaneResumes(options: { candidates?: boolean } = {}): Pr
 
       const summary = summariesById.get(lane.data.summary_id.id);
       if (!summary) throw new Error(`Lane "${lane.id}" uses summary "${lane.data.summary_id.id}", which does not exist`);
-      const skills = skillsFor(skillGroupsInOrder, lane.data.skills_from.id);
+      const skills = laneSkills(skillGroupsInOrder, lane.id, lane.data.skills);
       const print = fingerprint(plan, { summary: summary.data.text, skills, labels: lane.data.org_labels, css });
 
       let items: Item[];

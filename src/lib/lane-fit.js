@@ -5,7 +5,7 @@
 // The rules, in order (see the lane work in CLAUDE.md):
 //   1. Start with every public bullet tagged for the lane. Inside a role: tier 1 first, then tier 2, then
 //      tier 3, and by position inside a tier.
-//   2. Swap in combined bullets first. One combined bullet replaces the two or three bullets it covers.
+//   2. Swap in combined bullets first. One combined bullet replaces the one to three bullets it covers (one means a shorter wording of a single bullet).
 //   3. Then cut tier 3, starting with the least relevant role for the lane and working up. Inside a role,
 //      cut the lowest position (the largest position number) first.
 //   4. Then cut tier 2 the same way.
