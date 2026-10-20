@@ -13,10 +13,10 @@ const { variant } = Astro.props;
   <header class="resume-header">
     <h1 id="resume-name">{site.name}</h1>
     <ul class="resume-contact">
-      <li>{site.resumeArea}</li>
-      {site.email && <li><a href={`mailto:${site.email}`}>{site.email}</a></li>}
-      <li><a href={site.links.linkedin.href}>{site.links.linkedin.label}</a></li>
-      <li><a href={site.links.github.href}>{site.links.github.label}</a></li>
+      <li class="contact-area">{site.resumeArea}</li>
+      {site.email && <li class="contact-email"><a href={`mailto:${site.email}`}>{site.email}</a></li>}
+      <li class="contact-linkedin"><a href={site.links.linkedin.href}>{site.links.linkedin.label}</a></li>
+      <li class="contact-github"><a href={site.links.github.href}>{site.links.github.label}</a></li>
     </ul>
   </header>
 

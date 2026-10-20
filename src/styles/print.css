@@ -12,8 +12,8 @@
 body.print {
   background: #fff;
   color: #111;
-  font-size: 10pt;
-  line-height: 1.32;
+  font-size: 10.25pt;
+  line-height: 1.28;
 }
 
 .print-sheet {
@@ -36,27 +36,71 @@ body.print {
   text-decoration: none;
 }
 
-.print-sheet .resume h1 {
-  margin-bottom: 0.1rem;
-  font-size: 20pt;
+/* Header: right-aligned, a light uppercase name, then three lines (area, LinkedIn and GitHub, email).
+   The list items stay in the markup in their own order and a grid places them, so the web page and
+   the tests still see the same four items. */
+.print-sheet .resume .resume-header {
+  margin-bottom: 0.5rem;
+  text-align: right;
 }
 
-.print-sheet .resume .resume-header {
-  margin-bottom: 0.6rem;
+.print-sheet .resume h1 {
+  margin-bottom: 0.15rem;
+  font-size: 21pt;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
 }
 
 .print-sheet .resume .resume-contact {
-  font-size: 9.5pt;
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  justify-items: end;
+  gap: 0;
+  font-size: 10pt;
+  color: #111;
 }
 
+.print-sheet .resume .contact-area {
+  grid-column: 1 / -1;
+  grid-row: 1;
+}
+
+.print-sheet .resume .contact-linkedin {
+  grid-column: 2;
+  grid-row: 2;
+}
+
+.print-sheet .resume .contact-github {
+  grid-column: 3;
+  grid-row: 2;
+}
+
+/* The dot between LinkedIn and GitHub is drawn by CSS, so the item's text stays just the address. */
+.print-sheet .resume .contact-github::before {
+  content: '\2022';
+  margin: 0 0.45em;
+}
+
+.print-sheet .resume .contact-email {
+  grid-column: 1 / -1;
+  grid-row: 3;
+}
+
+/* Section headings: plain black capitals, no rule. */
 .print-sheet .resume h2 {
-  margin: 0.8rem 0 0.35rem;
-  font-size: 8.5pt;
+  margin: 0.8rem 0 0.25rem;
+  padding-bottom: 0;
+  border-bottom: 0;
+  font-size: 13pt;
+  font-weight: 400;
+  letter-spacing: 0;
+  color: #111;
   break-after: avoid;
 }
 
 .print-sheet .resume h3 {
-  font-size: 10.5pt;
+  font-size: 11pt;
 }
 
 .print-sheet .resume .role {
@@ -65,7 +109,8 @@ body.print {
 
 .print-sheet .resume .dates,
 .print-sheet .resume .note {
-  font-size: 9pt;
+  font-size: 10pt;
+  color: #111;
 }
 
 /* A role with three bullets or fewer stays in one piece, so it never splits with an orphan.
@@ -85,10 +130,20 @@ body.print {
   margin: 0 0 0.2rem;
 }
 
+/* Core Skills read as run-in lines, "Label: items". The colon is drawn by CSS, so the label's text stays as it is. */
 .print-sheet .resume .skill-group {
-  grid-template-columns: 1.45in 1fr;
-  margin-bottom: 0.15rem;
+  display: block;
+  margin-bottom: 0.25rem;
   break-inside: avoid;
+}
+
+.print-sheet .resume .skill-group dt,
+.print-sheet .resume .skill-group dd {
+  display: inline;
+}
+
+.print-sheet .resume .skill-group dt::after {
+  content: ': ';
 }
 
 /* Keep Education together so it never splits across the page break. */
@@ -102,9 +157,10 @@ body.print {
 
 .print-sheet .resume .bullets {
   margin-top: 0.2rem;
+  padding-left: 1.5rem;
 }
 
 .print-sheet .resume .bullets li {
-  margin-bottom: 0.15rem;
+  margin-bottom: 0.1rem;
   break-inside: avoid;
 }

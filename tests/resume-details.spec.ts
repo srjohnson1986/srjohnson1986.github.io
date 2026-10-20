@@ -44,6 +44,52 @@ for (const version of shownResumes) {
   });
 }
 
+// The look of the PDFs: a right-aligned header, plain section headings, run-in skills, and type that stays
+// readable. A tighter fit (npm run fit-lanes) must not be bought by quietly shrinking the text, so the
+// smallest allowed size is pinned here. These read the real layout in print media, the same layout the PDFs print.
+const MIN_BODY_PT = 10;
+const PX_PER_PT = 96 / 72;
+
+for (const version of shownResumes) {
+  test(`the print route of "${version.route}" has the right-aligned header, plain headings, run-in skills, and readable type`, { tag: ['@req-393'] }, async ({ page }) => {
+    await page.emulateMedia({ media: 'print' });
+    await page.goto(`/resume/print/${version.printRoute}/`);
+    const resume = page.locator('article.resume');
+
+    const layout = await resume.evaluate((el) => {
+      const rect = (selector: string) => el.querySelector(selector)!.getBoundingClientRect();
+      const style = (selector: string) => getComputedStyle(el.querySelector(selector)!);
+      const group = el.querySelector('.skill-group')!;
+      return {
+        headerAlign: style('.resume-header').textAlign,
+        nameCase: style('h1').textTransform,
+        area: rect('.contact-area'),
+        linkedin: rect('.contact-linkedin'),
+        github: rect('.contact-github'),
+        email: rect('.contact-email'),
+        headingRules: [...el.querySelectorAll('h2')].map((h) => getComputedStyle(h).borderBottomWidth),
+        labelTop: group.querySelector('dt')!.getBoundingClientRect().top,
+        listTop: group.querySelector('dd')!.getClientRects()[0].top,
+        sizes: ['section[aria-labelledby="resume-summary"] p', '.skill-group dd', '.skill-group dt', '.bullets li'].map((selector) => parseFloat(style(selector).fontSize)),
+      };
+    });
+
+    expect(layout.headerAlign).toBe('right');
+    expect(layout.nameCase).toBe('uppercase');
+    // Three lines, top to bottom: area, then LinkedIn beside GitHub, then email.
+    expect(layout.area.bottom).toBeLessThanOrEqual(layout.linkedin.top + 1);
+    expect(layout.linkedin.top).toBeCloseTo(layout.github.top, 0);
+    expect(layout.linkedin.bottom).toBeLessThanOrEqual(layout.email.top + 1);
+    expect(layout.linkedin.right).toBeLessThanOrEqual(layout.github.left + 1);
+    // Every line ends at the same right edge.
+    for (const line of [layout.area, layout.github, layout.email]) expect(line.right).toBeCloseTo(layout.area.right, 0);
+
+    expect(layout.headingRules, 'border under each section heading').toEqual(layout.headingRules.map(() => '0px'));
+    expect(layout.listTop, 'a skills list starts on the same line as its label').toBeCloseTo(layout.labelTop, -1);
+    for (const size of layout.sizes) expect(size / PX_PER_PT, 'body text size in pt').toBeGreaterThanOrEqual(MIN_BODY_PT);
+  });
+}
+
 test.describe('the date format used by the checks below', { tag: ['@req-315'] }, () => {
   // Literal examples, so the helper is known to be right before the pages are compared with it.
   test('prints a range, a single year, and an ongoing role the way the resume does', () => {
