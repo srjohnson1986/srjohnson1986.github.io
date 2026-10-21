@@ -35,7 +35,7 @@ test('each resume version and its PDF are served', { tag: ['@req-349'] }, async 
   for (const version of shownResumes) {
     await page.goto(`/resume/${version.route}/`);
     await expect(page.getByRole('heading', { level: 1, name: 'Steve Johnson' })).toBeVisible();
-    await expect(page.getByRole('heading', { level: 2, name: 'Experience' })).toBeVisible();
+    await expect(page.getByRole('heading', { level: 2, name: 'Professional Experience' })).toBeVisible();
 
     const pdf = await request.get(`/resume/${version.pdf}`);
     expect(pdf.status(), `${version.route} PDF`).toBe(200);

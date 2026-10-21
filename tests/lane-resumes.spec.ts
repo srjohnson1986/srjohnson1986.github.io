@@ -180,7 +180,7 @@ for (const version of shownResumes) {
       // A lane that turns the section on must have something to show in it, or the setting does nothing.
       if (flagged) expect(projects.length, 'project roles shown by this lane').toBeGreaterThan(0);
 
-      const headings = ['Summary', 'Core Skills', ...(projects.length ? ['Projects'] : []), 'Experience', 'Education and Certifications'];
+      const headings = ['Summary', 'Core Skills', ...(projects.length ? ['Projects'] : []), 'Professional Experience', 'Education and Certifications'];
       await expect(page.locator('article.resume h2')).toHaveText(headings);
 
       const roleIds = (selector: string) => page.locator(selector).evaluateAll((els) => els.map((el) => el.getAttribute('aria-labelledby')));

@@ -10,8 +10,8 @@
 #                 must exist in that group in skills.yaml (a skill with lane_only: true shows on lanes only)
 #   role_floor    the fewest bullets a role keeps when the resume is trimmed to fit two pages
 #   projects_section  optional, true to show the roles of kind "project" (roles.yaml) under their own Projects heading,
-#                 ahead of Experience. On for the lanes whose strongest work is project work (QA, SDET); the other lanes
-#                 have one small project, which reads better inside Experience.
+#                 ahead of Professional Experience. On for the lanes whose strongest work is project work (QA, SDET); the other lanes
+#                 have one small project, which reads better inside Professional Experience.
 #
 # The lane resumes are built at /resume/print/lane-<id>/ and as PDFs, but nothing links to them yet.
 
