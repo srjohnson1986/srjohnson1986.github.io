@@ -9,6 +9,8 @@ type Bullet = CollectionEntry<'bullets'>;
 
 export interface ResumeSection {
   roleId: string;
+  /** The role's kind from roles.yaml (job, project, ...). A lane with projects_section lists the projects first, under their own heading. */
+  kind: string;
   /** Employer or project name, already switched to the neutral label when the variant asks for it. */
   org: string;
   title: string;
@@ -34,6 +36,8 @@ export interface ResumeVariant {
   label: string;
   summary: string;
   orgLabels: 'neutral' | 'real';
+  /** Lane resumes only: show the roles of kind "project" under their own Projects heading, ahead of Experience. */
+  projectsSection?: boolean;
   skills: ResumeSkillGroup[];
   sections: ResumeSection[];
   education: ResumeEducation[];
@@ -84,6 +88,7 @@ function makeSection(role: Role, bullets: ResumeSection['bullets'], labelMode: '
   const useNeutral = labelMode === 'neutral' && role.data.neutral_org;
   return {
     roleId: role.id,
+    kind: role.data.kind,
     org: useNeutral ? role.data.neutral_org! : role.data.org,
     title: role.data.title,
     note: role.data.note,
@@ -379,7 +384,14 @@ export async function getLaneResumes(options: { candidates?: boolean } = {}): Pr
       const summary = summariesById.get(lane.data.summary_id.id);
       if (!summary) throw new Error(`Lane "${lane.id}" uses summary "${lane.data.summary_id.id}", which does not exist`);
       const skills = laneSkills(skillGroupsInOrder, lane.id, lane.data.skills);
-      const print = fingerprint(plan, { summary: summary.data.text, skills, labels: lane.data.org_labels, css });
+      // The setting only joins the fingerprint when it is on, so the lanes that do not use it keep the fit they have.
+      const print = fingerprint(plan, {
+        summary: summary.data.text,
+        skills,
+        labels: lane.data.org_labels,
+        css,
+        ...(lane.data.projects_section ? { projects: true } : {}),
+      });
 
       let items: Item[];
       if (options.candidates) {
@@ -425,6 +437,7 @@ export async function getLaneResumes(options: { candidates?: boolean } = {}): Pr
         label: lane.data.label,
         summary: summary.data.text,
         orgLabels: lane.data.org_labels,
+        projectsSection: lane.data.projects_section ?? false,
         skills,
         sections,
         education,

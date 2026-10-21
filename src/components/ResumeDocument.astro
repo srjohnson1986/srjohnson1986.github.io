@@ -16,6 +16,18 @@ const keepNext = (bullets: Props['variant']['sections'][number]['bullets']) => {
   const shown = bullets.filter((b) => !b.hidden);
   return new Set(shown.length >= 2 ? [shown[0], shown[shown.length - 2]] : []);
 };
+
+// The roles come newest first. A lane with projects_section gets two groups, Projects (the roles of kind "project") and
+// then Experience (everything else); every other resume has just Experience, as it always did. A group with no roles is
+// left out. The Experience group keeps its ids (resume-experience), so links and tests that point at it keep working.
+const groups = (
+  variant.projectsSection
+    ? [
+        { id: 'projects', heading: 'Projects', sections: variant.sections.filter((s) => s.kind === 'project') },
+        { id: 'experience', heading: 'Experience', sections: variant.sections.filter((s) => s.kind !== 'project') },
+      ]
+    : [{ id: 'experience', heading: 'Experience', sections: variant.sections }]
+).filter((group) => group.sections.length > 0);
 ---
 
 <article class="resume" aria-labelledby="resume-name">
@@ -49,10 +61,11 @@ const keepNext = (bullets: Props['variant']['sections'][number]['bullets']) => {
     </dl>
   </section>
 
-  <section aria-labelledby="resume-experience">
-    <h2 id="resume-experience">Experience</h2>
-    {
-      variant.sections.map((section) => (
+  {
+    groups.map((group) => (
+      <section aria-labelledby={`resume-${group.id}`}>
+        <h2 id={`resume-${group.id}`}>{group.heading}</h2>
+        {group.sections.map((section) => (
         <section
           class:list={['role', { 'role-short': section.bullets.filter((b) => !b.hidden).length <= 3 }]}
           aria-labelledby={`role-${section.roleId}`}
@@ -83,9 +96,10 @@ const keepNext = (bullets: Props['variant']['sections'][number]['bullets']) => {
             ))}
           </ul>
         </section>
-      ))
-    }
-  </section>
+        ))}
+      </section>
+    ))
+  }
 
   <section class="education-block" aria-labelledby="resume-education">
     <h2 id="resume-education">Education and Certifications</h2>

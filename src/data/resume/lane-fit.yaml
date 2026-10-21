@@ -2,31 +2,31 @@
 # and the fingerprint of everything that fit was measured against. Written by scripts/fit-lanes.mjs (npm run fit-lanes); do not edit by hand.
 
 - id: adp
-  steps: 53
-  fingerprint: b1de4e598e11
+  steps: 52
+  fingerprint: f6921d12fe11
   pages: 2
 
 - id: con
-  steps: 103
-  fingerprint: c5147e3e5f37
+  steps: 102
+  fingerprint: c5ef305e4ed4
   pages: 2
 
 - id: it
-  steps: 91
-  fingerprint: e2c1415c8768
+  steps: 90
+  fingerprint: ab32c4ef4d25
   pages: 2
 
 - id: pmba
   steps: 83
-  fingerprint: aff97e199d29
+  fingerprint: 26351968d69f
   pages: 2
 
 - id: qa
   steps: 102
-  fingerprint: ebbac43cd665
+  fingerprint: 63a914ec213a
   pages: 2
 
 - id: sdet
-  steps: 98
-  fingerprint: c4d3623a8714
+  steps: 99
+  fingerprint: a6d6ed0a610d
   pages: 2
