@@ -53,38 +53,50 @@ body.print {
 }
 
 .print-sheet .resume .resume-contact {
-  display: grid;
-  grid-template-columns: 1fr auto auto;
-  justify-items: end;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
   gap: 0;
   font-size: 10pt;
   color: #111;
 }
 
+/* Rows, top to bottom: pronouns and area / LinkedIn and GitHub / email. `order` puts each item in its row, and the
+   list's own ::before and ::after (real flex items, full width and no height) force the line breaks between rows. */
+.print-sheet .resume .resume-contact::before,
+.print-sheet .resume .resume-contact::after {
+  content: '';
+  flex-basis: 100%;
+  height: 0;
+}
+
+.print-sheet .resume .resume-contact::before {
+  order: 2;
+}
+
+.print-sheet .resume .resume-contact::after {
+  order: 4;
+}
+
+.print-sheet .resume .contact-pronouns,
 .print-sheet .resume .contact-area {
-  grid-column: 1 / -1;
-  grid-row: 1;
+  order: 1;
 }
 
-.print-sheet .resume .contact-linkedin {
-  grid-column: 2;
-  grid-row: 2;
-}
-
+.print-sheet .resume .contact-linkedin,
 .print-sheet .resume .contact-github {
-  grid-column: 3;
-  grid-row: 2;
-}
-
-/* The dot between LinkedIn and GitHub is drawn by CSS, so the item's text stays just the address. */
-.print-sheet .resume .contact-github::before {
-  content: '\2022';
-  margin: 0 0.45em;
+  order: 3;
 }
 
 .print-sheet .resume .contact-email {
-  grid-column: 1 / -1;
-  grid-row: 3;
+  order: 5;
+}
+
+/* The dots between two items on a line are drawn by CSS, so each item's text stays just its own words. */
+.print-sheet .resume .contact-area::before,
+.print-sheet .resume .contact-github::before {
+  content: '\2022';
+  margin: 0 0.45em;
 }
 
 /* Section headings: plain black capitals, no rule. */
@@ -163,4 +175,16 @@ body.print {
 .print-sheet .resume .bullets li {
   margin-bottom: 0.1rem;
   break-inside: avoid;
+}
+
+/* Page breaks inside a long role. The heading, every position line, and the first two bullets stay together, so a
+   page never ends on a company or position with nothing under it. A role may still run over to the next page
+   between bullets, but never leaves a lone bullet on either page: at least two sit before the break, and at least
+   two after it. */
+.print-sheet .resume .positions {
+  break-inside: avoid;
+}
+
+.print-sheet .resume .bullets li.keep-next {
+  break-after: avoid;
 }

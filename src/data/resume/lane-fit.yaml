@@ -3,30 +3,30 @@
 
 - id: adp
   steps: 53
-  fingerprint: cc51c462a5c7
+  fingerprint: b1de4e598e11
   pages: 2
 
 - id: con
   steps: 103
-  fingerprint: 288c595c2c0c
+  fingerprint: c5147e3e5f37
   pages: 2
 
 - id: it
   steps: 91
-  fingerprint: 55f852fe0dbd
+  fingerprint: e2c1415c8768
   pages: 2
 
 - id: pmba
   steps: 83
-  fingerprint: 83f45df3d7ab
+  fingerprint: aff97e199d29
   pages: 2
 
 - id: qa
   steps: 102
-  fingerprint: 976db8fd0293
+  fingerprint: ebbac43cd665
   pages: 2
 
 - id: sdet
   steps: 98
-  fingerprint: ff11d851276e
+  fingerprint: c4d3623a8714
   pages: 2

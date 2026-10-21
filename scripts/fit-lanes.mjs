@@ -103,6 +103,13 @@ async function openLane(laneId) {
         role.hidden = left === 0;
         role.style.display = left === 0 ? 'none' : '';
         role.classList.toggle('role-short', left <= 3);
+        // The same bullets ResumeDocument.astro marks to stay with the next one at a page break (see print.css).
+        const shown = [...role.querySelectorAll('li[data-key]:not([hidden])')];
+        for (const li of role.querySelectorAll('li')) li.classList.remove('keep-next');
+        if (shown.length >= 2) {
+          shown[0].classList.add('keep-next');
+          shown[shown.length - 2].classList.add('keep-next');
+        }
       }
       return document.querySelector('.resume').scrollHeight;
     }, visible);

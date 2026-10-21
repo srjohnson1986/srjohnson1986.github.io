@@ -7,12 +7,22 @@ interface Props {
 }
 
 const { variant } = Astro.props;
+
+// The bullets that must stay with the one after them at a page break (print.css, ".keep-next"): the first, and the
+// second from last. With the heading that keeps two bullets under it before a break and two after it, so a page never
+// ends or starts with a lone bullet of a long role. Hidden candidates (the lane fit page) do not count; the fit script
+// works this out again each time it shows or hides bullets.
+const keepNext = (bullets: Props['variant']['sections'][number]['bullets']) => {
+  const shown = bullets.filter((b) => !b.hidden);
+  return new Set(shown.length >= 2 ? [shown[0], shown[shown.length - 2]] : []);
+};
 ---
 
 <article class="resume" aria-labelledby="resume-name">
   <header class="resume-header">
     <h1 id="resume-name">{site.name}</h1>
     <ul class="resume-contact">
+      <li class="contact-pronouns">{site.resumePronouns}</li>
       <li class="contact-area">{site.resumeArea}</li>
       {site.email && <li class="contact-email"><a href={`mailto:${site.email}`}>{site.email}</a></li>}
       <li class="contact-linkedin"><a href={site.links.linkedin.href}>{site.links.linkedin.label}</a></li>
@@ -69,7 +79,7 @@ const { variant } = Astro.props;
           )}
           <ul class="bullets">
             {section.bullets.map((bullet) => (
-              <li data-key={bullet.key} hidden={bullet.hidden}>{bullet.text}</li>
+              <li class:list={[{ 'keep-next': keepNext(section.bullets).has(bullet) }]} data-key={bullet.key} hidden={bullet.hidden}>{bullet.text}</li>
             ))}
           </ul>
         </section>
