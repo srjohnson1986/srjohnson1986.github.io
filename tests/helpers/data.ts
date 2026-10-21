@@ -301,6 +301,8 @@ export interface LaneDef {
   org_labels: 'neutral' | 'real';
   skills: Record<string, string[]>;
   role_floor?: Record<string, number>;
+  /** Show the roles of kind "project" under their own Projects heading, ahead of Experience. */
+  projects_section?: boolean;
 }
 export interface ShownItem {
   id: string;
@@ -314,6 +316,15 @@ export const lanes = load<LaneDef[]>('src/data/resume/lanes.yaml').sort((a, b) =
 const laneCombos = load<{ id: string; role: string; replaces: string[]; lanes: string[]; text: string }[]>('src/data/resume/combos.yaml');
 const laneFits = load<{ id: string; steps: number }[]>('src/data/resume/lane-fit.yaml');
 const byIdOrder = (a: { id: string }, b: { id: string }) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0); // code-point order, as the build uses
+
+/**
+ * The roles a resume lists, in the order it lists them: newest first, except that a lane with projects_section lists its
+ * project roles first (under the Projects heading), then the rest (under Experience), each group newest first.
+ */
+export function rolesInOrder(lane?: LaneDef): Role[] {
+  if (!lane?.projects_section) return rolesNewestFirst;
+  return [...rolesNewestFirst.filter((r) => r.kind === 'project'), ...rolesNewestFirst.filter((r) => r.kind !== 'project')];
+}
 
 /** The bullets and combined bullets a lane resume shows: the lane's cut plan with its saved number of steps applied. */
 export function laneItems(lane: LaneDef): ShownItem[] {

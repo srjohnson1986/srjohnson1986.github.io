@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import * as yaml from 'js-yaml';
 import { test, expect } from './helpers/test';
-import { root, dist, laneItems, retiredResumeAddresses } from './helpers/data';
+import { root, dist, laneItems, retiredResumeAddresses, shownResumes } from './helpers/data';
 
 // The lane resumes: one generic, auto-fitted resume per job lane. Each is a page of the site at /resume/<id>/, a print
 // route at /resume/print/lane-<id>/ (which the PDF is printed from), and a PDF. This file checks the print route and the PDF
@@ -11,8 +11,8 @@ import { root, dist, laneItems, retiredResumeAddresses } from './helpers/data';
 
 const load = <T>(file: string): T => yaml.load(fs.readFileSync(path.join(root, 'src', 'data', 'resume', file), 'utf8')) as T;
 
-type Lane = { id: string; code: string; label: string; order: number; summary_id: string; org_labels: 'real' | 'neutral'; skills: Record<string, string[]>; role_floor?: Record<string, number> };
-type Role = { id: string; org: string; neutral_org?: string; start: number; end: number | 'present'; lane_rank: Record<string, number> };
+type Lane = { id: string; code: string; label: string; order: number; summary_id: string; org_labels: 'real' | 'neutral'; skills: Record<string, string[]>; role_floor?: Record<string, number>; projects_section?: boolean };
+type Role = { id: string; kind: string; org: string; neutral_org?: string; start: number; end: number | 'present'; lane_rank: Record<string, number> };
 type Bullet = { id: string; role: string; public: boolean; text: string; lanes?: Record<string, number[]> };
 type Fit = { id: string; steps: number; fingerprint: string; pages: number };
 type SkillGroup = { id: string; order: number; group: string; items: (string | { name: string; only?: string[]; lane_only?: boolean })[] };
@@ -28,6 +28,10 @@ const skillGroups = load<SkillGroup[]>('skills.yaml').sort((a, b) => a.order - b
 // Newest first, written out again here rather than imported from the site.
 const end = (r: Role) => (r.end === 'present' ? Infinity : r.end);
 const rolesNewestFirst = [...roles].sort((a, c) => end(c) - end(a) || c.start - a.start || a.id.localeCompare(c.id));
+// A lane with projects_section lists its project roles first, then the rest, each group newest first.
+const isProject = (r: Role) => r.kind === 'project';
+const inLaneOrder = (lane: { projects_section?: boolean } | undefined, list: Role[]) =>
+  lane?.projects_section ? [...list.filter(isProject), ...list.filter((r) => !isProject(r))] : list;
 
 // What the lane shows: its cut plan with the saved fit applied (worked out in tests/helpers/data.ts).
 const expectedItems = (lane: Lane): Item[] => laneItems(lane) as Item[];
@@ -55,7 +59,7 @@ for (const lane of lanes) {
       const items = expectedItems(lane);
 
       const sections = page.locator('section.role');
-      const expectedRoles = rolesNewestFirst.filter((r) => items.some((i) => i.role === r.id));
+      const expectedRoles = inLaneOrder(lane, rolesNewestFirst.filter((r) => items.some((i) => i.role === r.id)));
       await expect(sections).toHaveCount(expectedRoles.length);
       for (const [index, role] of expectedRoles.entries()) {
         const section = sections.nth(index);
@@ -157,3 +161,32 @@ test('the old Consulting and Adoption addresses forward to the lane resumes that
     expect(sitemap, `${from} is only a forwarding page`).not.toContain(from);
   }
 });
+
+// The Projects section: a lane with projects_section lists its project roles under their own heading ahead of Experience;
+// every other resume keeps all its roles under Experience. The web page and the print route must agree.
+for (const version of shownResumes) {
+  const pages = [
+    { name: 'web page', url: `/resume/${version.route}/` },
+    { name: 'print route', url: `/resume/print/${version.printRoute}/` },
+  ];
+  for (const { name, url } of pages) {
+    const flagged = version.lane?.projects_section === true;
+    test(`resume "${version.route}" ${name}: ${flagged ? 'project roles sit under a Projects heading ahead of Experience' : 'has no Projects heading'}`, { tag: ['@req-400'] }, async ({ page }) => {
+      await page.goto(url);
+      const shownIds = new Set(version.items.map((i) => i.role));
+      const shown = rolesNewestFirst.filter((r) => shownIds.has(r.id));
+      const projects = flagged ? shown.filter(isProject) : [];
+      const experience = shown.filter((r) => !projects.includes(r));
+      // A lane that turns the section on must have something to show in it, or the setting does nothing.
+      if (flagged) expect(projects.length, 'project roles shown by this lane').toBeGreaterThan(0);
+
+      const headings = ['Summary', 'Core Skills', ...(projects.length ? ['Projects'] : []), 'Experience', 'Education and Certifications'];
+      await expect(page.locator('article.resume h2')).toHaveText(headings);
+
+      const roleIds = (selector: string) => page.locator(selector).evaluateAll((els) => els.map((el) => el.getAttribute('aria-labelledby')));
+      if (projects.length) expect(await roleIds('section[aria-labelledby="resume-projects"] > section.role')).toEqual(projects.map((r) => `role-${r.id}`));
+      else await expect(page.locator('section[aria-labelledby="resume-projects"]')).toHaveCount(0);
+      expect(await roleIds('section[aria-labelledby="resume-experience"] > section.role')).toEqual(experience.map((r) => `role-${r.id}`));
+    });
+  }
+}

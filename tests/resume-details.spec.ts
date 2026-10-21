@@ -1,5 +1,5 @@
 import { test, expect } from './helpers/test';
-import { dateRange, education, rolesNewestFirst, shownResumes } from './helpers/data';
+import { dateRange, education, rolesInOrder, rolesNewestFirst, shownResumes } from './helpers/data';
 
 // The resume pages and the print routes (which the PDFs are printed from) show more than a version's
 // summary, skills, and bullet text: the order of the roles, each role's dates, title, note, and
@@ -168,8 +168,9 @@ test.describe('the date format used by the checks below', { tag: ['@req-315'] },
 
 for (const version of shownResumes) {
   const listed = version.items;
-  // The roles this resume shows (a role with no bullet in it is left out), newest first, with their bullets in the resume's order.
-  const sections = rolesNewestFirst
+  // The roles this resume shows (a role with no bullet in it is left out), newest first (a lane with a Projects section lists
+  // its projects first), with their bullets in the resume's order.
+  const sections = rolesInOrder(version.lane)
     .map((role) => ({ role, bullets: listed.filter((b) => b.role === role.id) }))
     .filter((s) => s.bullets.length > 0);
 

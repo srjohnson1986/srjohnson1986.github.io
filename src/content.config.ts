@@ -120,6 +120,9 @@ const lanes = defineCollection({
     skills: z.record(kebab, z.array(copy).min(1)),
     // The fewest bullets a role keeps on this lane's resume when it is trimmed to fit (role id -> number).
     role_floor: z.record(kebab, z.number().int().min(0)).optional(),
+    // Show the roles of kind "project" under their own Projects heading, ahead of Experience. For lanes whose
+    // strongest work is project work; a lane with one small project reads better without it. Part of the fit fingerprint.
+    projects_section: z.boolean().optional(),
   }),
 });
 

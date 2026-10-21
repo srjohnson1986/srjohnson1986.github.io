@@ -111,6 +111,12 @@ async function openLane(laneId) {
           shown[shown.length - 2].classList.add('keep-next');
         }
       }
+      // A group of roles (Projects, Experience) with nothing left disappears with its heading, as on the real page.
+      for (const group of document.querySelectorAll('.resume > section:has(> section.role)')) {
+        const left = [...group.querySelectorAll(':scope > section.role')].filter((role) => !role.hidden).length;
+        group.hidden = left === 0;
+        group.style.display = left === 0 ? 'none' : '';
+      }
       return document.querySelector('.resume').scrollHeight;
     }, visible);
     const pdf = await page.pdf({ preferCSSPageSize: true, printBackground: true });
