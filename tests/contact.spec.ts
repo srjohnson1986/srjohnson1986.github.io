@@ -36,10 +36,11 @@ test.describe('contact details', { tag: ['@req-337'] }, () => {
     { page: `/resume/print/${v.printRoute}/`, name: `print route "${v.printRoute}"` },
   ]);
   for (const { page: url, name } of headers) {
-    test(`the ${name} header shows the area, email, LinkedIn, and GitHub`, async ({ page }) => {
+    test(`the ${name} header shows the pronouns, area, email, LinkedIn, and GitHub`, async ({ page }) => {
       await page.goto(url);
       const items = page.locator('.resume-contact li');
-      await expect(items).toHaveText(['Decatur, GA', site.email!, site.links.linkedin.label, site.links.github.label]);
+      // The pronouns are written out here on purpose, like the area: a test that read site.ts could not notice a change there.
+      await expect(items).toHaveText(['He/Him', 'Decatur, GA', site.email!, site.links.linkedin.label, site.links.github.label]);
       const links = items.locator('a');
       await expect(links).toHaveCount(3);
       await expect(links.nth(0)).toHaveAttribute('href', `mailto:${site.email}`);

@@ -63,6 +63,7 @@ for (const version of shownResumes) {
       return {
         headerAlign: style('.resume-header').textAlign,
         nameCase: style('h1').textTransform,
+        pronouns: rect('.contact-pronouns'),
         area: rect('.contact-area'),
         linkedin: rect('.contact-linkedin'),
         github: rect('.contact-github'),
@@ -76,7 +77,9 @@ for (const version of shownResumes) {
 
     expect(layout.headerAlign).toBe('right');
     expect(layout.nameCase).toBe('uppercase');
-    // Three lines, top to bottom: area, then LinkedIn beside GitHub, then email.
+    // Three lines, top to bottom: pronouns beside the area, then LinkedIn beside GitHub, then email.
+    expect(layout.pronouns.top).toBeCloseTo(layout.area.top, 0);
+    expect(layout.pronouns.right).toBeLessThanOrEqual(layout.area.left + 1);
     expect(layout.area.bottom).toBeLessThanOrEqual(layout.linkedin.top + 1);
     expect(layout.linkedin.top).toBeCloseTo(layout.github.top, 0);
     expect(layout.linkedin.bottom).toBeLessThanOrEqual(layout.email.top + 1);
@@ -87,6 +90,42 @@ for (const version of shownResumes) {
     expect(layout.headingRules, 'border under each section heading').toEqual(layout.headingRules.map(() => '0px'));
     expect(layout.listTop, 'a skills list starts on the same line as its label').toBeCloseTo(layout.labelTop, -1);
     for (const size of layout.sizes) expect(size / PX_PER_PT, 'body text size in pt').toBeGreaterThanOrEqual(MIN_BODY_PT);
+  });
+}
+
+// Page breaks (the PDFs are paginated by Chromium from these rules). A role's heading and positions stay with its
+// bullets, and the first bullet and the second from last stay with the next one, so a break never strands a company
+// or position, and never leaves a lone bullet before or after it. The page break itself is Chromium's, so this checks
+// that the rules sit on the right elements; the PDFs are also looked at by eye when print.css changes.
+for (const version of shownResumes) {
+  test(`the print route of "${version.route}" keeps each role's heading with its bullets at a page break`, { tag: ['@req-398'] }, async ({ page }) => {
+    await page.emulateMedia({ media: 'print' });
+    await page.goto(`/resume/print/${version.printRoute}/`);
+
+    const roles = await page.locator('article.resume section.role').evaluateAll((sections) =>
+      sections.map((role) => {
+        const breakAfter = (el: Element) => getComputedStyle(el).getPropertyValue('break-after');
+        const bullets = [...role.querySelectorAll('.bullets li')].filter((li) => !(li as HTMLElement).hidden);
+        return {
+          name: role.querySelector('h3')!.textContent,
+          headAvoidsBreak: breakAfter(role.querySelector('.role-head')!),
+          positionsAvoidBreak: breakAfter(role.querySelector('.positions, .role-title')!),
+          positionsStayTogether: role.querySelector('.positions') ? getComputedStyle(role.querySelector('.positions')!).getPropertyValue('break-inside') : 'avoid',
+          bulletKeepsWithNext: bullets.map((li) => breakAfter(li) === 'avoid'),
+        };
+      }),
+    );
+
+    expect(roles.length).toBeGreaterThan(0);
+    for (const role of roles) {
+      expect(role.headAvoidsBreak, `${role.name}: heading keeps with what follows`).toBe('avoid');
+      expect(role.positionsAvoidBreak, `${role.name}: positions keep with the bullets`).toBe('avoid');
+      expect(role.positionsStayTogether, `${role.name}: position lines stay together`).toBe('avoid');
+      // Exactly the first bullet and the second from last (the same bullet when there are only two).
+      const n = role.bulletKeepsWithNext.length;
+      const expected = role.bulletKeepsWithNext.map((_, i) => n >= 2 && (i === 0 || i === n - 2));
+      expect(role.bulletKeepsWithNext, `${role.name}: which bullets keep with the next`).toEqual(expected);
+    }
   });
 }
 

@@ -18,6 +18,8 @@ export const site = {
   area: 'Decatur, GA, a suburb of Atlanta',
   // The short form, shown in the header of every resume page, print route, and PDF.
   resumeArea: 'Decatur, GA',
+  // Shown before the area in the header of every resume page, print route, and PDF.
+  resumePronouns: 'He/Him',
   // Photo for the Home page. Leave undefined to show a placeholder. To use a real photo, put the
   // file in public/images/ and set { src: '/images/<file>', alt: '<description of the photo>' }.
   photo: {
