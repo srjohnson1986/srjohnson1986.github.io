@@ -19,7 +19,7 @@ for (const version of shownResumes) {
     const listed = version.items;
 
     await expect(resume.getByRole('heading', { level: 1 })).toBeVisible();
-    for (const name of ['Summary', 'Core Skills', 'Experience', 'Education and Certifications']) {
+    for (const name of ['Summary', 'Core Skills', 'Professional Experience', 'Education and Certifications']) {
       await expect(resume.getByRole('heading', { level: 2, name })).toBeVisible();
     }
     await expect(resume.locator('section[aria-labelledby="resume-summary"] p')).toBeVisible();

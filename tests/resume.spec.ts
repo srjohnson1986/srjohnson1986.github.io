@@ -77,7 +77,7 @@ for (const version of shownResumes) {
 
       await expect(page).toHaveTitle(new RegExp(version.label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
       await expect(page.getByRole('heading', { level: 1, name: 'Steve Johnson' })).toBeVisible();
-      for (const name of ['Summary', 'Core Skills', 'Experience', 'Education and Certifications']) {
+      for (const name of ['Summary', 'Core Skills', 'Professional Experience', 'Education and Certifications']) {
         await expect(page.getByRole('heading', { level: 2, name })).toBeVisible();
       }
 

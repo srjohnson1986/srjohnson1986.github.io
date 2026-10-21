@@ -18,15 +18,15 @@ const keepNext = (bullets: Props['variant']['sections'][number]['bullets']) => {
 };
 
 // The roles come newest first. A lane with projects_section gets two groups, Projects (the roles of kind "project") and
-// then Experience (everything else); every other resume has just Experience, as it always did. A group with no roles is
+// then Professional Experience (everything else); every other resume has just Professional Experience, as it always did. A group with no roles is
 // left out. The Experience group keeps its ids (resume-experience), so links and tests that point at it keep working.
 const groups = (
   variant.projectsSection
     ? [
         { id: 'projects', heading: 'Projects', sections: variant.sections.filter((s) => s.kind === 'project') },
-        { id: 'experience', heading: 'Experience', sections: variant.sections.filter((s) => s.kind !== 'project') },
+        { id: 'experience', heading: 'Professional Experience', sections: variant.sections.filter((s) => s.kind !== 'project') },
       ]
-    : [{ id: 'experience', heading: 'Experience', sections: variant.sections }]
+    : [{ id: 'experience', heading: 'Professional Experience', sections: variant.sections }]
 ).filter((group) => group.sections.length > 0);
 ---
 
