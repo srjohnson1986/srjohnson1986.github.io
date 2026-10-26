@@ -170,7 +170,7 @@ test.describe('bullet eval report and threshold', { tag: ['@req-366'] }, () => {
       req.on('end', () => {
         res.statusCode = 400;
         res.setHeader('content-type', 'application/json');
-        res.end(JSON.stringify({ type: 'error', error: { type: 'invalid_request_error', message: `bad request for key ${req.headers['x-api-key']}` } }));
+        res.end(JSON.stringify({ type: 'error', error: { type: 'invalid_request_error', message: `bad request for key ${req.headers['authorization']}` } }));
       });
     });
     await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', resolve));
@@ -218,7 +218,8 @@ test.describe('bullet eval report and threshold', { tag: ['@req-366'] }, () => {
       expect(result.stdout + result.stderr).not.toContain(fakeKey);
       expect(seen).toHaveLength(PROMPTS.length * 2);
       for (const { headers, body } of seen) {
-        expect(headers['x-api-key']).toBe(fakeKey);
+        // SDK 1.x sends the key as a bearer token (0.x used x-api-key)
+        expect(headers['authorization']).toBe(`Bearer ${fakeKey}`);
         expect(body.model).toBe(MODEL);
         expect(body.max_tokens).toBe(MAX_TOKENS);
         expect(body.system).toContain('one resume bullet');
