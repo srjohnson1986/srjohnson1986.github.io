@@ -60,6 +60,11 @@ built:
     tagged with the requirement it verifies, and CI fails when a requirement has no test or a
     tag points at a requirement that does not exist. The deploy publishes the resulting
     matrix on this site.
+  - >-
+    Retrieval-grounded drafting of resume bullets, as a developer tool: a local embedding model,
+    a committed index of the approved bullets, a scored eval that drafts with and without the
+    retrieved examples, and a read-only page that shows which bullets are picked for 13 fixed
+    test queries and how close each one is.
   - Built with Claude Code under those guardrails.
 
 outcome:
@@ -83,4 +88,5 @@ outcome:
 links:
   repo: https://github.com/srjohnson1986/srjohnson1986.github.io
   report: /development-qa/this-site/traceability/
+  retrieval: /development-qa/this-site/retrieval/
   demo: https://srjohnson1986.github.io/

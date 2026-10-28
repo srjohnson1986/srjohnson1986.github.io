@@ -82,6 +82,10 @@ for (const project of projects) {
       if (project.links.report) await expect(report).toHaveAttribute('href', project.links.report);
       else await expect(report).toHaveCount(0);
 
+      const retrieval = links.getByRole('link', { name: 'How retrieval picks examples' });
+      if (project.links.retrieval) await expect(retrieval).toHaveAttribute('href', project.links.retrieval);
+      else await expect(retrieval).toHaveCount(0);
+
       await expect(links.getByRole('link')).toHaveCount(Object.values(project.links).filter(Boolean).length);
     });
   });
