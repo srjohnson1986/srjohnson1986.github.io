@@ -69,6 +69,13 @@ const { title, summary, year, type, stack, problem, built, outcome, facts, links
         )
       }
       {
+        links.retrieval && (
+          <li>
+            <a class="button secondary" href={links.retrieval}>How retrieval picks examples</a>
+          </li>
+        )
+      }
+      {
         links.demo && (
           <li>
             <a class="button secondary" href={links.demo} rel="noopener">Live demo</a>

@@ -175,7 +175,7 @@ export interface Project {
   built: string[];
   outcome: string[];
   facts?: { value: string; label: string }[];
-  links: { repo?: string; demo?: string; report?: string };
+  links: { repo?: string; demo?: string; report?: string; retrieval?: string };
 }
 export interface Release {
   slug: string;

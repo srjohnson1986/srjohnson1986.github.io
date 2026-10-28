@@ -1,0 +1,227 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import { site } from '../../../data/site';
+import { buildRetrievalDemo, showScore } from '../../../lib/retrieval-demo.js';
+
+// Everything on this page is worked out here, at build time, from the committed vectors. Nothing runs in the
+// visitor's browser and nothing is fetched. The tests in tests/retrieval-page.spec.ts check the numbers
+// against an independent calculation.
+const demo = buildRetrievalDemo();
+const ordinal = (n: number) => `${n}${[, 'st', 'nd', 'rd'][n % 10 > 3 || Math.floor(n / 10) === 1 ? 0 : n % 10] ?? 'th'}`;
+const onTopic = demo.queries.filter((q) => q.expected);
+const offTopic = demo.queries.filter((q) => !q.expected);
+---
+
+<BaseLayout
+  title={`How retrieval picks examples | Development & QA | ${site.name}`}
+  description="Which approved resume bullets retrieval picks for 13 fixed test queries, with the similarity score of each. A read-only look at one step of how this site's AI drafting is tested."
+>
+  <p class="back"><a href="/development-qa/this-site/">&larr; This site</a></p>
+
+  <h1>How retrieval picks examples</h1>
+  <p class="lead">
+    When I draft a resume bullet with Claude, the draft is shown a few approved bullets that are close in meaning to
+    the work being described. This page shows that step for {demo.queries.length} fixed test queries, with the real
+    scores. It runs nothing in your browser: every score was worked out when this site was built.
+  </p>
+
+  <section aria-labelledby="read">
+    <h2 id="read">How to read it</h2>
+    <ul>
+      <li>Each query is a plain description of some work, written the way I would describe it.</li>
+      <li>
+        A score runs from 0 to 1, and higher means closer in meaning. A bullet is shown only if it scores {showScore(demo.minScore)}
+        or more, and at most {demo.k} are shown, best first.
+      </li>
+      <li>
+        For {demo.recall.asked} of the queries I know which approved bullet should be found, and it is marked
+        <strong>Expected match</strong>. The other {offTopic.length} are off topic on purpose: nothing should reach
+        the floor, and the draft would then use the writing rules alone.
+      </li>
+    </ul>
+  </section>
+
+  <section aria-labelledby="result">
+    <h2 id="result">Result</h2>
+    <p data-recall>
+      The expected bullet was in the top 3 for <strong>{demo.recall.hits} of {demo.recall.asked}</strong> queries ({Math.round(demo.recall.rate * 100)}%).
+      The test needs at least {demo.recall.needed} of {demo.recall.asked}.
+    </p>
+    {
+      demo.misses.map((q) => (
+        <p>
+          The miss: &ldquo;{q.query}&rdquo; The expected bullet ranked {ordinal(q.expectedPosition ?? 0)}
+          {q.expectedScore !== null && <> (score {showScore(q.expectedScore)})</>}, behind bullets that are only loosely related. I show it
+          because a result like this is the reason to test retrieval instead of trusting it.
+        </p>
+      ))
+    }
+  </section>
+
+  <section aria-labelledby="queries">
+    <h2 id="queries">The queries</h2>
+    <p class="hint">Open a query to see which bullets were picked.</p>
+    <ul class="queries">
+      {
+        [...onTopic, ...offTopic].map((q) => (
+          <li>
+            <details data-query={q.id}>
+              <summary>
+                <span class="q">{q.query}</span>
+                <span class="state">{q.status}</span>
+              </summary>
+              {q.picks.length > 0 ? (
+                <ol class="picks">
+                  {q.picks.map((p) => (
+                    <li data-bullet={p.id}>
+                      <span class="score">{showScore(p.score)}</span>
+                      <span class="text">
+                        {p.text}
+                        {p.isExpected && <strong class="expected"> Expected match</strong>}
+                      </span>
+                    </li>
+                  ))}
+                </ol>
+              ) : (
+                <p class="none">No bullet scored {showScore(demo.minScore)} or more, so no examples are shown and the draft uses the writing rules alone.</p>
+              )}
+              {q.expected && !q.picks.some((p) => p.isExpected) && (
+                <p class="none">
+                  The expected bullet ranked {ordinal(q.expectedPosition ?? 0)}
+                  {q.expectedScore !== null && <> with a score of {showScore(q.expectedScore)}</>}, so it was not shown: &ldquo;{q.expectedText}&rdquo;
+                </p>
+              )}
+            </details>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+
+  <p class="foot"><a href="/development-qa/this-site/">Back to the This site page</a></p>
+</BaseLayout>
+
+<style>
+  .back {
+    margin: 0 0 1rem;
+    font-size: 0.95rem;
+  }
+
+  h1 {
+    margin: 0 0 0.75rem;
+    font-size: 2rem;
+  }
+
+  .lead {
+    margin: 0 0 1.5rem;
+    font-size: 1.1rem;
+  }
+
+  section {
+    margin-top: 1.75rem;
+  }
+
+  h2 {
+    margin: 0 0 0.6rem;
+    padding-bottom: 0.25rem;
+    border-bottom: 1px solid var(--rule);
+    color: var(--muted);
+    font-size: 0.85rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  section > p {
+    margin: 0 0 0.75rem;
+  }
+
+  .hint {
+    color: var(--muted);
+    font-size: 0.95rem;
+  }
+
+  .queries {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .queries > li + li {
+    margin-top: 0.6rem;
+  }
+
+  details {
+    border: 1px solid var(--rule);
+    border-radius: 0.5rem;
+    background: var(--card);
+  }
+
+  summary {
+    display: block;
+    padding: 0.75rem 0.9rem;
+    cursor: pointer;
+  }
+
+  summary:focus-visible {
+    outline: 3px solid var(--focus);
+    outline-offset: 2px;
+  }
+
+  .q {
+    display: block;
+    font-weight: 600;
+  }
+
+  .state {
+    display: block;
+    margin-top: 0.25rem;
+    color: var(--muted);
+    font-size: 0.9rem;
+  }
+
+  details[open] > summary {
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .picks {
+    margin: 0;
+    padding: 0.5rem 0.9rem 0.75rem;
+    list-style: none;
+  }
+
+  .picks > li {
+    display: flex;
+    gap: 0.75rem;
+    padding: 0.4rem 0;
+  }
+
+  .picks > li + li {
+    border-top: 1px solid var(--rule);
+  }
+
+  .score {
+    flex: none;
+    min-width: 2.75rem;
+    font-variant-numeric: tabular-nums;
+    font-weight: 700;
+  }
+
+  .text {
+    font-size: 0.95rem;
+  }
+
+  .expected {
+    color: var(--accent);
+    white-space: nowrap;
+  }
+
+  .none {
+    margin: 0;
+    padding: 0.6rem 0.9rem 0.75rem;
+    font-size: 0.95rem;
+  }
+
+  .foot {
+    margin-top: 2rem;
+  }
+</style>
