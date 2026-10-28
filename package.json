@@ -22,6 +22,7 @@
     "test:api-live": "node scripts/run-api-live.mjs",
     "postman": "node scripts/build-postman.mjs",
     "embeddings": "node scripts/build-embeddings.mjs",
+    "draft": "node scripts/draft-bullet.mjs",
     "eval:bullets":"node evals/resume-bullets/run.mjs",
     "eval:bullets:replay": "node evals/resume-bullets/run.mjs --replay",
     "astro": "astro"

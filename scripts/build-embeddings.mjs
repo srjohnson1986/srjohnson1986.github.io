@@ -1,18 +1,20 @@
 #!/usr/bin/env node
-// Builds retrieval/embeddings.json: one vector for every public resume bullet and every writing rule.
+// Builds the two generated embedding files:
+//   retrieval/embeddings.json      one vector for every public resume bullet and every writing rule
+//   retrieval/query-vectors.json   one vector for every fixed test query in retrieval/queries.yaml
 //
-//   npm run embeddings                 embed what is new or changed and write the file
-//   npm run embeddings -- --check      verify the file is complete and current; no model, no network
+//   npm run embeddings                 embed what is new or changed and write both files
+//   npm run embeddings -- --check      verify both files are complete and current; no model, no network
 //
-// Never edit embeddings.json by hand: run this script. Unchanged items are reused by content hash, so a
-// second run embeds nothing and an edited bullet re-embeds only itself.
+// Never edit the generated files by hand: run this script. Unchanged items are reused by content hash, so
+// a second run embeds nothing and an edited bullet or query re-embeds only itself.
 // Exit codes: 0 fine, 1 the check found a problem, 2 the run could not be done.
 
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { MODEL, INDEX_FILE } from '../retrieval/config.mjs';
-import { collectItems, buildIndex, serializeIndex, readIndex, checkIndex } from '../retrieval/lib/index.mjs';
+import { MODEL, INDEX_FILE, QUERY_VECTORS_FILE } from '../retrieval/config.mjs';
+import { collectItems, collectQueries, buildIndex, serializeIndex, readIndex, checkIndex } from '../retrieval/lib/index.mjs';
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -31,35 +33,45 @@ export async function main(argv, deps = {}) {
     return 2;
   }
 
-  const file = path.join(root, INDEX_FILE);
-  const items = collectItems(root);
-  const index = readIndex(file);
+  const targets = [
+    { label: 'bullets and rules', file: INDEX_FILE, items: collectItems(root) },
+    { label: 'test queries', file: QUERY_VECTORS_FILE, items: collectQueries(root) },
+  ];
 
   if (argv.includes('--check')) {
-    const problems = checkIndex({ items, index, model });
-    if (problems.length) {
-      log(`The embedding index is out of date (${problems.length} problem${problems.length === 1 ? '' : 's'}):`);
-      problems.forEach((p) => log(`  ${p}`));
-      log('Run `npm run embeddings` and commit the result.');
-      return 1;
+    let bad = 0;
+    for (const t of targets) {
+      const problems = checkIndex({ items: t.items, index: readIndex(path.join(root, t.file)), model });
+      if (problems.length) {
+        bad += problems.length;
+        log(`${t.file} is out of date (${problems.length} problem${problems.length === 1 ? '' : 's'}):`);
+        problems.forEach((p) => log(`  ${p}`));
+      } else {
+        log(`${t.file} is complete: ${t.items.length} ${t.label}, all current.`);
+      }
     }
-    log(`The embedding index is complete: ${items.length} items, all current.`);
-    return 0;
+    if (bad) log('Run `npm run embeddings` and commit the result.');
+    return bad ? 1 : 0;
   }
 
+  // The model is loaded only if some item needs embedding, and then only once for both files.
   let embed;
   const lazy = async (texts) => {
     embed ??= await (await import('../retrieval/lib/embedder.mjs')).createEmbedder();
     return embed(texts);
   };
-  const { entries, embedded, reused, removed } = await buildIndex({ items, previous: index.items, model, embed: deps.embed ?? lazy });
-  const text = serializeIndex(entries);
-  const before = fs.existsSync(file) ? fs.readFileSync(file, 'utf8') : null;
-  if (before !== text) {
-    fs.mkdirSync(path.dirname(file), { recursive: true });
-    fs.writeFileSync(file, text);
+  for (const t of targets) {
+    const file = path.join(root, t.file);
+    const { entries, embedded, reused, removed } = await buildIndex({ items: t.items, previous: readIndex(file).items, model, embed: deps.embed ?? lazy });
+    const text = serializeIndex(entries);
+    // Line endings are ignored: Git on Windows may have turned the file's LF into CRLF, which is not a change.
+    const before = fs.existsSync(file) ? fs.readFileSync(file, 'utf8').replace(/\r\n/g, '\n') : null;
+    if (before !== text) {
+      fs.mkdirSync(path.dirname(file), { recursive: true });
+      fs.writeFileSync(file, text);
+    }
+    log(`${t.file}: embedded ${embedded}, reused ${reused}, removed ${removed} (${entries.length} ${t.label}, model ${model}). ${before === text ? 'The file did not change.' : 'Wrote the file.'}`);
   }
-  log(`Embedded ${embedded}, reused ${reused}, removed ${removed} (${entries.length} items, model ${model}). ${before === text ? 'The file did not change.' : `Wrote ${INDEX_FILE}.`}`);
   return 0;
 }
 

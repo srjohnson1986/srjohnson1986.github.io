@@ -51,7 +51,7 @@ postman/        the Postman collection of the live API checks, run with Newman
 tests/          the Playwright suite
 perf/           the k6 smoke test script (see Performance budgets and the k6 smoke test); the Lighthouse CI budgets are in lighthouserc.cjs at the top level
 evals/          the AI bullet eval: scorer and report (lib/), the fixed prompts, the runner, and the recorded baseline (see AI evaluation: resume bullets)
-retrieval/      the embedding index of approved bullets and writing rules (`embeddings.json`, generated), its settings, and the index functions (see Retrieval index)
+retrieval/      the embedding index of approved bullets and writing rules and the vectors of the fixed test queries (both generated), the test queries, the settings, and the retrieval, prompt, and copy-check functions (see Retrieval index)
 .claude/agents/ the test-reviewer subagent (see Testing)
 .claude/skills/ the add-resume-bullet skill (see Adding a resume bullet with a skill)
 docs/          exploratory testing charter, notes template, and session notes (see Exploratory testing)
@@ -84,7 +84,8 @@ In VS Code, the YAML files autocomplete and flag mistakes as you type, using sch
 | `npm run fit-lanes` | Measures each lane resume and saves how many cuts it takes to fit two pages (`-- --check` only verifies the saved fits; see Lane resumes) |
 | `npm run traceability` | Builds the requirements traceability matrix from the last full test run and GitHub, and fails if a requirement has no test or a tag has no requirement (see Requirements traceability) |
 | `npm run perf` | Runs the performance checks against a local preview of the built site (build first with `npm run build:site`): Lighthouse CI budgets on three pages, then the k6 smoke test, then a table of every measured value next to its budget. Needs k6 installed (see Performance budgets and the k6 smoke test) |
-| `npm run embeddings` | Embeds every public resume bullet and writing rule on this computer and writes `retrieval/embeddings.json`, reusing unchanged items; add `-- --check` to only verify the file is complete and current (see Retrieval index) |
+| `npm run embeddings` | Embeds every public resume bullet, every writing rule, and the fixed test queries on this computer and writes `retrieval/embeddings.json` and `retrieval/query-vectors.json`, reusing unchanged items; add `-- --check` to only verify both files are complete and current (see Retrieval index) |
+| `npm run draft` | Drafts one resume bullet from a description, grounded in the closest approved bullets: `npm run draft -- --dry-run "..."` shows the sources and the prompt without calling the API; a live run needs `ANTHROPIC_API_KEY` (see Retrieval index) |
 | `npm run eval:bullets` | Runs the AI bullet eval: Claude drafts resume bullets for fixed prompts, the replies are scored against the site's copy rules, and the run fails below the recorded threshold. It makes paid API calls and needs `ANTHROPIC_API_KEY` (see AI evaluation: resume bullets) |
 | `npm run eval:bullets:replay` | Scores saved replies from a file with the same scorer and gate, with no key and no network |
 | `npm run import-lanes` | Checks the private resume bullet bank and reports what it would import (lane tags, role ranks, combined bullets); add `-- --write` to update the YAML (see Importing lane data from the bank) |
@@ -122,6 +123,7 @@ The Playwright suite runs against the built site and is public on purpose. It re
 - **Traceability:** `tests/traceability.spec.ts` checks the requirements traceability check on made-up data (see Requirements traceability). No browser needed.
 - **AI bullet eval (without the API):** `tests/bullet-eval-scorer.spec.ts`, `tests/bullet-eval-gate.spec.ts`, and `tests/ai-eval-workflow.spec.ts`; see AI evaluation: resume bullets. No browser needed.
 - **Embedding index:** `tests/embeddings.spec.ts`; see Retrieval index. It uses a fake embedder that counts its calls, so it never loads the model or uses the network. No browser needed.
+- **Retrieval and the grounded prompt:** `tests/retrieval.spec.ts`; see Retrieval index. Scoring, ranking, both fallbacks, recall on the fixed queries from the committed vectors, the reference examples block, the copy check, and the draft command with fakes for the model and the API. No browser needed.
 - **Performance checks (without measuring):** `tests/performance.spec.ts`; see Performance budgets and the k6 smoke test. It checks the budget numbers, the k6 settings and local-address guard, the workflow settings, and the report builder on made-up results. No browser needed.
 - **Smoke test:** a handful of checks against the deployed site, including that the traceability report was published.
 
@@ -258,7 +260,17 @@ Drafts of resume bullets are meant to be grounded in the bullets already approve
 - **How it is made.** `npm run embeddings` runs a small model (`Xenova/bge-small-en-v1.5`, set in [`retrieval/config.mjs`](retrieval/config.mjs)) on this computer through `@huggingface/transformers`. It needs no API key and costs nothing, and the same text gives the same vector. The first run downloads the model files once (tens of MB) into a local cache; nothing about the bullets leaves the computer.
 - **Never edit `retrieval/embeddings.json` by hand.** Each entry has an id, the text, its source (`bullet` or `rule`), the model name, a content hash, and the vector. Run the script after changing a bullet and commit the result.
 - **Caching.** An entry is reused when the hash of its model name and text is unchanged, so a second run embeds nothing and an edited bullet re-embeds only itself. Removed bullets leave the file.
-- **The check.** `npm run embeddings -- --check` loads no model and makes no network call. It fails when an approved bullet is missing, an entry is stale or extra, or a vector is malformed. CI runs it before the test suite, and `tests/embeddings.spec.ts` checks the same on the real data.
+- **The check.** `npm run embeddings -- --check` loads no model and makes no network call. It fails when an approved bullet or a test query is missing, an entry is stale or extra, or a vector is malformed. CI runs it before the test suite, and `tests/embeddings.spec.ts` checks the same on the real data.
+
+### Finding the closest bullets
+
+`npm run draft -- "<description of the work>"` embeds the description with the same model and ranks the approved bullets by cosine similarity (how close two vectors point). It keeps at most 5 (`DEFAULT_K`), best first, and only those scoring at least 0.60 (`MIN_SCORE`), and it never returns a writing rule. Both numbers are in [`retrieval/config.mjs`](retrieval/config.mjs). The 0.60 floor was set from only 13 test queries: the best match for an off-topic query scored at most 0.56 and every on-topic best match at least 0.70, so it is a starting point to re-measure when the bullets or the model change, not a tuned value.
+
+- **If retrieval cannot help,** drafting goes on from the writing rules alone and prints why: the embedding failed, the description was empty, or no bullet reached the floor.
+- **Quality is tested without the model.** [`retrieval/queries.yaml`](retrieval/queries.yaml) holds 10 plain-language descriptions, each with the bullet that should be found, and 3 off-topic ones that should find nothing. `npm run embeddings` stores their vectors in `retrieval/query-vectors.json` (generated, never edited by hand). The test needs the expected bullet in the top 3 for at least 8 of the 10 (recall@3 of 80% or more); the last measurement was 9 of 10. A new query set that only confirms what already works would prove little, so add queries from real drafts that went wrong.
+- **The prompt.** The writing rules stay in the system prompt, unchanged. The retrieved bullets go in the message, in a block headed "Reference examples" under the description, with an instruction to match their style and never copy their facts, numbers, tools, or wording. With no examples the message is exactly the one the eval sends.
+- **The copy check.** After a live draft the command compares it with each retrieved bullet by distinct words. Sharing more than 80% of the shorter text's words counts as a copy and exits 1. No two different real bullets come near that (the closest pair shares 57%).
+- **`--dry-run`** prints the sources with their scores and the whole prompt and calls nothing, so it needs no key. `--no-retrieval` drafts from the rules alone. The live path makes one small call to the eval's model and needs `ANTHROPIC_API_KEY` in your shell (never committed). No workflow runs this command, so the AI eval workflow that holds the key is unchanged.
 
 `@huggingface/transformers` is a development dependency, used only by this script. It brings `onnxruntime-node`, the engine that runs the model; its install script stays blocked by `allowScripts`, and the script works without it.
 

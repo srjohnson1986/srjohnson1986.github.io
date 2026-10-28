@@ -9,7 +9,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
 import * as yaml from 'js-yaml';
-import { VECTOR_DECIMALS } from '../config.mjs';
+import { VECTOR_DECIMALS, QUERIES_FILE } from '../config.mjs';
 
 export const BULLETS_FILE = 'src/data/resume/bullets.yaml';
 export const RULES_FILE = 'evals/resume-bullets/system-prompt.md';
@@ -45,6 +45,21 @@ export function collectItems(root) {
   return items;
 }
 
+/**
+ * The fixed test queries from retrieval/queries.yaml, as index items (source "query"). `expected` is the
+ * id of the bullet that should be found, or null for an off-topic query; it travels with the entry.
+ * @param {string} root the repository root
+ */
+export function collectQueries(root) {
+  const queries = yaml.load(fs.readFileSync(path.join(root, QUERIES_FILE), 'utf8')) ?? [];
+  const seen = new Set();
+  return queries.map((q) => {
+    if (seen.has(q.id)) throw new Error(`Two queries share the id "${q.id}"`);
+    seen.add(q.id);
+    return { id: q.id, source: 'query', text: clean(q.query), expected: q.expected ?? null };
+  });
+}
+
 const round = (n) => Number(n.toFixed(VECTOR_DECIMALS));
 
 /**
@@ -65,10 +80,10 @@ export async function buildIndex({ items, previous, model, embed }) {
   if (vectors.length !== todo.length) throw new Error(`The embedder returned ${vectors.length} vectors for ${todo.length} texts`);
   const fresh = new Map(todo.map((p, i) => [p.item.id, vectors[i].map(round)]));
 
+  // Fields beyond id, source, and text (a query's `expected`) are copied from the item, so editing one
+  // updates the entry without embedding again.
   const entries = planned.map(({ item, hash }) => ({
-    id: item.id,
-    source: item.source,
-    text: item.text,
+    ...item,
     model,
     hash,
     vector: fresh.get(item.id) ?? reuse(item, hash).vector,
@@ -106,6 +121,7 @@ export function checkIndex({ items, index, model }) {
     if (!e) problems.push(`missing: ${item.source} "${item.id}" is not in the index`);
     else if (e.hash !== contentHash(item.text, model) || e.model !== model) problems.push(`stale: ${item.source} "${item.id}" changed since it was embedded (or the model changed)`);
     else if (e.text !== item.text) problems.push(`stale: the stored text of "${item.id}" differs from the source`);
+    else if ('expected' in item && e.expected !== item.expected) problems.push(`stale: the expected bullet of "${item.id}" differs from the source`);
     else if (!Array.isArray(e.vector) || e.vector.length !== index.dimensions || !e.vector.every(Number.isFinite)) problems.push(`broken: the vector of "${item.id}" is not ${index.dimensions} finite numbers`);
   }
   const wanted = new Set(items.map((i) => i.id));
