@@ -48,6 +48,10 @@ jobs:
           cache: npm
 
       - name: Install dependencies
+        # onnxruntime-node (used by npm run embeddings) would download GPU libraries here. This project uses the CPU only,
+        # and CI never loads the model, so skip it: a slow download must not fail a build.
+        env:
+          ONNXRUNTIME_NODE_INSTALL: skip
         run: npm ci
 
       # The only step that can see the key. Exit codes: 0 passed, 1 the pass rate is below the recorded

@@ -29,6 +29,10 @@ jobs:
         uses: actions/checkout@v7
       - name: Install, build, and upload the site
         uses: withastro/action@v6
+        # onnxruntime-node (used by npm run embeddings) would download GPU libraries in the action's own npm ci. This project uses the CPU only,
+        # and CI never loads the model, so skip it: a slow download must not fail a build.
+        env:
+          ONNXRUNTIME_NODE_INSTALL: skip
         with:
           # `npm run build` also prints the resume PDFs, which needs headless Chromium.
           # The action installs npm dependencies first, then runs this command in bash.
