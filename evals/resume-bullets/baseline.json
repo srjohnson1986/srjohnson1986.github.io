@@ -1,105 +1,243 @@
 {
   "model": "claude-haiku-5-5",
-  "date": "2026-10-18",
+  "date": "2026-10-28",
   "runsPerPrompt": 5,
   "prompts": 8,
   "fingerprint": "b77e3c689d2dc9b6",
-  "overall": {
-    "passed": 40,
-    "total": 40,
-    "rate": 1
-  },
-  "byRule": {
-    "single-hyphens": {
-      "pass": 40,
-      "fail": 0,
-      "na": 0,
+  "retrievalFingerprint": "bed1f27872aec187",
+  "threshold": 0.95,
+  "off": {
+    "overall": {
+      "passed": 40,
+      "total": 40,
       "rate": 1
     },
-    "past-tense-verb": {
-      "pass": 40,
-      "fail": 0,
-      "na": 0,
-      "rate": 1
+    "byRule": {
+      "single-hyphens": {
+        "pass": 40,
+        "fail": 0,
+        "na": 0,
+        "rate": 1
+      },
+      "past-tense-verb": {
+        "pass": 40,
+        "fail": 0,
+        "na": 0,
+        "rate": 1
+      },
+      "strong-verb": {
+        "pass": 40,
+        "fail": 0,
+        "na": 0,
+        "rate": 1
+      },
+      "bare-one-sentence": {
+        "pass": 40,
+        "fail": 0,
+        "na": 0,
+        "rate": 1
+      },
+      "count-floor": {
+        "pass": 5,
+        "fail": 0,
+        "na": 35,
+        "rate": 1
+      },
+      "no-phone": {
+        "pass": 40,
+        "fail": 0,
+        "na": 0,
+        "rate": 1
+      },
+      "no-invented-numbers": {
+        "pass": 40,
+        "fail": 0,
+        "na": 0,
+        "rate": 1
+      },
+      "no-leaked-strings": {
+        "pass": 5,
+        "fail": 0,
+        "na": 35,
+        "rate": 1
+      },
+      "no-copied-example": {
+        "pass": 0,
+        "fail": 0,
+        "na": 40,
+        "rate": null
+      }
     },
-    "strong-verb": {
-      "pass": 40,
-      "fail": 0,
-      "na": 0,
-      "rate": 1
-    },
-    "bare-one-sentence": {
-      "pass": 40,
-      "fail": 0,
-      "na": 0,
-      "rate": 1
-    },
-    "count-floor": {
-      "pass": 5,
-      "fail": 0,
-      "na": 35,
-      "rate": 1
-    },
-    "no-phone": {
-      "pass": 40,
-      "fail": 0,
-      "na": 0,
-      "rate": 1
-    },
-    "no-invented-numbers": {
-      "pass": 40,
-      "fail": 0,
-      "na": 0,
-      "rate": 1
-    },
-    "no-leaked-strings": {
-      "pass": 5,
-      "fail": 0,
-      "na": 35,
-      "rate": 1
+    "byPrompt": {
+      "normal-test-suite": {
+        "passed": 5,
+        "total": 5,
+        "failedRules": {}
+      },
+      "normal-ci-merge": {
+        "passed": 5,
+        "total": 5,
+        "failedRules": {}
+      },
+      "normal-handoff-docs": {
+        "passed": 5,
+        "total": 5,
+        "failedRules": {}
+      },
+      "count-floor": {
+        "passed": 5,
+        "total": 5,
+        "failedRules": {}
+      },
+      "no-outcome": {
+        "passed": 5,
+        "total": 5,
+        "failedRules": {}
+      },
+      "weak-verb-bait": {
+        "passed": 5,
+        "total": 5,
+        "failedRules": {}
+      },
+      "dash-bait": {
+        "passed": 5,
+        "total": 5,
+        "failedRules": {}
+      },
+      "contact-details": {
+        "passed": 5,
+        "total": 5,
+        "failedRules": {}
+      }
     }
   },
-  "byPrompt": {
-    "normal-test-suite": {
-      "passed": 5,
-      "total": 5,
-      "failedRules": {}
+  "on": {
+    "overall": {
+      "passed": 40,
+      "total": 40,
+      "rate": 1
     },
-    "normal-ci-merge": {
-      "passed": 5,
-      "total": 5,
-      "failedRules": {}
+    "byRule": {
+      "single-hyphens": {
+        "pass": 40,
+        "fail": 0,
+        "na": 0,
+        "rate": 1
+      },
+      "past-tense-verb": {
+        "pass": 40,
+        "fail": 0,
+        "na": 0,
+        "rate": 1
+      },
+      "strong-verb": {
+        "pass": 40,
+        "fail": 0,
+        "na": 0,
+        "rate": 1
+      },
+      "bare-one-sentence": {
+        "pass": 40,
+        "fail": 0,
+        "na": 0,
+        "rate": 1
+      },
+      "count-floor": {
+        "pass": 5,
+        "fail": 0,
+        "na": 35,
+        "rate": 1
+      },
+      "no-phone": {
+        "pass": 40,
+        "fail": 0,
+        "na": 0,
+        "rate": 1
+      },
+      "no-invented-numbers": {
+        "pass": 40,
+        "fail": 0,
+        "na": 0,
+        "rate": 1
+      },
+      "no-leaked-strings": {
+        "pass": 5,
+        "fail": 0,
+        "na": 35,
+        "rate": 1
+      },
+      "no-copied-example": {
+        "pass": 35,
+        "fail": 0,
+        "na": 5,
+        "rate": 1
+      }
     },
-    "normal-handoff-docs": {
-      "passed": 5,
-      "total": 5,
-      "failedRules": {}
-    },
-    "count-floor": {
-      "passed": 5,
-      "total": 5,
-      "failedRules": {}
-    },
-    "no-outcome": {
-      "passed": 5,
-      "total": 5,
-      "failedRules": {}
-    },
-    "weak-verb-bait": {
-      "passed": 5,
-      "total": 5,
-      "failedRules": {}
-    },
-    "dash-bait": {
-      "passed": 5,
-      "total": 5,
-      "failedRules": {}
-    },
-    "contact-details": {
-      "passed": 5,
-      "total": 5,
-      "failedRules": {}
+    "byPrompt": {
+      "normal-test-suite": {
+        "passed": 5,
+        "total": 5,
+        "failedRules": {}
+      },
+      "normal-ci-merge": {
+        "passed": 5,
+        "total": 5,
+        "failedRules": {}
+      },
+      "normal-handoff-docs": {
+        "passed": 5,
+        "total": 5,
+        "failedRules": {}
+      },
+      "count-floor": {
+        "passed": 5,
+        "total": 5,
+        "failedRules": {}
+      },
+      "no-outcome": {
+        "passed": 5,
+        "total": 5,
+        "failedRules": {}
+      },
+      "weak-verb-bait": {
+        "passed": 5,
+        "total": 5,
+        "failedRules": {}
+      },
+      "dash-bait": {
+        "passed": 5,
+        "total": 5,
+        "failedRules": {}
+      },
+      "contact-details": {
+        "passed": 5,
+        "total": 5,
+        "failedRules": {}
+      }
     }
   },
-  "threshold": 0.95
+  "retrieval": {
+    "recallAt3": 0.9,
+    "recallHits": 9,
+    "recallAsked": 10,
+    "avgSimilarity": 0.6883465495544755,
+    "avgExamples": 4.375,
+    "promptsWithoutExamples": 1,
+    "prompts": 8
+  },
+  "style": {
+    "off": {
+      "drafts": 40,
+      "verbReuse": 0.75,
+      "distinctVerbs": 5,
+      "avgWords": 21
+    },
+    "on": {
+      "drafts": 40,
+      "verbReuse": 0.75,
+      "distinctVerbs": 12,
+      "avgWords": 23.775
+    },
+    "approvedAvgWords": 31.328358208955223
+  }
 }
