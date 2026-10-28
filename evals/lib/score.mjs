@@ -108,7 +108,7 @@ export const RULES = [
  */
 export const MANUAL_REVIEW = [
   'Faithful to the description: no tools, scope, or claims the description did not give.',
-  'States an outcome only when the description gave one (a bullet for work with no result should not invent a result).',
+  'States an outcome, purpose, or benefit only when the description gave one: work with no result should not get an invented result, and a clause such as "to catch regressions" or "to keep the branch stable" needs support in the description. This is the check most likely to slip when reference examples are shown, because many approved bullets end in such a clause. No coded check is practical (a word-overlap test raised about as many false alarms as real finds), so read the retrieval-on drafts for it.',
   'Strong and clear: says what was changed or delivered, reads naturally, and would hold up in an interview.',
   'No confidential employer detail, and location only as "Decatur, GA".',
   'Numbers written as words ("twelve", "two") match the description; only digits are checked in code.',

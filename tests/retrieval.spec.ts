@@ -235,6 +235,14 @@ test.describe('Grounded prompt: the reference examples block', { tag: ['@req-411
     expect(EXAMPLES_INSTRUCTION).toMatch(/Never copy an example's facts, numbers, tools, or wording/);
   });
 
+  test('the block also tells the model not to add a result, purpose, or benefit the description does not state', () => {
+    expect(EXAMPLES_INSTRUCTION).toMatch(/Do not add a result, purpose, or benefit of your own unless the description states it/);
+    expect(EXAMPLES_INSTRUCTION).toMatch(/stop after saying what was done/);
+    // It names no example clause, so it cannot hand the model a ready-made one to copy.
+    expect(EXAMPLES_INSTRUCTION).not.toMatch(/regression|stable|on track|protect/i);
+    expect(groundedMessage('I did a thing.', [{ id: 'b-1', text: 'Built a thing.' }])).toContain('stop after saying what was done');
+  });
+
   test('the examples never enter the system prompt, which still holds the unchanged writing rules', async () => {
     const draft = await prepareDraft({ input, index: { dimensions: 2, items: small }, embed: async () => [[1, 0]], minScore: 0.5 });
     expect(draft.sources.length).toBeGreaterThan(0);

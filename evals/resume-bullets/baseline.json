@@ -4,7 +4,7 @@
   "runsPerPrompt": 5,
   "prompts": 8,
   "fingerprint": "b77e3c689d2dc9b6",
-  "retrievalFingerprint": "bed1f27872aec187",
+  "retrievalFingerprint": "8a8854382c755f24",
   "threshold": 0.95,
   "off": {
     "overall": {
@@ -229,14 +229,14 @@
     "off": {
       "drafts": 40,
       "verbReuse": 0.75,
-      "distinctVerbs": 5,
-      "avgWords": 21
+      "distinctVerbs": 6,
+      "avgWords": 21.2
     },
     "on": {
       "drafts": 40,
-      "verbReuse": 0.75,
-      "distinctVerbs": 12,
-      "avgWords": 23.775
+      "verbReuse": 0.775,
+      "distinctVerbs": 8,
+      "avgWords": 23.325
     },
     "approvedAvgWords": 31.328358208955223
   }
