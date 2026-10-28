@@ -8,8 +8,9 @@ export const MODEL = 'claude-haiku-5-5';
 // How many times each prompt is run. The output varies, so one run per prompt would say very little.
 export const RUNS_PER_PROMPT = 5;
 
-// A hard cap on API calls in one run. The runner refuses to start if prompts x runs is above this.
-export const MAX_CALLS = 60;
+// A hard cap on API calls in one run. The runner refuses to start if prompts x runs x modes is above this.
+// 80 is 8 prompts x 5 runs x 2 modes (retrieval off and on); it was 60 before retrieval existed.
+export const MAX_CALLS = 80;
 
 // A bullet is one sentence, so a reply this long means something went wrong. It also caps the cost.
 export const MAX_TOKENS = 300;

@@ -85,13 +85,14 @@ test.describe('bullet eval report and threshold', { tag: ['@req-366'] }, () => {
   });
 
   test('the run is small and capped', () => {
-    expect(PROMPTS.length * RUNS_PER_PROMPT).toBeLessThanOrEqual(MAX_CALLS);
+    // Both modes (retrieval off and on) of one run must fit the cap.
+    expect(PROMPTS.length * RUNS_PER_PROMPT * 2).toBeLessThanOrEqual(MAX_CALLS);
     expect(MAX_CALLS).toBeLessThanOrEqual(100);
     expect(MAX_TOKENS).toBeLessThanOrEqual(1000);
     expect(RUNS_PER_PROMPT).toBeGreaterThanOrEqual(3);
   });
 
-  test('a baseline from a real run is recorded, and it matches the prompts, system prompt, and model in the repo', async () => {
+  test('a baseline from a real run is recorded for both modes, and it matches the prompts, system prompt, and model in the repo', async () => {
     const baseline = JSON.parse(fs.readFileSync(path.join(root, 'evals', 'resume-bullets', 'baseline.json'), 'utf8'));
     // @ts-expect-error - plain JavaScript module with no type declarations
     const { fingerprint } = await import('../evals/resume-bullets/run.mjs');
@@ -101,10 +102,15 @@ test.describe('bullet eval report and threshold', { tag: ['@req-366'] }, () => {
     expect(baseline.runsPerPrompt).toBe(RUNS_PER_PROMPT);
     expect(baseline.prompts).toBe(PROMPTS.length);
     expect(baseline.date).toMatch(/^\d{4}-\d{2}-\d{2}$/);
-    expect(baseline.overall.total).toBe(PROMPTS.length * RUNS_PER_PROMPT);
-    expect(baseline.overall.rate, 'the recorded run passed its own threshold').toBeGreaterThanOrEqual(baseline.threshold);
-    expect(Object.keys(baseline.byRule).sort()).toEqual(['bare-one-sentence', 'count-floor', 'no-invented-numbers', 'no-leaked-strings', 'no-phone', 'past-tense-verb', 'single-hyphens', 'strong-verb']);
-    expect(Object.keys(baseline.byPrompt).sort()).toEqual(PROMPTS.map((p: { id: string }) => p.id).sort());
+    const ruleIds = ['bare-one-sentence', 'count-floor', 'no-copied-example', 'no-invented-numbers', 'no-leaked-strings', 'no-phone', 'past-tense-verb', 'single-hyphens', 'strong-verb'];
+    for (const mode of ['off', 'on']) {
+      const side = baseline[mode];
+      expect(side, `a baseline for retrieval ${mode} is recorded`).toBeTruthy();
+      expect(side.overall.total).toBe(PROMPTS.length * RUNS_PER_PROMPT);
+      expect(side.overall.rate, `the recorded run with retrieval ${mode} passed its own threshold`).toBeGreaterThanOrEqual(baseline.threshold);
+      expect(Object.keys(side.byRule).sort()).toEqual(ruleIds);
+      expect(Object.keys(side.byPrompt).sort()).toEqual(PROMPTS.map((p: { id: string }) => p.id).sort());
+    }
     // If a prompt, the system prompt, the model, or the runs per prompt changed, the old baseline no longer
     // describes what the eval asks. Run the eval again and record a new one (see the README).
     expect(baseline.fingerprint, 'the prompts, system prompt, or model changed since the baseline was recorded: record a new baseline').toBe(fingerprint());
@@ -121,12 +127,14 @@ test.describe('bullet eval report and threshold', { tag: ['@req-366'] }, () => {
     expect(result.status, result.stdout + result.stderr).toBe(1);
     expect(result.stdout).toContain('FAIL');
     expect(result.stdout).toContain('Build a Playwright test suite that checks every resume version.');
-    // Every rule that can apply was broken by at least one saved reply.
+    // Every rule that can apply was broken by at least one saved reply. These replies are from before
+    // retrieval existed, so the rule about copying a reference example never applies to them.
     const rows = result.stdout.split('\n').filter((l: string) => /^\| .* \| \d+ \| \d+ \| \d+ \| \S+ \|$/.test(l));
-    expect(rows).toHaveLength(8);
+    expect(rows).toHaveLength(9);
     for (const row of rows) {
       const failed = Number(row.split('|')[3]);
-      expect(failed, row).toBeGreaterThan(0);
+      if (row.includes('copy a reference example')) expect(failed, row).toBe(0);
+      else expect(failed, row).toBeGreaterThan(0);
     }
   });
 
@@ -140,7 +148,7 @@ test.describe('bullet eval report and threshold', { tag: ['@req-366'] }, () => {
   test('a run that cannot be done exits 2, not 1, and makes no API call', () => {
     const tooMany = run(['--runs', '100']);
     expect(tooMany.status).toBe(2);
-    expect(tooMany.stderr).toMatch(/Refusing to run.*cap of 60/);
+    expect(tooMany.stderr).toMatch(/Refusing to run.*cap of 80/);
     const noKey = run([]);
     expect(noKey.status).toBe(2);
     expect(noKey.stderr).toContain('ANTHROPIC_API_KEY is not set');
@@ -189,7 +197,7 @@ test.describe('bullet eval report and threshold', { tag: ['@req-366'] }, () => {
     }
   });
 
-  test('the live path works end to end against a local stand-in for the API', async () => {
+  test('the live path (retrieval off) works end to end against a local stand-in for the API', async () => {
     // A tiny server that answers like the Messages API. It returns a good reply for each prompt and
     // keeps the requests so the test can check exactly what the runner sends.
     const seen: { headers: http.IncomingHttpHeaders; body: any }[] = [];
@@ -213,7 +221,7 @@ test.describe('bullet eval report and threshold', { tag: ['@req-366'] }, () => {
     const fakeKey = 'sk-ant-test-1111111111111111';
     try {
       const env = { ...cleanEnv(), ANTHROPIC_API_KEY: fakeKey, ANTHROPIC_BASE_URL: `http://127.0.0.1:${port}` };
-      const result = await execFileAsync('node', [runner, '--runs', '2', '--threshold', '0.9', '--save', path.join(dir, 'out.json')], { env, cwd: root });
+      const result = await execFileAsync('node', [runner, '--retrieval', 'off', '--runs', '2', '--threshold', '0.9', '--save', path.join(dir, 'out.json')], { env, cwd: root });
       expect(result.stdout).toContain('PASS');
       expect(result.stdout + result.stderr).not.toContain(fakeKey);
       expect(seen).toHaveLength(PROMPTS.length * 2);
@@ -228,8 +236,9 @@ test.describe('bullet eval report and threshold', { tag: ['@req-366'] }, () => {
         expect(body).not.toHaveProperty('temperature');
       }
       const saved = JSON.parse(fs.readFileSync(path.join(dir, 'out.json'), 'utf8'));
-      expect(saved.runs).toHaveLength(PROMPTS.length);
-      expect(saved.usage).toEqual({ input: 100 * PROMPTS.length * 2, output: 20 * PROMPTS.length * 2 });
+      expect(saved.off.runs).toHaveLength(PROMPTS.length);
+      expect(saved.on).toBeUndefined();
+      expect(saved.off.usage).toEqual({ input: 100 * PROMPTS.length * 2, output: 20 * PROMPTS.length * 2 });
       expect(JSON.stringify(saved)).not.toContain(fakeKey);
     } finally {
       server.close();

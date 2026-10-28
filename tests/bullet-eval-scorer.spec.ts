@@ -13,7 +13,7 @@ import { isBareOneSentence, notWeakVerb, unflooredCounts, WEAK_VERBS } from '../
 // are exact: fixed sample outputs, a clean one that passes, and a bad one for every rule that must fail
 // it. They prove the scorer can fail BEFORE any live call to the model. No browser, no network.
 
-type Prompt = { id: string; kind: string; input: string; forbidden?: string[] };
+type Prompt = { id: string; kind: string; input: string; forbidden?: string[]; examples?: { id: string; text: string }[] };
 type Score = { passed: boolean; results: { rule: string; status: 'pass' | 'fail' | 'n/a'; detail?: string }[] };
 const prompts = PROMPTS as Prompt[];
 const rules = RULES as { id: string }[];
@@ -41,7 +41,7 @@ const GOOD: Record<string, string> = {
 
 // One bad bullet per rule (and variants). `also` lists other rules the same text legitimately breaks:
 // a bullet that starts with a list marker or a quotation mark has no opening verb, for example.
-const BAD: { name: string; rule: string; prompt: string; output: string; also?: string[] }[] = [
+const BAD: { name: string; rule: string; prompt: string; output: string; also?: string[]; examples?: { id: string; text: string }[] }[] = [
   { name: 'an em dash', rule: 'single-hyphens', prompt: 'dash-bait', output: `Built a CI pipeline ${EM} lint, tests, and deploy in one workflow.` },
   { name: 'an en dash', rule: 'single-hyphens', prompt: 'dash-bait', output: `Built a CI pipeline ${EN} lint, tests, and deploy in one workflow.` },
   { name: 'a double hyphen', rule: 'single-hyphens', prompt: 'dash-bait', output: 'Built a CI pipeline -- lint, tests, and deploy in one workflow.' },
@@ -62,6 +62,8 @@ const BAD: { name: string; rule: string; prompt: string; output: string; also?: 
   { name: 'an invented count', rule: 'no-invented-numbers', prompt: 'normal-test-suite', output: 'Built a Playwright suite of 624 checks for the portfolio site.' },
   { name: 'a leaked city', rule: 'no-leaked-strings', prompt: 'contact-details', output: 'Built a phone call tree for the team in Decatur.' },
   { name: 'a leaked address', rule: 'no-leaked-strings', prompt: 'contact-details', output: 'Built a phone call tree for the office at 12 fake street.' },
+  // With retrieval on, the model is shown reference examples. A draft that is one of them word for word has copied it.
+  { name: 'a verbatim copy of a reference example', rule: 'no-copied-example', prompt: 'normal-test-suite', output: GOOD['normal-test-suite'], examples: [{ id: 'ex-1', text: GOOD['normal-test-suite'] }] },
 ];
 
 test.describe('bullet eval scorer', { tag: ['@req-365'] }, () => {
@@ -76,7 +78,7 @@ test.describe('bullet eval scorer', { tag: ['@req-365'] }, () => {
 
   for (const bad of BAD) {
     test(`fails ${bad.rule} on ${bad.name}`, () => {
-      const result = score(bad.output, promptById(bad.prompt));
+      const result = score(bad.output, { ...promptById(bad.prompt), examples: bad.examples });
       expect(result.passed).toBe(false);
       expect(failedRules(result).sort()).toEqual([bad.rule, ...(bad.also ?? [])].sort());
       expect(result.results.find((r) => r.rule === bad.rule)!.detail, 'a failure says why').toBeTruthy();
@@ -92,7 +94,8 @@ test.describe('bullet eval scorer', { tag: ['@req-365'] }, () => {
       const result = score(output, promptById('contact-details'));
       expect(result.passed).toBe(false);
       // Every rule fails except the count rule, which needs a count in the text to apply.
-      expect(failedRules(result).sort()).toEqual(rules.map((r) => r.id).filter((id) => id !== 'count-floor').sort());
+      // The copy rule needs reference examples to apply, and this prompt has none.
+      expect(failedRules(result).sort()).toEqual(rules.map((r) => r.id).filter((id) => id !== 'count-floor' && id !== 'no-copied-example').sort());
     }
     // Rules that need a forbidden string do not apply when the prompt has none.
     const plain = score('', promptById('dash-bait'));
@@ -108,6 +111,15 @@ test.describe('bullet eval scorer', { tag: ['@req-365'] }, () => {
     expect(withCount.results.find((r) => r.rule === 'count-floor')!.status).toBe('pass');
     const forbidden = score(GOOD['contact-details'], promptById('contact-details'));
     expect(forbidden.results.find((r) => r.rule === 'no-leaked-strings')!.status).toBe('pass');
+  });
+
+  test('the copy rule applies only when examples were shown, and passes a reworded draft', () => {
+    const prompt = promptById('normal-test-suite');
+    const rule = (s: Score) => s.results.find((r) => r.rule === 'no-copied-example')!.status;
+    expect(rule(score(GOOD['normal-test-suite'], prompt)), 'no examples shown').toBe('n/a');
+    expect(rule(score(GOOD['normal-test-suite'], { ...prompt, examples: [] })), 'an empty list is no examples').toBe('n/a');
+    const unrelated = [{ id: 'ex-2', text: 'Designed eight Excel ribbon tools for equipment lists, schedules, split sheets, and exports.' }];
+    expect(rule(score(GOOD['normal-test-suite'], { ...prompt, examples: unrelated }))).toBe('pass');
   });
 
   test('numbers are compared as digits, with commas and a plus sign ignored', () => {
