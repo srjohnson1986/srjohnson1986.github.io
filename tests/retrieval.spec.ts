@@ -305,7 +305,9 @@ test.describe('The draft command', { tag: ['@req-411'] }, () => {
   const embed = async () => [target.vector];
   const run = async (argv: string[], complete?: (p: { system: string; user: string }) => Promise<string>) => {
     const log: string[] = [];
-    const code = await draftMain(argv, { embed, complete, log: (s: string) => log.push(s) });
+    // A temporary memory file, so no test ever reads or writes the real private/draft-memory.json.
+    const memoryFile = path.join(fs.mkdtempSync(path.join(os.tmpdir(), 'draft-memory-')), 'memory.json');
+    const code = await draftMain(argv, { embed, complete, memoryFile, log: (s: string) => log.push(s) });
     return { code, out: log.join('\n') };
   };
 
