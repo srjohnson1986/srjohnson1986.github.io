@@ -22,12 +22,12 @@ const job = workflow.jobs.eval;
 const secretLines = text.split('\n').filter((l) => l.includes('secrets.') && !l.trim().startsWith('#'));
 
 test.describe('AI eval workflow protects the API key and limits cost', { tag: ['@req-367'] }, () => {
-  test('runs only on demand, weekly, and on pull requests that touch the prompts, rules, or workflow', () => {
+  test('runs only on demand, weekly, and on pull requests that touch the prompts, rules, retrieval files, or workflow', () => {
     expect(Object.keys(workflow.on).sort()).toEqual(['pull_request', 'schedule', 'workflow_dispatch']);
     expect(workflow.on.schedule).toHaveLength(1);
     // One run a week: day-of-month and month are wildcards, and the day of week is a single day.
     expect(workflow.on.schedule![0].cron).toMatch(/^\d+ \d+ \* \* [0-6]$/);
-    expect([...workflow.on.pull_request!.paths].sort()).toEqual(['.github/workflows/ai-eval.yml', 'evals/**', 'src/lib/copy-rules.js']);
+    expect([...workflow.on.pull_request!.paths].sort()).toEqual(['.github/workflows/ai-eval.yml', 'evals/**', 'retrieval/**', 'src/lib/copy-rules.js']);
   });
 
   test('never uses pull_request_target, and skips forks and Dependabot', () => {

@@ -90,3 +90,69 @@ export function renderReport(summary, { model, runsPerPrompt, threshold, verdict
   lines.push('## Manual review (not checked in code)', '', ...MANUAL_REVIEW.map((m) => `- ${m}`), '');
   return lines.join('\n');
 }
+
+const cell = (s) => (s ? `${s.passed} of ${s.total} (${percent(s.rate)})` : 'not run');
+const num = (n, digits = 3) => (typeof n === 'number' ? n.toFixed(digits) : 'n/a');
+
+/**
+ * The report for a run that drafted with retrieval off and on, side by side.
+ * @param {{ off?: object, on?: object }} summaries the output of summarize() for each mode that ran
+ * @param {{ model?: string, runsPerPrompt?: number, threshold?: number, verdicts?: { off?: string, on?: string }, usage?: { input: number, output: number }, cost?: number,
+ *   figures?: object, style?: { off?: object, on?: object, approvedAvgWords?: number | null }, worst?: number }} meta
+ */
+export function renderComparison(summaries, { model, runsPerPrompt, threshold, verdicts = {}, usage, cost, figures, style = {}, worst = 3 } = {}) {
+  const { off, on } = summaries;
+  const lines = [];
+  lines.push('# Resume bullet eval: retrieval off and on', '');
+  if (model) lines.push(`Model: ${model}. Runs per prompt: ${runsPerPrompt ?? 'n/a'}. The same prompts, the same writing rules, and the same scorer for both columns.`, '');
+  lines.push(`**Retrieval off: ${cell(off?.overall)}. Retrieval on: ${cell(on?.overall)}.**`);
+  if (typeof threshold === 'number') {
+    const parts = ['off', 'on'].filter((m) => summaries[m]).map((m) => `${m} ${verdicts[m] ?? (gate(summaries[m], threshold).ok ? 'PASS' : 'FAIL')}`);
+    const all = parts.every((p) => p.endsWith('PASS')) ? 'PASS' : 'FAIL';
+    lines.push(`Threshold: ${percent(threshold)} for each column. Result: ${all} (${parts.join(', ')}).`);
+  } else {
+    lines.push('Threshold: none recorded yet, so this run is report only.');
+  }
+  if (usage) lines.push(`Tokens: ${usage.input} in, ${usage.output} out${typeof cost === 'number' ? ` (about $${cost.toFixed(4)})` : ''}.`);
+
+  lines.push('', '## Pass rate per rule', '', '| Rule | Off passed | Off rate | On passed | On rate |', '| --- | --- | --- | --- | --- |');
+  for (const rule of RULES) {
+    const a = off?.byRule[rule.id];
+    const b = on?.byRule[rule.id];
+    const left = (s) => (s ? [`${s.pass} of ${s.pass + s.fail}`, percent(s.rate)] : ['not run', 'n/a']);
+    lines.push(`| ${rule.name} | ${left(a).join(' | ')} | ${left(b).join(' | ')} |`);
+  }
+
+  lines.push('', '## Pass rate per prompt', '', '| Prompt | Off | On | Rules broken, off | Rules broken, on |', '| --- | --- | --- | --- | --- |');
+  const ids = Object.keys((off ?? on).byPrompt);
+  const broke = (s) => Object.entries(s?.failedRules ?? {}).map(([rule, n]) => `${rule} x${n}`).join(', ') || 'none';
+  for (const id of ids) lines.push(`| ${id} | ${cell(off?.byPrompt[id])} | ${cell(on?.byPrompt[id])} | ${broke(off?.byPrompt[id])} | ${broke(on?.byPrompt[id])} |`);
+
+  if (figures) {
+    lines.push('', '## Retrieval', '', '| Measure | Value |', '| --- | --- |');
+    lines.push(`| recall@3 on the fixed test queries | ${figures.recallHits} of ${figures.recallAsked} (${percent(figures.recallAt3)}) |`);
+    lines.push(`| Average similarity of the retrieved bullets | ${num(figures.avgSimilarity)} |`);
+    lines.push(`| Average examples per prompt | ${num(figures.avgExamples, 1)} |`);
+    lines.push(`| Prompts drafted without examples | ${figures.promptsWithoutExamples} of ${figures.prompts} |`);
+  }
+
+  if (style.off || style.on) {
+    const s = (m, f) => (style[m] ? f(style[m]) : 'not run');
+    lines.push('', '## Style signals (reported only, never part of the pass rate)', '', '| Signal | Off | On |', '| --- | --- | --- |');
+    lines.push(`| Drafts that open with a verb an approved bullet already opens with | ${s('off', (x) => percent(x.verbReuse))} | ${s('on', (x) => percent(x.verbReuse))} |`);
+    lines.push(`| Different opening verbs across all drafts | ${s('off', (x) => x.distinctVerbs)} | ${s('on', (x) => x.distinctVerbs)} |`);
+    lines.push(`| Average words per draft (approved bullets: ${num(style.approvedAvgWords, 1)}) | ${s('off', (x) => num(x.avgWords, 1))} | ${s('on', (x) => num(x.avgWords, 1))} |`);
+    lines.push('', 'A higher or lower number here is not better or worse by itself. Read the drafts.');
+  }
+
+  for (const [label, s] of [['on', on], ['off', off]]) {
+    if (!s) continue;
+    lines.push('', `## Worst failures with retrieval ${label} (up to ${worst}, with the model's actual output)`, '');
+    if (s.failures.length === 0) lines.push('None.', '');
+    for (const f of s.failures.slice(0, worst)) {
+      lines.push(`Prompt \`${f.promptId}\` broke: ${f.failed.map((x) => `${x.rule} (${x.detail})`).join('; ')}`, '', fence(f.output), '');
+    }
+  }
+  lines.push('## Manual review (not checked in code)', '', ...MANUAL_REVIEW.map((m) => `- ${m}`), '');
+  return lines.join('\n');
+}

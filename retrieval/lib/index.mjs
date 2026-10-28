@@ -9,6 +9,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
 import * as yaml from 'js-yaml';
+import { pathToFileURL } from 'node:url';
 import { VECTOR_DECIMALS, QUERIES_FILE } from '../config.mjs';
 
 export const BULLETS_FILE = 'src/data/resume/bullets.yaml';
@@ -58,6 +59,18 @@ export function collectQueries(root) {
     seen.add(q.id);
     return { id: q.id, source: 'query', text: clean(q.query), expected: q.expected ?? null };
   });
+}
+
+/**
+ * The fixed prompts of the bullet eval as index items (source "eval-prompt"), so the eval can find their
+ * reference examples from committed vectors.
+ * @param {string} root the repository root
+ */
+export async function collectEvalPrompts(root) {
+  const file = path.join(root, 'evals', 'resume-bullets', 'prompts.mjs');
+  // The query string stops Node from reusing an earlier import of the file, so a changed prompt is seen.
+  const { PROMPTS } = await import(`${pathToFileURL(file).href}?read=${process.hrtime.bigint()}`);
+  return PROMPTS.map((p) => ({ id: p.id, source: 'eval-prompt', text: clean(p.input) }));
 }
 
 const round = (n) => Number(n.toFixed(VECTOR_DECIMALS));

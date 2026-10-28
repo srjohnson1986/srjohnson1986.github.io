@@ -3,7 +3,8 @@
 // It judges ONE piece of model output against the rules this site already enforces on resume bullets.
 // The dash, phone, verb, weak-verb, count, and one-sentence rules come from src/lib/copy-rules.js, the
 // same file the content schema and the add-resume-bullet skill use, so the rules live in one place.
-// Two rules are specific to judging an AI draft: no invented numbers, and no leaked forbidden strings.
+// Three rules are specific to judging an AI draft: no invented numbers, no leaked forbidden strings, and
+// (with retrieval on) no copied reference example.
 //
 // This file is plain code with no network and no randomness. tests/bullet-eval-scorer.spec.ts proves
 // it with fixed sample outputs, including bad outputs that must fail every rule.
@@ -17,6 +18,7 @@ import {
   countsAreFloors,
   COUNT_NOUNS,
 } from '../../src/lib/copy-rules.js';
+import { findCopies } from '../../retrieval/lib/overlap.mjs';
 
 /** Numbers written with digits, with commas removed ("1,200" becomes "1200"). A trailing "+" is ignored. */
 export const numbersIn = (/** @type {string} */ text) =>
@@ -30,7 +32,8 @@ const hasProjectCount = (/** @type {string} */ text) =>
  * The rules checked in code. Each has an id (used in reports and tests), a short name, an `applies`
  * test (a rule that does not apply to an output is left out of that rule's pass rate, not counted as a
  * pass), and a `check` that returns { ok, detail }. `prompt` is the eval prompt the output answers:
- * { input: string, forbidden?: string[] }.
+ * { input: string, forbidden?: string[], examples?: { id, text }[] } (examples are the reference examples
+ * the model was shown, when retrieval was on).
  */
 export const RULES = [
   {
@@ -86,6 +89,15 @@ export const RULES = [
     check: (output, prompt) => {
       const found = (prompt.forbidden ?? []).filter((f) => output.toLowerCase().includes(f.toLowerCase()));
       return { ok: found.length === 0, detail: `repeats "${found.join('", "')}"` };
+    },
+  },
+  {
+    id: 'no-copied-example',
+    name: 'Does not copy a reference example (over 80% of its words); only applies when retrieval gave examples',
+    applies: (_output, prompt) => (prompt.examples ?? []).length > 0,
+    check: (output, prompt) => {
+      const copies = findCopies(output, prompt.examples);
+      return { ok: copies.length === 0, detail: `shares over 80% of its words with the reference example ${copies.map((c) => c.id).join(', ')}` };
     },
   },
 ];

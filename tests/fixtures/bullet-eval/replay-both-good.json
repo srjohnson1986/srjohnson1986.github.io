@@ -1,0 +1,318 @@
+{
+  "note": "Fixed replies for both modes, with the reference examples the retrieval-on side was given. Used by tests to prove the runner and the report without calling the API. Generated once from replay-good.json and the index at that time; the sources are fixed data and do not follow later index changes.",
+  "model": "test-model",
+  "date": "2026-10-28",
+  "runsPerPrompt": 2,
+  "off": {
+    "runs": [
+      {
+        "promptId": "normal-test-suite",
+        "outputs": [
+          "Built a Playwright test suite that checks every resume version, the print layouts, all links, and accessibility in light and dark mode on every pull request.",
+          "Automated checks of every resume version, the print layouts, all links, and accessibility scans in light and dark mode with a Playwright suite that runs on every pull request."
+        ]
+      },
+      {
+        "promptId": "normal-ci-merge",
+        "outputs": [
+          "Established branch protection so changes reach main only through a pull request with a passing build, and dependency updates merge automatically once it passes.",
+          "Enforced pull request and build checks on main, blocked force pushes, and automated merges of dependency updates once the build passes."
+        ]
+      },
+      {
+        "promptId": "normal-handoff-docs",
+        "outputs": [
+          "Wrote a user guide, wiki, developer architecture guide, changelog, and release process so another person can support the Excel add-in after handoff.",
+          "Authored a user guide, wiki, architecture guide, changelog, and release process that let someone else support the Excel add-in after handoff."
+        ]
+      },
+      {
+        "promptId": "count-floor",
+        "outputs": [
+          "Shipped new releases of an active communication board app, with 155+ issues and 164+ pull requests so far.",
+          "Maintained an active communication board app through 155+ issues and 164+ pull requests while shipping new releases."
+        ]
+      },
+      {
+        "promptId": "no-outcome",
+        "outputs": [
+          "Investigated intermittent end-to-end test failures over several weeks to narrow down the cause.",
+          "Diagnosed occasional end-to-end test failures over several weeks while the root cause remains under investigation."
+        ]
+      },
+      {
+        "promptId": "weak-verb-bait",
+        "outputs": [
+          "Coordinated release notes, pull request review, status updates, and build scripts for the team.",
+          "Supported the team by drafting release notes, reviewing pull requests, gathering status updates, and maintaining build scripts."
+        ]
+      },
+      {
+        "promptId": "dash-bait",
+        "outputs": [
+          "Built a CI pipeline that runs lint, tests, and deploy in one workflow on every push.",
+          "Built a single CI workflow that runs lint, tests, and deploy on every push."
+        ]
+      },
+      {
+        "promptId": "contact-details",
+        "outputs": [
+          "Built a phone call tree so the team could reach each other quickly during an outage.",
+          "Created a phone call tree that let the team reach each other quickly during an outage."
+        ]
+      }
+    ]
+  },
+  "on": {
+    "runs": [
+      {
+        "promptId": "normal-test-suite",
+        "outputs": [
+          "Built a Playwright test suite that checks every resume version, the print layouts, all links, and accessibility in light and dark mode on every pull request.",
+          "Automated checks of every resume version, the print layouts, all links, and accessibility scans in light and dark mode with a Playwright suite that runs on every pull request."
+        ]
+      },
+      {
+        "promptId": "normal-ci-merge",
+        "outputs": [
+          "Established branch protection so changes reach main only through a pull request with a passing build, and dependency updates merge automatically once it passes.",
+          "Enforced pull request and build checks on main, blocked force pushes, and automated merges of dependency updates once the build passes."
+        ]
+      },
+      {
+        "promptId": "normal-handoff-docs",
+        "outputs": [
+          "Wrote a user guide, wiki, developer architecture guide, changelog, and release process so another person can support the Excel add-in after handoff.",
+          "Authored a user guide, wiki, architecture guide, changelog, and release process that let someone else support the Excel add-in after handoff."
+        ]
+      },
+      {
+        "promptId": "count-floor",
+        "outputs": [
+          "Shipped new releases of an active communication board app, with 155+ issues and 164+ pull requests so far.",
+          "Maintained an active communication board app through 155+ issues and 164+ pull requests while shipping new releases."
+        ]
+      },
+      {
+        "promptId": "no-outcome",
+        "outputs": [
+          "Investigated intermittent end-to-end test failures over several weeks to narrow down the cause.",
+          "Diagnosed occasional end-to-end test failures over several weeks while the root cause remains under investigation."
+        ]
+      },
+      {
+        "promptId": "weak-verb-bait",
+        "outputs": [
+          "Coordinated release notes, pull request review, status updates, and build scripts for the team.",
+          "Supported the team by drafting release notes, reviewing pull requests, gathering status updates, and maintaining build scripts."
+        ]
+      },
+      {
+        "promptId": "dash-bait",
+        "outputs": [
+          "Built a CI pipeline that runs lint, tests, and deploy in one workflow on every push.",
+          "Built a single CI workflow that runs lint, tests, and deploy on every push."
+        ]
+      },
+      {
+        "promptId": "contact-details",
+        "outputs": [
+          "Built a phone call tree so the team could reach each other quickly during an outage.",
+          "Created a phone call tree that let the team reach each other quickly during an outage."
+        ]
+      }
+    ],
+    "sources": {
+      "normal-test-suite": [
+        {
+          "id": "ps-built-script-joins-playwright-results",
+          "text": "Built a script that joins Playwright results with GitHub issues into a traceability matrix showing every requirement, its linked tests, and their latest results, published on the live site and in every CI run summary, making requirement coverage visible to anyone at any time.",
+          "score": 0.8060512911658794
+        },
+        {
+          "id": "ps-automated-api-contract-tests-project",
+          "text": "Automated API and contract tests for the project totals the site pulls from GitHub, with 47+ Playwright tests (mocked on every pull request, live weekly) that validated every response against JSON Schema contracts, protecting the site's totals from malformed or missing data.",
+          "score": 0.8020603410404833
+        },
+        {
+          "id": "ps-built-public-playwright-suite",
+          "text": "Designed a public Playwright suite that renders every resume version from the site's own data files and checks each one against the skills and bullets it should show, catching missing or wrong resume content before it goes live.",
+          "score": 0.770158785558337
+        },
+        {
+          "id": "ps-configured-github-actions-suite-smoke",
+          "text": "Configured GitHub Actions to run the suite on every pull request and a smoke test against the live site after each deploy and weekly, catching broken changes before they merge and live-site problems that appear between deploys.",
+          "score": 0.7139968269775148
+        },
+        {
+          "id": "tpd-added-github-actions-workflow",
+          "text": "Added a GitHub Actions workflow that checks every code change for broken ribbon buttons and missing coding-standard declarations, catching those problems before merge instead of in users' hands.",
+          "score": 0.7087120914620499
+        }
+      ],
+      "normal-ci-merge": [
+        {
+          "id": "ps-instituted-repository-rules-require-pull",
+          "text": "Instituted repository rules that require a pull request and a passing build check before a change can merge, backed by auto-merge, automatic branch cleanup, and weekly Dependabot updates, protecting the main branch while keeping dependencies current with no manual effort.",
+          "score": 0.7464669574651098
+        },
+        {
+          "id": "ps-established-issue-first-workflow",
+          "text": "Established an issue-first workflow in which every change ships through a reviewed pull request and merges only after the build check passes, making every change reviewed, traceable, and tested.",
+          "score": 0.7365576667460807
+        },
+        {
+          "id": "cb-kept-documentation-current-without-manual",
+          "text": "Synchronized the wiki with the docs and README on every merge and added a bot that flags any pull request changing what users see without updating the user guide, keeping documentation current without manual effort.",
+          "score": 0.6999297494813764
+        },
+        {
+          "id": "cb-configured-github-actions-ci",
+          "text": "Configured GitHub Actions CI with branch protection and parallel Android and web jobs, requiring lint, tests, coverage, a documentation check, and the build to pass before any merge, keeping broken code off the main branch.",
+          "score": 0.6826109923434084
+        },
+        {
+          "id": "ps-configured-github-actions-suite-smoke",
+          "text": "Configured GitHub Actions to run the suite on every pull request and a smoke test against the live site after each deploy and weekly, catching broken changes before they merge and live-site problems that appear between deploys.",
+          "score": 0.6765659392164282
+        }
+      ],
+      "normal-handoff-docs": [
+        {
+          "id": "tpd-wrote-user-guide-wiki",
+          "text": "Wrote the user guide and wiki, plus a developer architecture guide, changelog, and release process, making the add-in ready to hand off and support.",
+          "score": 0.8109253824035624
+        },
+        {
+          "id": "ps-documented-how-add-kind-content",
+          "text": "Documented how to add each kind of content in plain-language guides beside the data, making a new resume bullet, project, art piece, or release a data-and-image update instead of a code change.",
+          "score": 0.6572584534090388
+        },
+        {
+          "id": "cb-kept-documentation-current-without-manual",
+          "text": "Synchronized the wiki with the docs and README on every merge and added a bot that flags any pull request changing what users see without updating the user guide, keeping documentation current without manual effort.",
+          "score": 0.6475409826604227
+        },
+        {
+          "id": "cb-delivered-maintainable-handoff-user",
+          "text": "Delivered a maintainable handoff: user documentation, architecture docs, automated tests, CI, a fully automated signed-release pipeline, and a wiki that a workflow keeps in sync with the docs on every merge, letting anyone support the app without relying on its original builder.",
+          "score": 0.6427190883626693
+        },
+        {
+          "id": "tpd-implemented-settings-system-saves",
+          "text": "Implemented a settings system that saves each user's choices across Excel sessions, letting the one-click tools run from saved defaults with no setup dialog.",
+          "score": 0.6300529760262351
+        }
+      ],
+      "count-floor": [
+        {
+          "id": "vz-streamlined-agile-sdlc-reporting",
+          "text": "Streamlined Agile SDLC reporting for sprint-based teams, improving story tracking and resource allocation for globally distributed teams.",
+          "score": 0.696378635634692
+        },
+        {
+          "id": "cb-delivered-v1-two-platforms",
+          "text": "Delivered v1.0 on two platforms in 13 days and kept shipping to 156+ issues, 168+ pull requests, and 8+ releases, turning caregiver feedback into 130+ shipped changes.",
+          "score": 0.6892269884252623
+        },
+        {
+          "id": "ps-established-issue-first-workflow",
+          "text": "Established an issue-first workflow in which every change ships through a reviewed pull request and merges only after the build check passes, making every change reviewed, traceable, and tested.",
+          "score": 0.6776406410705618
+        },
+        {
+          "id": "tpd-added-github-actions-workflow",
+          "text": "Added a GitHub Actions workflow that checks every code change for broken ribbon buttons and missing coding-standard declarations, catching those problems before merge instead of in users' hands.",
+          "score": 0.6760881315695865
+        },
+        {
+          "id": "ps-automated-api-contract-tests-project",
+          "text": "Automated API and contract tests for the project totals the site pulls from GitHub, with 47+ Playwright tests (mocked on every pull request, live weekly) that validated every response against JSON Schema contracts, protecting the site's totals from malformed or missing data.",
+          "score": 0.6754290141292861
+        }
+      ],
+      "no-outcome": [
+        {
+          "id": "ps-created-ci-gate-fails-build",
+          "text": "Created a CI gate that fails the build when a requirement has no test and no written reason, a test cites a missing or retired requirement, or a test has no tag, surfacing coverage gaps in the pull request instead of after release.",
+          "score": 0.6989313177976668
+        },
+        {
+          "id": "cb-diagnosed-intermittent-ci-hangs-browser",
+          "text": "Diagnosed intermittent CI hangs in the browser test suite, tracing them to a UI test clock that stepped one frame at a time and an animation that kept re-arming itself, then fixed the test harness so a 16-run stress test went from 6 hung runs to 16 of 16 passing.",
+          "score": 0.6884469521487936
+        },
+        {
+          "id": "ps-covered-failures-happy-path-check-misses",
+          "text": "Covered failures a happy-path check misses, from missing fields and wrong types to rate limits, 5xx responses, network failures, and token leakage, making an unusable API answer fail clearly instead of writing broken data.",
+          "score": 0.6751885930843136
+        },
+        {
+          "id": "cb-uncovered-half-ui-test",
+          "text": "Audited which tests CI actually ran, using Claude Code to look for gaps, and uncovered that half the UI test suite was failing unnoticed because CI never ran it, then repaired the tests and added emulator-based UI testing to CI, closing a blind spot that let UI regression defects slip past a passing build.",
+          "score": 0.6414437963647684
+        },
+        {
+          "id": "ps-caught-traceability-report-understating-linked",
+          "text": "Caught a traceability report understating linked tests (491 of 634) by checking the live page after release, traced it to a de-duplication step that collapsed parametrized tests sharing a title, and fixed it with a test that fails on the old counting, keeping the published coverage numbers accurate.",
+          "score": 0.6366002450000449
+        }
+      ],
+      "weak-verb-bait": [
+        {
+          "id": "tpd-delivered-11-versioned-releases",
+          "text": "Delivered 11+ versioned releases, tracking work through 70+ GitHub issues and 98+ pull requests and turning team feedback into steady improvements.",
+          "score": 0.692705941756585
+        },
+        {
+          "id": "ps-established-issue-first-workflow",
+          "text": "Established an issue-first workflow in which every change ships through a reviewed pull request and merges only after the build check passes, making every change reviewed, traceable, and tested.",
+          "score": 0.6730810848912738
+        },
+        {
+          "id": "nu-gathered-feedback-hr-it",
+          "text": "Gathered feedback from HR and IT stakeholders, assessed feasibility, and implemented approved changes, then handed off unfinished features as a documented backlog with the project, keeping development momentum going after the internship ended.",
+          "score": 0.6429460910445927
+        },
+        {
+          "id": "vz-created-confluence-guides-recorded",
+          "text": "Created Confluence guides and recorded training sessions that got new onshore and offshore testers productive in about a week, and walked product owners and PMs through testing workflows across DevTools, Kibana, databases, CRM, and employee-facing systems.",
+          "score": 0.6339864641677463
+        },
+        {
+          "id": "nu-trained-hr-users-developers",
+          "text": "Trained HR users and developers in person, and wrote both user and technical guides, helping HR adopt new processes and the team support them.",
+          "score": 0.632497571485469
+        }
+      ],
+      "dash-bait": [
+        {
+          "id": "ps-established-issue-first-workflow",
+          "text": "Established an issue-first workflow in which every change ships through a reviewed pull request and merges only after the build check passes, making every change reviewed, traceable, and tested.",
+          "score": 0.6754972423899092
+        },
+        {
+          "id": "ps-standardized-readme-check-pull-request",
+          "text": "Standardized a README check on every pull request, with a template checkbox and a written workflow step, keeping documentation in step with the code instead of drifting from it.",
+          "score": 0.6699352588780163
+        },
+        {
+          "id": "cb-configured-github-actions-ci",
+          "text": "Configured GitHub Actions CI with branch protection and parallel Android and web jobs, requiring lint, tests, coverage, a documentation check, and the build to pass before any merge, keeping broken code off the main branch.",
+          "score": 0.6685339275131367
+        },
+        {
+          "id": "cb-delivered-maintainable-handoff-user",
+          "text": "Delivered a maintainable handoff: user documentation, architecture docs, automated tests, CI, a fully automated signed-release pipeline, and a wiki that a workflow keeps in sync with the docs on every merge, letting anyone support the app without relying on its original builder.",
+          "score": 0.6597751161795538
+        },
+        {
+          "id": "ps-built-script-joins-playwright-results",
+          "text": "Built a script that joins Playwright results with GitHub issues into a traceability matrix showing every requirement, its linked tests, and their latest results, published on the live site and in every CI run summary, making requirement coverage visible to anyone at any time.",
+          "score": 0.6561886965567776
+        }
+      ],
+      "contact-details": []
+    }
+  }
+}

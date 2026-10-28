@@ -179,6 +179,7 @@ test.describe('Retrieval: quality on the fixed test queries', { tag: ['@req-410'
     fs.mkdirSync(path.join(dir, 'retrieval'), { recursive: true });
     fs.writeFileSync(path.join(dir, 'src/data/resume/bullets.yaml'), '- id: b-one\n  role: tpd\n  public: true\n  text: Built one thing.\n');
     fs.writeFileSync(path.join(dir, 'evals/resume-bullets/system-prompt.md'), 'Rules for the bullet:\n\n- Be brief.\n');
+    fs.writeFileSync(path.join(dir, 'evals/resume-bullets/prompts.mjs'), 'export const PROMPTS = [];\n');
     const yamlFile = path.join(dir, 'retrieval/queries.yaml');
     fs.writeFileSync(yamlFile, '- id: q1\n  query: I made one thing.\n  expected: b-one\n');
 

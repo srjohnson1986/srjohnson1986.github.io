@@ -4,7 +4,7 @@ name: AI eval
 # "AI evaluation: resume bullets"). It makes real API calls that cost a few cents, so it runs only:
 #   - on demand,
 #   - once a week, to catch a model that changed under us,
-#   - on a pull request that changes the prompts, the scorer, the shared rules, or this file.
+#   - on a pull request that changes the prompts, the scorer, the shared rules, the retrieval files, or this file.
 # It is NOT a required check: the replies vary, so a red run is a signal to read the report, not a gate on merging.
 on:
   workflow_dispatch:
@@ -14,6 +14,7 @@ on:
   pull_request:
     paths:
       - 'evals/**'
+      - 'retrieval/**'
       - 'src/lib/copy-rules.js'
       - '.github/workflows/ai-eval.yml'
 

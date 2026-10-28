@@ -24,6 +24,10 @@ export const INDEX_FILE = 'retrieval/embeddings.json';
 export const QUERIES_FILE = 'retrieval/queries.yaml';
 export const QUERY_VECTORS_FILE = 'retrieval/query-vectors.json';
 
+// The vectors of the 8 fixed prompts of the bullet eval (evals/resume-bullets/prompts.mjs), written by
+// `npm run embeddings`. The eval uses them to find reference examples, so it needs no embedding model.
+export const EVAL_VECTORS_FILE = 'retrieval/eval-vectors.json';
+
 // How many approved bullets a draft is shown as reference examples.
 export const DEFAULT_K = 5;
 

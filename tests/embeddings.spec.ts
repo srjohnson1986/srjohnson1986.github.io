@@ -46,6 +46,7 @@ function makeRepo(
   fs.writeFileSync(path.join(dir, 'evals/resume-bullets/system-prompt.md'), rules);
   fs.mkdirSync(path.join(dir, 'retrieval'), { recursive: true });
   fs.writeFileSync(path.join(dir, 'retrieval/queries.yaml'), queries);
+  fs.writeFileSync(path.join(dir, 'evals/resume-bullets/prompts.mjs'), 'export const PROMPTS = [];\n');
   return dir;
 }
 const yamlBullet = (id: string, text: string, pub = true) => `- id: ${id}\n  role: tpd\n  public: ${pub}\n  text: >-\n    ${text}\n\n`;

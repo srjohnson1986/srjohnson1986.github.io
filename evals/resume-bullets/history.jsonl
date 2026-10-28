@@ -1,0 +1,1 @@
+{"date":"2026-10-18","model":"claude-haiku-5-5","runsPerPrompt":5,"threshold":0.95,"offRate":1,"onRate":null,"recallAt3":null,"avgSimilarity":null,"promptsWithoutExamples":null,"verbReuse":{"off":null,"on":null},"distinctVerbs":{"off":null,"on":null},"avgWords":{"off":null,"on":null}}

@@ -1,10 +1,11 @@
 #!/usr/bin/env node
-// Builds the two generated embedding files:
+// Builds the three generated embedding files:
 //   retrieval/embeddings.json      one vector for every public resume bullet and every writing rule
 //   retrieval/query-vectors.json   one vector for every fixed test query in retrieval/queries.yaml
+//   retrieval/eval-vectors.json    one vector for every fixed prompt of the bullet eval
 //
-//   npm run embeddings                 embed what is new or changed and write both files
-//   npm run embeddings -- --check      verify both files are complete and current; no model, no network
+//   npm run embeddings                 embed what is new or changed and write all three files
+//   npm run embeddings -- --check      verify all three files are complete and current; no model, no network
 //
 // Never edit the generated files by hand: run this script. Unchanged items are reused by content hash, so
 // a second run embeds nothing and an edited bullet or query re-embeds only itself.
@@ -13,8 +14,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { MODEL, INDEX_FILE, QUERY_VECTORS_FILE } from '../retrieval/config.mjs';
-import { collectItems, collectQueries, buildIndex, serializeIndex, readIndex, checkIndex } from '../retrieval/lib/index.mjs';
+import { MODEL, INDEX_FILE, QUERY_VECTORS_FILE, EVAL_VECTORS_FILE } from '../retrieval/config.mjs';
+import { collectItems, collectQueries, collectEvalPrompts, buildIndex, serializeIndex, readIndex, checkIndex } from '../retrieval/lib/index.mjs';
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -36,6 +37,7 @@ export async function main(argv, deps = {}) {
   const targets = [
     { label: 'bullets and rules', file: INDEX_FILE, items: collectItems(root) },
     { label: 'test queries', file: QUERY_VECTORS_FILE, items: collectQueries(root) },
+    { label: 'eval prompts', file: EVAL_VECTORS_FILE, items: await collectEvalPrompts(root) },
   ];
 
   if (argv.includes('--check')) {
@@ -54,7 +56,7 @@ export async function main(argv, deps = {}) {
     return bad ? 1 : 0;
   }
 
-  // The model is loaded only if some item needs embedding, and then only once for both files.
+  // The model is loaded only if some item needs embedding, and then only once for all the files.
   let embed;
   const lazy = async (texts) => {
     embed ??= await (await import('../retrieval/lib/embedder.mjs')).createEmbedder();
