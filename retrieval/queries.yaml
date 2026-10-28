@@ -1,0 +1,62 @@
+# Test queries for retrieval (see the README section "Retrieval index"). Each is a plain-language
+# description of work, written the way the owner would describe it, not copied from a bullet, with the
+# approved bullet that is the best match. The test passes when `expected` is in the top 3 for at least
+# 8 of the 10 queries that have one.
+#
+# Queries with `expected: null` are off topic on purpose: nothing in the index should clear the minimum
+# score for them, so they prove the "no match, draft from the rules alone" path.
+#
+# Edit this file by hand. Run `npm run embeddings` afterwards: it writes the vectors to
+# retrieval/query-vectors.json (never edit that file).
+
+- id: q-smoke-checklist
+  query: Before each release of my Excel add-in I walk through a list of what every button is supposed to do, so each release gets the same check.
+  expected: tpd-wrote-manual-smoke-test-checklist
+
+- id: q-kibana-logs
+  query: When something broke I dug through the server error logs in Kibana and attached the log lines to the bug report so developers could see what happened.
+  expected: vz-investigated-defects-through-kibana
+
+- id: q-tag-release
+  query: I set it up so that pushing a version tag builds the Android app, signs it, and publishes it and the web app without anyone doing it by hand.
+  expected: cb-automated-releases-end-to-end
+
+- id: q-issue-first
+  query: Every change to my site starts as a GitHub issue, goes through a pull request, and only merges once the build passes.
+  expected: ps-established-issue-first-workflow
+
+- id: q-card-auth
+  query: I tested checkout with every major credit card brand across the 3D Secure, address, and security code combinations.
+  expected: vz-proved-card-authentication-held-across
+
+- id: q-sharepoint-replica
+  query: I stood up a stand-in for the company intranet server on Windows Server so I could try web parts safely, resetting it every week from a snapshot.
+  expected: nu-built-local-replica-company
+
+- id: q-guitar-repair
+  query: I fix guitars and amplifiers for customers, adjusting the setup and re-soldering broken connections while they wait.
+  expected: kh-performed-guitar-setups-soldering
+
+- id: q-report-migration
+  query: I moved a couple dozen old reports onto a new data source, which cut down on numbers that did not match.
+  expected: pg-migrated-25-legacy-reports
+
+- id: q-low-cost-festival
+  query: We ran the music festival cheaply so more local bands got heard and the leftover money went to charity.
+  expected: jp-kept-festival-deliberately-low-cost
+
+- id: q-upgrade-testing
+  query: Before shipping, I install the new app version over the old one and check that saved recordings and boards still work.
+  expected: cb-built-upgrade-testing-release
+
+- id: q-offtopic-bread
+  query: My sourdough starter needs feeding twice a day and the crust came out too pale last weekend.
+  expected: null
+
+- id: q-offtopic-weather
+  query: It rained all afternoon, so the picnic moved indoors and we played cards until the sun came back.
+  expected: null
+
+- id: q-offtopic-garden
+  query: The tomato plants in the back garden need staking before the next windy week.
+  expected: null

@@ -19,3 +19,19 @@ export const VECTOR_DECIMALS = 6;
 
 // Where the committed index lives, relative to the repository root.
 export const INDEX_FILE = 'retrieval/embeddings.json';
+
+// The fixed test queries (written by hand) and their vectors (written by `npm run embeddings`).
+export const QUERIES_FILE = 'retrieval/queries.yaml';
+export const QUERY_VECTORS_FILE = 'retrieval/query-vectors.json';
+
+// How many approved bullets a draft is shown as reference examples.
+export const DEFAULT_K = 5;
+
+// The lowest cosine similarity a bullet may have and still be shown. On the 13 test queries the best
+// match for an off-topic query scored at most 0.56 and every on-topic best match scored at least 0.70,
+// so 0.60 sits between them. It was set from those few queries, not tuned on a large set: revisit it if
+// the bullets or the model change, and re-measure with `tests/retrieval.spec.ts`.
+export const MIN_SCORE = 0.6;
+
+// A draft that shares more than this share of its words with a retrieved bullet counts as a copy.
+export const COPY_THRESHOLD = 0.8;

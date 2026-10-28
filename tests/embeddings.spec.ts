@@ -34,12 +34,18 @@ const items: Item[] = [
 ];
 
 // A small made-up repository: the two files collectItems reads.
-function makeRepo(bulletYaml: string, rules = 'Intro.\n\nRules for the bullet:\n\n- Use only single hyphens.\n- Never invent a number.\n') {
+function makeRepo(
+  bulletYaml: string,
+  rules = 'Intro.\n\nRules for the bullet:\n\n- Use only single hyphens.\n- Never invent a number.\n',
+  queries = '[]\n',
+) {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'embeddings-'));
   fs.mkdirSync(path.join(dir, 'src/data/resume'), { recursive: true });
   fs.mkdirSync(path.join(dir, 'evals/resume-bullets'), { recursive: true });
   fs.writeFileSync(path.join(dir, 'src/data/resume/bullets.yaml'), bulletYaml);
   fs.writeFileSync(path.join(dir, 'evals/resume-bullets/system-prompt.md'), rules);
+  fs.mkdirSync(path.join(dir, 'retrieval'), { recursive: true });
+  fs.writeFileSync(path.join(dir, 'retrieval/queries.yaml'), queries);
   return dir;
 }
 const yamlBullet = (id: string, text: string, pub = true) => `- id: ${id}\n  role: tpd\n  public: ${pub}\n  text: >-\n    ${text}\n\n`;
