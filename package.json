@@ -21,7 +21,8 @@
     "site-stats": "node scripts/site-stats.mjs",
     "test:api-live": "node scripts/run-api-live.mjs",
     "postman": "node scripts/build-postman.mjs",
-    "eval:bullets": "node evals/resume-bullets/run.mjs",
+    "embeddings": "node scripts/build-embeddings.mjs",
+    "eval:bullets":"node evals/resume-bullets/run.mjs",
     "eval:bullets:replay": "node evals/resume-bullets/run.mjs --replay",
     "astro": "astro"
   },
@@ -36,6 +37,7 @@
   "devDependencies": {
     "@anthropic-ai/sdk": "^1.1.0",
     "@axe-core/playwright": "^4.14.0",
+    "@huggingface/transformers": "^4.3.2",
     "@lhci/cli": "^0.15.1",
     "@playwright/test": "^1.64.1",
     "ajv": "^8.20.0",

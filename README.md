@@ -51,6 +51,7 @@ postman/        the Postman collection of the live API checks, run with Newman
 tests/          the Playwright suite
 perf/           the k6 smoke test script (see Performance budgets and the k6 smoke test); the Lighthouse CI budgets are in lighthouserc.cjs at the top level
 evals/          the AI bullet eval: scorer and report (lib/), the fixed prompts, the runner, and the recorded baseline (see AI evaluation: resume bullets)
+retrieval/      the embedding index of approved bullets and writing rules (`embeddings.json`, generated), its settings, and the index functions (see Retrieval index)
 .claude/agents/ the test-reviewer subagent (see Testing)
 .claude/skills/ the add-resume-bullet skill (see Adding a resume bullet with a skill)
 docs/          exploratory testing charter, notes template, and session notes (see Exploratory testing)
@@ -83,6 +84,7 @@ In VS Code, the YAML files autocomplete and flag mistakes as you type, using sch
 | `npm run fit-lanes` | Measures each lane resume and saves how many cuts it takes to fit two pages (`-- --check` only verifies the saved fits; see Lane resumes) |
 | `npm run traceability` | Builds the requirements traceability matrix from the last full test run and GitHub, and fails if a requirement has no test or a tag has no requirement (see Requirements traceability) |
 | `npm run perf` | Runs the performance checks against a local preview of the built site (build first with `npm run build:site`): Lighthouse CI budgets on three pages, then the k6 smoke test, then a table of every measured value next to its budget. Needs k6 installed (see Performance budgets and the k6 smoke test) |
+| `npm run embeddings` | Embeds every public resume bullet and writing rule on this computer and writes `retrieval/embeddings.json`, reusing unchanged items; add `-- --check` to only verify the file is complete and current (see Retrieval index) |
 | `npm run eval:bullets` | Runs the AI bullet eval: Claude drafts resume bullets for fixed prompts, the replies are scored against the site's copy rules, and the run fails below the recorded threshold. It makes paid API calls and needs `ANTHROPIC_API_KEY` (see AI evaluation: resume bullets) |
 | `npm run eval:bullets:replay` | Scores saved replies from a file with the same scorer and gate, with no key and no network |
 | `npm run import-lanes` | Checks the private resume bullet bank and reports what it would import (lane tags, role ranks, combined bullets); add `-- --write` to update the YAML (see Importing lane data from the bank) |
@@ -119,6 +121,7 @@ The Playwright suite runs against the built site and is public on purpose. It re
 - **Site totals (API and contract):** `tests/site-stats.spec.ts`, `tests/site-stats-postman.spec.ts`, and the weekly `tests/site-stats-live.spec.ts`; see API and contract tests for the site totals. No browser needed.
 - **Traceability:** `tests/traceability.spec.ts` checks the requirements traceability check on made-up data (see Requirements traceability). No browser needed.
 - **AI bullet eval (without the API):** `tests/bullet-eval-scorer.spec.ts`, `tests/bullet-eval-gate.spec.ts`, and `tests/ai-eval-workflow.spec.ts`; see AI evaluation: resume bullets. No browser needed.
+- **Embedding index:** `tests/embeddings.spec.ts`; see Retrieval index. It uses a fake embedder that counts its calls, so it never loads the model or uses the network. No browser needed.
 - **Performance checks (without measuring):** `tests/performance.spec.ts`; see Performance budgets and the k6 smoke test. It checks the budget numbers, the k6 settings and local-address guard, the workflow settings, and the report builder on made-up results. No browser needed.
 - **Smoke test:** a handful of checks against the deployed site, including that the traceability report was published.
 
@@ -246,6 +249,18 @@ counts tokens and prints the cost without drafting anything. `npm run eval:bulle
 3. Run `npm run eval:bullets` and read the report and the replies. If the pass rate moved on purpose, record a new baseline with `npm run eval:bullets -- --update-baseline --threshold 0.95` (or the number you choose), and explain the change in the pull request. Never lower the threshold only to turn a run green.
 
 The scorer, the report and gate, and the workflow are tested without calling the API by `tests/bullet-eval-scorer.spec.ts`, `tests/bullet-eval-gate.spec.ts` (which includes a local stand-in server for the live path), and `tests/ai-eval-workflow.spec.ts`.
+
+## Retrieval index
+
+Drafts of resume bullets are meant to be grounded in the bullets already approved, found by meaning. This is the first piece: an index that holds a vector (a list of numbers that captures meaning) for every public bullet and every writing rule. Retrieval, the grounded prompt, and the before and after eval come in later changes. Nothing here is shipped to visitors: the site stays static.
+
+- **What is indexed.** Every bullet in `src/data/resume/bullets.yaml` with `public: true`, and the rules listed in `evals/resume-bullets/system-prompt.md`. Bullets with `public: false` never enter the file, so the committed index holds only text that is already on the site.
+- **How it is made.** `npm run embeddings` runs a small model (`Xenova/bge-small-en-v1.5`, set in [`retrieval/config.mjs`](retrieval/config.mjs)) on this computer through `@huggingface/transformers`. It needs no API key and costs nothing, and the same text gives the same vector. The first run downloads the model files once (tens of MB) into a local cache; nothing about the bullets leaves the computer.
+- **Never edit `retrieval/embeddings.json` by hand.** Each entry has an id, the text, its source (`bullet` or `rule`), the model name, a content hash, and the vector. Run the script after changing a bullet and commit the result.
+- **Caching.** An entry is reused when the hash of its model name and text is unchanged, so a second run embeds nothing and an edited bullet re-embeds only itself. Removed bullets leave the file.
+- **The check.** `npm run embeddings -- --check` loads no model and makes no network call. It fails when an approved bullet is missing, an entry is stale or extra, or a vector is malformed. CI runs it before the test suite, and `tests/embeddings.spec.ts` checks the same on the real data.
+
+`@huggingface/transformers` is a development dependency, used only by this script. It brings `onnxruntime-node`, the engine that runs the model; its install script stays blocked by `allowScripts`, and the script works without it.
 
 ## Exploratory testing with the Playwright MCP server
 
@@ -412,7 +427,7 @@ This site was built with an AI coding agent (Claude Code) working inside that wo
 
 ## Dependencies
 
-The site depends only on Astro, its official sitemap integration (`@astrojs/sitemap`), which writes `sitemap-index.xml` at build time, and the Atkinson Hyperlegible Next font package (`@fontsource/atkinson-hyperlegible-next`). Playwright (which also prints the PDFs in the build), axe-core, Lighthouse CI (`@lhci/cli`, which runs Lighthouse and checks the performance budgets), js-yaml (which lets the tests read the data files), and Ajv (a JSON Schema validator for the site-totals contracts) are development tools and are not shipped to visitors. k6, the load-test tool, is not an npm package: install it once to run `npm run perf` locally, and the Performance workflow installs a pinned version. The link-preview image `public/images/social-preview.jpg` is generated from the Home photo by `node scripts/make-social-image.mjs`; run it again if the photo, the name, or the colors change. The site icons (an "SJ" monogram in the accent color) come from `node scripts/make-icons.mjs`.
+The site depends only on Astro, its official sitemap integration (`@astrojs/sitemap`), which writes `sitemap-index.xml` at build time, and the Atkinson Hyperlegible Next font package (`@fontsource/atkinson-hyperlegible-next`). Playwright (which also prints the PDFs in the build), axe-core, Lighthouse CI (`@lhci/cli`, which runs Lighthouse and checks the performance budgets), js-yaml (which lets the tests read the data files), `@huggingface/transformers` (runs the embedding model for `npm run embeddings`; see Retrieval index), and Ajv (a JSON Schema validator for the site-totals contracts) are development tools and are not shipped to visitors. k6, the load-test tool, is not an npm package: install it once to run `npm run perf` locally, and the Performance workflow installs a pinned version. The link-preview image `public/images/social-preview.jpg` is generated from the Home photo by `node scripts/make-social-image.mjs`; run it again if the photo, the name, or the colors change. The site icons (an "SJ" monogram in the accent color) come from `node scripts/make-icons.mjs`.
 
 [Dependabot](.github/dependabot.yml) opens a pull request each Monday for npm and GitHub Actions updates, waiting 3 days after a release before proposing it. The [auto-merge workflow](.github/workflows/dependabot-auto-merge.yml) queues a merge on each one, so the CI check decides: green merges (and deploys), red waits. A weekly Claude routine, `website-dependency-repair`, runs in the Claude cloud rather than in this repository. It repairs red Dependabot pull requests by pushing a fix to their branch, and labels any it cannot fix `needs-human`. It never merges anything itself.
 

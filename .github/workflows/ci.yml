@@ -38,6 +38,11 @@ jobs:
       - name: Check the lane resume fits are up to date and still fit two pages
         run: npm run fit-lanes -- --check
 
+      # Fails when an approved bullet is missing from retrieval/embeddings.json or an entry is stale.
+      # Needs no model and no key.
+      - name: Check the embedding index is complete and current
+        run: npm run embeddings -- --check
+
       - name: Run the Playwright test suite
         run: npx playwright test
 
