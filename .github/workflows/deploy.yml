@@ -23,6 +23,9 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    # The measured deploys took about 80 seconds when they reused the pull request's results and about 200 seconds
+    # when the suite ran here. Fifteen minutes covers a slow day; a hung build stops instead of running for six hours.
+    timeout-minutes: 15
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
@@ -63,6 +66,8 @@ jobs:
   deploy:
     needs: build
     runs-on: ubuntu-latest
+    # No timing was measured for this job (it only publishes the built site). Ten minutes is a generous ceiling.
+    timeout-minutes: 10
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}

@@ -25,6 +25,8 @@ jobs:
     # After a deployment, only run when it succeeded. Every other trigger always runs.
     if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
+    # The measured runs took 50 to 100 seconds, including a 30 second pause. Ten minutes is a generous ceiling.
+    timeout-minutes: 10
     env:
       SMOKE_ONLY: '1'
     steps:

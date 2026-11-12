@@ -11,9 +11,19 @@ permissions:
   contents: read
   issues: read # the traceability check reads the requirement issues
 
+# A newer push to a pull request cancels the run still going for the older one, so a quick second push does
+# not wait behind the first. A manual run (workflow_dispatch) on a branch has a different ref from that branch's
+# pull request run (refs/heads/... against refs/pull/N/merge), so the two groups never meet: neither cancels the other.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
+    # The measured runs took 160 to 212 seconds. Twenty minutes leaves room for a slow runner day, and a hung
+    # run stops here instead of running for GitHub's six hour default.
+    timeout-minutes: 20
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
