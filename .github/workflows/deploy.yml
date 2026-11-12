@@ -11,6 +11,7 @@ on:
 permissions:
   contents: read
   issues: read # the traceability report reads the requirement issues
+  actions: read # to find the pull request's CI run and download its test results
   pages: write
   id-token: write
 
@@ -27,6 +28,13 @@ jobs:
     steps:
       - name: Check out the repository
         uses: actions/checkout@v7
+      # The pull request's CI run already ran the whole suite. When that run tested exactly the code being
+      # deployed (the same Git tree), this copies its results to traceability/results.json and the build
+      # below skips the suite, which saves about two minutes. Otherwise it writes nothing and the suite
+      # runs here as before. It always succeeds: a failed lookup must never fail a deploy.
+      # The GitHub CLI reads the job's GITHUB_TOKEN.
+      - name: Reuse the pull request's test results when they are for this exact code
+        run: node scripts/reuse-ci-results.mjs
       - name: Install, build, and upload the site
         uses: withastro/action@v6
         # onnxruntime-node (used by npm run embeddings) would download GPU libraries in the action's own npm ci. This project uses the CPU only,
@@ -37,15 +45,17 @@ jobs:
           # `npm run build` also prints the resume PDFs, which needs headless Chromium.
           # The action installs npm dependencies first, then runs this command in bash.
           #
-          # Then it runs the test suite and writes the requirements traceability matrix into the site, over
-          # the stand-in page at /development-qa/this-site/traceability/. The suite already had to pass in the
-          # pull request, so a flaky failure here must not block a deploy: the test step and the report step
-          # both tolerate problems, and the matrix shows the last result honestly. The smoke test fails if the
-          # report did not make it into the site.
+          # Then it writes the requirements traceability matrix into the site, over the stand-in page at
+          # /development-qa/this-site/traceability/. The matrix needs test results: the step above may have
+          # put the pull request's results in traceability/results.json; if that file is not there, the
+          # suite runs here. The suite already had to pass in the pull request, so a flaky failure here
+          # must not block a deploy: the test step and the report step both tolerate problems, and the
+          # matrix shows the last result honestly. The smoke test fails if the report did not make it
+          # into the site.
           build-cmd: >-
             npx playwright install --with-deps chromium-headless-shell &&
             npm run build &&
-            (npx playwright test || true) &&
+            (test -f traceability/results.json || npx playwright test || true) &&
             node scripts/traceability.mjs --into dist --allow-problems
 
   deploy:

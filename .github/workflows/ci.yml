@@ -50,6 +50,13 @@ jobs:
       - name: Run the Playwright test suite
         run: npx playwright test
 
+      # Writes the Git tree id of the code this run tested (a fingerprint of every tracked file) next to the
+      # results. The deploy reuses these results instead of running the suite again, but only when the code
+      # it is deploying has the same tree id (see scripts/reuse-ci-results.mjs).
+      - name: Record which code the results are for
+        if: ${{ !cancelled() }}
+        run: mkdir -p traceability && git rev-parse 'HEAD^{tree}' > traceability/source-tree.txt
+
       # Every requirement needs a test (or the no-automated-test label with a written reason), and every
       # test needs a real requirement. Runs even when a test failed, so the matrix is always produced.
       # Writes the matrix to the job summary and to traceability/.
