@@ -29,3 +29,7 @@ updates:
       timezone: America/New_York
     cooldown:
       default-days: 3
+    # Every GitHub Actions update arrives in one pull request, so a week's action bumps are merged together.
+    groups:
+      github-actions:
+        patterns: ["*"]
