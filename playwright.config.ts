@@ -25,8 +25,10 @@ const usingLocalServer = !smokeOnly && !apiLive && !process.env.BASE_URL;
 export default defineConfig({
   testDir: './tests',
   fullyParallel: !apiLive,
-  // One worker for the live API run, so the whole run makes each call once.
-  workers: apiLive ? 1 : undefined,
+  // One worker for the live API run, so the whole run makes each call once. In CI, use every core of the
+  // runner: Playwright's default is half the cores, which left half of the 4-core runner idle. Locally the
+  // default stays, so a laptop keeps some headroom.
+  workers: apiLive ? 1 : process.env.CI ? '100%' : undefined,
   forbidOnly: Boolean(process.env.CI),
   retries: process.env.CI ? 1 : 0,
   // The JSON file is what scripts/traceability.mjs reads to link tests to requirements.
