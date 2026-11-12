@@ -169,12 +169,21 @@ test('the email is a mailto link', { tag: ['@req-337', '@req-338'] }, async ({ p
 
 **What is checked.** `npm run traceability` (and CI, after the suite) reads the tags from the Playwright results (`traceability/results.json`, written by every run) and the requirements from GitHub, and fails when:
 
-- a requirement has no linked test and no exemption;
+- a requirement has no linked test, no exemption, and no `planned` label;
 - a requirement has the `no-automated-test` label but no written reason (a `## No automated test - reason` section in its body);
 - a test is tagged with a number that is not a requirement (no such issue, an issue without the `requirement` label, or a retired requirement);
 - a test has no requirement tag.
 
 The `no-automated-test` label is for things that stay manual, such as a judgment call or a repository setting. The reason says why a test cannot check it and how it is verified instead. The smoke tests run only against the live site, so the script lists them without running them and shows them as "not run" in a normal run.
+
+**Requirements in flight: the `planned` label.** The workflow opens the requirement issue before the work, so for a while the requirement exists and its test is not on `main`. The check reads every requirement on GitHub, whichever branch it runs on, so without a marker that one requirement would fail the `build` check of every other open pull request and show as a gap on the live matrix after the next deploy (both have happened). The `planned` label is the marker:
+
+- A requirement with the label and no test is listed as "Planned (tests not merged yet)", counted on its own in the summary, and is not a problem.
+- A test or a written reason always wins over the label. The pull request that adds the tests shows the requirement as tested, with a warning that the label is now stale. The warning is printed in the log and in a Warnings section of the report, and it never fails a run, because that pull request has to go green while the label is still on.
+- Whoever merges the pull request removes the label straight after the merge (Claude does it as part of the post-merge cleanup). The warning repeats on every later run and deploy until the label is gone.
+- The label excuses only the missing test. A bad tag, an untagged test, or a `no-automated-test` label without a reason still fails.
+
+The trade-off: a requirement stays "planned" for as long as the label stays, and nothing forces the work to happen. The matrix shows it openly, with its own count, so it cannot hide.
 
 **The report.** The script writes `traceability/traceability.md` and `traceability/traceability.html` (requirement, coverage, linked tests, last result). CI adds the markdown to the job summary and keeps both files as the `traceability` artifact, together with the Playwright results and the Git tree id of the code it tested (`source-tree.txt`). The deploy workflow builds the matrix after building the site and puts the HTML on the live site at [/development-qa/this-site/traceability/](https://srjohnson1986.github.io/development-qa/this-site/traceability/), linked from the This site project page. In the repository that page is a stand-in, so a local build still has a page for the link to reach. To see the real matrix locally, run `npm test` and then `npm run traceability`. A partial run (for example one spec) makes every other requirement look untested, so run the whole suite first.
 
@@ -182,12 +191,13 @@ The `no-automated-test` label is for things that stay manual, such as a judgment
 
 **Adding a feature.**
 
-1. Open a requirement issue (`REQ: ...`, with the `requirement` label and acceptance criteria) and note its number. Open the usual change issue for the work, which can mention the requirement.
+1. Open a requirement issue (`REQ: ...`, with the `requirement` and `planned` labels and acceptance criteria) and note its number. Open the usual change issue for the work, which can mention the requirement.
 2. Write the test in the spec for that area and tag it `{ tag: ['@req-N'] }`. Break the feature on purpose to check that the test can fail.
 3. In the pull request, use `Refs #N` for the requirement. If it cannot be automated, add the `no-automated-test` label and the written reason instead.
-4. CI fails until every requirement has a test or a reason and every tag points at a real requirement.
+4. CI fails until every requirement has a test, a reason, or the `planned` label, and every tag points at a real requirement.
+5. Straight after the merge, remove the `planned` label (`gh issue edit N --remove-label planned`). Until then every run warns that it is stale.
 
-`tests/traceability.spec.ts` tests the check itself on made-up requirements and results: each failure above, the exemption, the retired and closed cases, and the exit codes. The logic is in `scripts/lib/traceability.mjs` and the command line in `scripts/traceability.mjs`.
+`tests/traceability.spec.ts` tests the check itself on made-up requirements and results: each failure above, the exemption, the retired and closed cases, the `planned` label (not a gap, stale once tested, a warning that never fails, nothing else excused), and the exit codes. The logic is in `scripts/lib/traceability.mjs` and the command line in `scripts/traceability.mjs`.
 
 ## API and contract tests for the site totals
 

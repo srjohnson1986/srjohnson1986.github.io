@@ -7,9 +7,13 @@
 //   - A test names the requirements it verifies with Playwright tags: { tag: ['@req-12'] }.
 //   - A requirement with no test needs the `no-automated-test` label and a written reason in a
 //     "## No automated test - reason" section of its body.
+//   - A requirement whose tests are not merged yet carries the `planned` label. It is shown as
+//     planned, not as a gap. Once it has a test the label is stale: a warning, never a failure,
+//     because the pull request that adds the test runs this check while the label is still on.
 
 export const REQUIREMENT_LABEL = 'requirement';
 export const EXEMPT_LABEL = 'no-automated-test';
+export const PLANNED_LABEL = 'planned';
 
 /** The written reason from the "## No automated test" section of an issue body ('' if missing). */
 export function parseExemption(body) {
@@ -38,6 +42,7 @@ export function toRequirements(issues) {
         state: i.state,
         retired: i.state === 'closed' && i.state_reason === 'not_planned',
         exempt: labels.includes(EXEMPT_LABEL),
+        planned: labels.includes(PLANNED_LABEL),
         reason: parseExemption(i.body),
       };
     })
@@ -85,11 +90,16 @@ export function buildMatrix(requirements, tests) {
     .map((r) => {
       const linked = tests.filter((t) => t.reqs.includes(r.number));
       const reasonOk = r.exempt && r.reason.length >= 10;
-      const coverage = linked.length > 0 ? 'covered' : reasonOk ? 'exempt' : r.exempt ? 'exempt-no-reason' : 'gap';
+      // A test or a written reason always wins over the planned label, so a stale label hides nothing.
+      const coverage = linked.length > 0 ? 'covered' : reasonOk ? 'exempt' : r.exempt ? 'exempt-no-reason' : r.planned ? 'planned' : 'gap';
       return { ...r, tests: linked, coverage, result: linked.length ? rollUp(linked.map((t) => t.status)) : 'none' };
     });
   const problems = [];
+  // Warnings are printed and shown in the report, but they never change the exit code.
+  const warnings = [];
   for (const row of rows) {
+    if (row.planned && row.coverage === 'covered') warnings.push({ kind: 'stale-planned', message: `Requirement #${row.number} (${row.title}) has the ${PLANNED_LABEL} label but already has ${row.tests.length} linked test${row.tests.length === 1 ? '' : 's'}. Remove the label once the tests are merged.` });
+    if (row.planned && row.coverage === 'exempt') warnings.push({ kind: 'stale-planned', message: `Requirement #${row.number} (${row.title}) has the ${PLANNED_LABEL} label but is already settled as ${EXEMPT_LABEL} with a written reason. Remove the ${PLANNED_LABEL} label.` });
     if (row.coverage === 'gap') problems.push({ kind: 'untested', message: `Requirement #${row.number} (${row.title}) has no linked test and no ${EXEMPT_LABEL} label.` });
     if (row.coverage === 'exempt-no-reason') problems.push({ kind: 'no-reason', message: `Requirement #${row.number} (${row.title}) has the ${EXEMPT_LABEL} label but no written reason. Add a "## No automated test - reason" section.` });
   }
@@ -106,12 +116,12 @@ export function buildMatrix(requirements, tests) {
   const seen = new Set();
   const unique = problems.filter((p) => (seen.has(p.message) ? false : seen.add(p.message)));
   const retired = requirements.filter((r) => r.retired);
-  return { rows, problems: unique, retired, testCount: tests.length, linkedCount: tests.filter((t) => t.reqs.some((n) => known.has(n) && !known.get(n).retired)).length };
+  return { rows, problems: unique, warnings, retired, testCount: tests.length, linkedCount: tests.filter((t) => t.reqs.some((n) => known.has(n) && !known.get(n).retired)).length };
 }
 
 const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 const mdCell = (s) => String(s).replace(/\|/g, '\\|');
-const LABEL = { covered: 'Tested', exempt: 'Manual (reason given)', 'exempt-no-reason': 'Manual, reason missing', gap: 'No test' };
+const LABEL = { covered: 'Tested', exempt: 'Manual (reason given)', 'exempt-no-reason': 'Manual, reason missing', planned: 'Planned (tests not merged yet)', gap: 'No test' };
 
 function counts(tests) {
   const c = {};
@@ -130,6 +140,7 @@ export function summarize(matrix) {
     requirements: rows.length,
     covered: rows.filter((r) => r.coverage === 'covered').length,
     exempt: rows.filter((r) => r.coverage === 'exempt').length,
+    planned: rows.filter((r) => r.coverage === 'planned').length,
     gaps: rows.filter((r) => r.coverage === 'gap' || r.coverage === 'exempt-no-reason').length,
     tests: matrix.testCount,
     // Counted per test, not per title: parametrized tests can share a title.
@@ -137,18 +148,25 @@ export function summarize(matrix) {
   };
 }
 
+// "3 requirements: 2 tested, 0 manual with a written reason, 1 planned, 0 gaps." Planned is only named when there is one.
+const coverageLine = (s) =>
+  `${s.requirements} requirements: ${s.covered} tested, ${s.exempt} manual with a written reason, ${s.planned ? `${s.planned} planned, ` : ''}${s.gaps} gaps.`;
+
 export function toMarkdown(matrix, meta = {}) {
   const s = summarize(matrix);
   const out = ['# Requirements traceability matrix', ''];
-  out.push(`${s.requirements} requirements: ${s.covered} tested, ${s.exempt} manual with a written reason, ${s.gaps} gaps. ${s.tests} tests, all linked: ${matrix.problems.some((p) => p.kind === 'untagged') ? 'no' : 'yes'}.`, '');
+  out.push(`${coverageLine(s)} ${s.tests} tests, all linked: ${matrix.problems.some((p) => p.kind === 'untagged') ? 'no' : 'yes'}.`, '');
   if (meta.generated) out.push(`Generated ${meta.generated}${meta.commit ? ` from commit ${meta.commit}` : ''}.`, '');
   if (matrix.problems.length) {
     out.push('## Problems', '', ...matrix.problems.map((p) => `- ${p.message}`), '');
   }
+  if (matrix.warnings.length) {
+    out.push('## Warnings', '', ...matrix.warnings.map((w) => `- ${w.message}`), '');
+  }
   out.push('## Matrix', '', '| Requirement | Coverage | Tests | Last result |', '| --- | --- | --- | --- |');
   for (const r of matrix.rows) {
     const link = r.url ? `[#${r.number}](${r.url})` : `#${r.number}`;
-    const tests = r.tests.length ? `${r.tests.length}: ${mdCell(byFile(r.tests))}` : r.coverage === 'exempt' ? `Manual: ${mdCell(r.reason)}` : 'none';
+    const tests = r.tests.length ? `${r.tests.length}: ${mdCell(byFile(r.tests))}` : r.coverage === 'exempt' ? `Manual: ${mdCell(r.reason)}` : r.coverage === 'planned' ? 'none yet' : 'none';
     const result = r.tests.length ? `${r.result} (${counts(r.tests)})` : 'n/a';
     out.push(`| ${link} ${mdCell(r.title)} | ${LABEL[r.coverage]} | ${tests} | ${result} |`);
   }
@@ -167,14 +185,20 @@ export function toHtml(matrix, meta = {}) {
             .join('')}</ul></details>`
         : r.coverage === 'exempt'
           ? `<p class="reason"><strong>Manual.</strong> ${esc(r.reason)}</p>`
-          : '<p class="reason">None.</p>';
+          : r.coverage === 'planned'
+            ? '<p class="reason">None yet. The tests arrive with the pull request that builds this.</p>'
+            : '<p class="reason">None.</p>';
       const result = r.tests.length ? `<span class="st ${r.result.replace(' ', '-')}">${r.result}</span> <small>${esc(counts(r.tests))}</small>` : 'n/a';
       return `<tr class="${r.coverage}"><th scope="row">${link} ${esc(r.title)}</th><td>${LABEL[r.coverage]}</td><td>${list}</td><td>${result}</td></tr>`;
     })
     .join('\n');
   const problems = matrix.problems.length
     ? `<section class="problems" aria-labelledby="p"><h2 id="p">Problems</h2><ul>${matrix.problems.map((p) => `<li>${esc(p.message)}</li>`).join('')}</ul></section>`
-    : '<p class="ok">No problems: every requirement has a test or a written reason, and every test names a real requirement.</p>';
+    : `<p class="ok">No problems: every requirement has a test or a written reason${s.planned ? ', or is planned with its tests not merged yet' : ''}, and every test names a real requirement.</p>`;
+  // Not inside .problems: a warning is a reminder, and the smoke test only fails on .problems.
+  const warnings = matrix.warnings.length
+    ? `<section class="warnings" aria-labelledby="w"><h2 id="w">Warnings</h2><ul>${matrix.warnings.map((w) => `<li>${esc(w.message)}</li>`).join('')}</ul></section>`
+    : '';
   return `<!doctype html>
 <html lang="en">
 <head>
@@ -194,8 +218,9 @@ tbody th { font-weight: 600; }
 code { font-size: .85em; }
 small, .reason { color: var(--muted); }
 .st { font-weight: 600; }
-.passed { color: var(--ok); } .failed, .gap, .exempt-no-reason { color: var(--bad); } .flaky, .skipped { color: var(--warn); }
+.passed { color: var(--ok); } .failed, .gap, .exempt-no-reason { color: var(--bad); } .flaky, .skipped, .planned { color: var(--warn); }
 .problems { border: 2px solid var(--bad); padding: 0 1rem; border-radius: .5rem; }
+.warnings { border: 2px solid var(--warn); padding: 0 1rem; border-radius: .5rem; margin-bottom: 1rem; }
 .ok { color: var(--ok); font-weight: 600; }
 details ul { margin: .4rem 0 0; padding-left: 1.2rem; }
 @media (max-width: 40rem) { thead { display: none; } tr, td, th { display: block; } }
@@ -205,9 +230,10 @@ details ul { margin: .4rem 0 0; padding-left: 1.2rem; }
 <main>
 <p><a href="/development-qa/this-site/">Back to the This site page</a></p>
 <h1>Requirements traceability matrix</h1>
-<p>${s.requirements} requirements: ${s.covered} tested, ${s.exempt} manual with a written reason, ${s.gaps} gaps. ${s.tests} tests, ${s.linked} linked to a requirement.</p>
+<p>${coverageLine(s)} ${s.tests} tests, ${s.linked} linked to a requirement.</p>
 <p><small>${meta.generated ? `Generated ${esc(meta.generated)}${meta.commit ? ` from commit ${esc(meta.commit)}` : ''}. ` : ''}Requirements are GitHub issues labelled <code>requirement</code>; tests name them with <code>@req-N</code> tags. See the README for the convention.</small></p>
 ${problems}
+${warnings}
 <table>
 <thead><tr><th scope="col">Requirement</th><th scope="col">Coverage</th><th scope="col">Tests</th><th scope="col">Last result</th></tr></thead>
 <tbody>
