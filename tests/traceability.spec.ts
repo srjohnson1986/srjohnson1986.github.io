@@ -29,6 +29,35 @@ const spec = (title: string, tags: string[], status = 'expected', file = 'a.spec
 });
 const report = (...specs: Record<string, unknown>[]) => ({ suites: [{ title: 'a.spec.ts', specs }] });
 
+// The environment for the command line, as if outside GitHub Actions. With the inherited variables,
+// every CI run would append these made-up matrices to the real job summary (GITHUB_STEP_SUMMARY), and
+// the script would print annotations in CI and plain lines on a laptop (GITHUB_ACTIONS).
+const outsideActions = (): NodeJS.ProcessEnv => {
+  const env = { ...process.env };
+  delete env.GITHUB_ACTIONS;
+  delete env.GITHUB_STEP_SUMMARY;
+  return env;
+};
+
+// Runs scripts/traceability.mjs on made-up requirements and results in a temporary folder of its own.
+// A test passes `extraEnv` only to put back a variable it means to check.
+const commandLine = () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'trace-'));
+  const write = (name: string, data: unknown) => {
+    const file = path.join(dir, name);
+    fs.writeFileSync(file, JSON.stringify(data));
+    return file;
+  };
+  const smoke = write('smoke.json', { suites: [{ specs: [{ title: 's', file: 's.spec.ts', line: 1, tags: ['req-1'], tests: [{ projectName: 'smoke', results: [] }] }] }] });
+  const cli = (name: string, issues: Issue[], specs: Record<string, unknown>[], extraEnv: NodeJS.ProcessEnv = {}) =>
+    spawnSync(
+      process.execPath,
+      [path.join(root, 'scripts', 'traceability.mjs'), '--results', write(`${name}-results.json`, report(...specs)), '--results', smoke, '--requirements', write(`${name}.json`, issues), '--out', path.join(dir, name)],
+      { encoding: 'utf8', env: { ...outsideActions(), ...extraEnv } },
+    );
+  return { dir, cli };
+};
+
 const run = (issues: Issue[], reports: unknown[]) => {
   const m = buildMatrix(toRequirements(issues), collectTests(reports));
   return { m, kinds: m.problems.map((p: { kind: string }) => p.kind) as string[] };
@@ -127,25 +156,43 @@ test.describe('the traceability check', { tag: ['@req-355'] }, () => {
   });
 
   test('the command line exits 1 on a gap, 0 on a clean matrix, and writes the report either way', () => {
-    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'trace-'));
-    const write = (name: string, data: unknown) => {
-      const file = path.join(dir, name);
-      fs.writeFileSync(file, JSON.stringify(data));
-      return file;
-    };
-    const smoke = write('smoke.json', { suites: [{ specs: [{ title: 's', file: 's.spec.ts', line: 1, tags: ['req-1'], tests: [{ projectName: 'smoke', results: [] }] }] }] });
-    const results = write('results.json', report(spec('ok', ['req-1'])));
-    const cli = (issues: Issue[], out: string) =>
-      spawnSync(process.execPath, [path.join(root, 'scripts', 'traceability.mjs'), '--results', results, '--results', smoke, '--requirements', write(`${out}.json`, issues), '--out', path.join(dir, out)], { encoding: 'utf8' });
+    const { dir, cli } = commandLine();
+    const tests = [spec('ok', ['req-1'])];
 
-    const ok = cli([issue(1)], 'ok');
+    const ok = cli('ok', [issue(1)], tests);
     expect(ok.status, ok.stderr).toBe(0);
     expect(fs.existsSync(path.join(dir, 'ok', 'traceability.html'))).toBe(true);
 
-    const bad = cli([issue(1), issue(2)], 'bad');
+    const bad = cli('bad', [issue(1), issue(2)], tests);
     expect(bad.status).toBe(1);
     expect(bad.stderr).toContain('#2');
     expect(fs.readFileSync(path.join(dir, 'bad', 'traceability.md'), 'utf8')).toContain('No test');
+  });
+
+  test('the matrix is added to the job summary GitHub Actions names, and these tests never write to the real one', () => {
+    const { dir, cli } = commandLine();
+    const tests = [spec('ok', ['req-1'])];
+
+    // What CI relies on: with GITHUB_STEP_SUMMARY set, the markdown matrix is appended to that file.
+    const summary = path.join(dir, 'summary.md');
+    const earlier = '## An earlier step\n\n';
+    fs.writeFileSync(summary, earlier);
+    const told = cli('told', [issue(1)], tests, { GITHUB_STEP_SUMMARY: summary });
+    expect(told.status, told.stderr).toBe(0);
+    expect(fs.readFileSync(summary, 'utf8')).toBe(earlier + fs.readFileSync(path.join(dir, 'told', 'traceability.md'), 'utf8'));
+
+    // Stand in for CI: a job summary in the environment the tests inherit must be left alone.
+    const real = path.join(dir, 'real-summary.md');
+    const before = process.env.GITHUB_STEP_SUMMARY;
+    process.env.GITHUB_STEP_SUMMARY = real;
+    try {
+      const quiet = cli('quiet', [issue(1)], tests);
+      expect(quiet.status, quiet.stderr).toBe(0);
+    } finally {
+      if (before === undefined) delete process.env.GITHUB_STEP_SUMMARY;
+      else process.env.GITHUB_STEP_SUMMARY = before;
+    }
+    expect(fs.existsSync(real), 'nothing was written to the inherited job summary').toBe(false);
   });
 });
 
@@ -224,24 +271,7 @@ test.describe('planned requirements', { tag: ['@req-438'] }, () => {
   });
 
   test('the command line exits 0 for a planned requirement and for a stale label, and prints the warning', () => {
-    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'trace-planned-'));
-    const write = (name: string, data: unknown) => {
-      const file = path.join(dir, name);
-      fs.writeFileSync(file, JSON.stringify(data));
-      return file;
-    };
-    const smoke = write('smoke.json', { suites: [{ specs: [{ title: 's', file: 's.spec.ts', line: 1, tags: ['req-1'], tests: [{ projectName: 'smoke', results: [] }] }] }] });
-    // Run as if outside GitHub Actions, so the output is the same on a laptop and in CI and nothing is
-    // added to the real job summary.
-    const plainEnv: NodeJS.ProcessEnv = { ...process.env };
-    delete plainEnv.GITHUB_ACTIONS;
-    delete plainEnv.GITHUB_STEP_SUMMARY;
-    const cli = (name: string, issues: Issue[], specs: Record<string, unknown>[], env: NodeJS.ProcessEnv = plainEnv) =>
-      spawnSync(
-        process.execPath,
-        [path.join(root, 'scripts', 'traceability.mjs'), '--results', write(`${name}-results.json`, report(...specs)), '--results', smoke, '--requirements', write(`${name}.json`, issues), '--out', path.join(dir, name)],
-        { encoding: 'utf8', env },
-      );
+    const { dir, cli } = commandLine();
 
     const gap = cli('gap', [issue(1), issue(2)], [spec('ok', ['req-1'])]);
     expect(gap.status, 'without the label it is a gap').toBe(1);
@@ -259,7 +289,7 @@ test.describe('planned requirements', { tag: ['@req-438'] }, () => {
     expect(stale.stderr).toMatch(/warning: Requirement #2 .*planned label/);
 
     // In GitHub Actions the warning is an annotation, and still not an error.
-    const inCi = cli('ci', [issue(1), planned(2)], [spec('ok', ['req-1']), spec('new', ['req-2'])], { ...plainEnv, GITHUB_ACTIONS: 'true' });
+    const inCi = cli('ci', [issue(1), planned(2)], [spec('ok', ['req-1']), spec('new', ['req-2'])], { GITHUB_ACTIONS: 'true' });
     expect(inCi.status, inCi.stderr).toBe(0);
     expect(inCi.stderr).toContain('::warning title=Traceability::Requirement #2 ');
     expect(inCi.stderr).not.toContain('::error');
