@@ -6,7 +6,9 @@
 // Reads Playwright JSON reports (a run, and a --list of the smoke project) and the requirements
 // from GitHub (issues labelled `requirement`), writes traceability.md and traceability.html, and
 // exits 1 when a requirement has no test and no written reason, a test names a requirement that
-// does not exist, or a test has no requirement tag. See "Requirements traceability" in the README.
+// does not exist, or a test has no requirement tag. A requirement with the `planned` label (its tests
+// are not merged yet) is not a gap; a planned label left on a tested requirement is only a warning.
+// See "Requirements traceability" in the README.
 //
 // GITHUB_TOKEN is optional (the repository is public); it only raises the rate limit.
 // --requirements reads issues from a JSON file instead of GitHub (used by the tests).
@@ -81,9 +83,13 @@ if (into) {
 if (process.env.GITHUB_STEP_SUMMARY) fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, md);
 
 const s = summarize(matrix);
-console.log(`traceability: ${s.requirements} requirements (${s.covered} tested, ${s.exempt} manual, ${s.gaps} gaps), ${s.tests} tests, ${matrix.problems.length} problem(s). Wrote ${out}/traceability.md and .html${into ? ` and the site page in ${into}` : ''}.`);
+console.log(`traceability: ${s.requirements} requirements (${s.covered} tested, ${s.exempt} manual, ${s.planned} planned, ${s.gaps} gaps), ${s.tests} tests, ${matrix.problems.length} problem(s), ${matrix.warnings.length} warning(s). Wrote ${out}/traceability.md and .html${into ? ` and the site page in ${into}` : ''}.`);
 for (const p of matrix.problems) {
   console.error(process.env.GITHUB_ACTIONS ? `::error title=Traceability::${p.message}` : `  - ${p.message}`);
+}
+// A warning (a planned label left on a requirement that now has tests) is shown but never fails the run.
+for (const w of matrix.warnings) {
+  console.error(process.env.GITHUB_ACTIONS ? `::warning title=Traceability::${w.message}` : `  - warning: ${w.message}`);
 }
 // exitCode, not process.exit: on Windows, exiting right after fetch can trip a libuv assertion.
 process.exitCode = matrix.problems.length && !allowProblems ? 1 : 0;
