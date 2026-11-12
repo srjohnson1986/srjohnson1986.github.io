@@ -45,7 +45,7 @@ src/
   content/      one YAML file per item: projects/, releases/, art/
   assets/       images for the art page
   content.config.ts   every collection and its schema
-scripts/        PDF generation, the icon and link-preview image generators, the smoke test runner, the requirements traceability report, the lookup that lets a deploy reuse the pull request's test results, and the site-totals collection (site-stats.mjs) and Postman collection builder
+scripts/        PDF generation, the icon and link-preview image generators, the smoke test runner and its wait for a fresh deploy, the requirements traceability report, the lookup that lets a deploy reuse the pull request's test results, and the site-totals collection (site-stats.mjs) and Postman collection builder
 contracts/      JSON Schemas for the GitHub API answers the site-totals script uses and for src/data/site-stats.json
 postman/        the Postman collection of the live API checks, run with Newman
 tests/          the Playwright suite
@@ -131,6 +131,7 @@ The Playwright suite runs against the built site and is public on purpose. It re
 - **Retrieval and the grounded prompt:** `tests/retrieval.spec.ts`; see Retrieval index. Scoring, ranking, both fallbacks, recall on the fixed queries from the committed vectors, the reference examples block, the copy check, and the draft command with fakes for the model and the API. No browser needed.
 - **Performance checks (without measuring):** `tests/performance.spec.ts`; see Performance budgets and the k6 smoke test. It checks the budget numbers, the k6 settings and local-address guard, the workflow settings, and the report builder on made-up results. No browser needed.
 - **Smoke test:** a handful of checks against the deployed site, including that the traceability report was published.
+- **Waiting for the deployed commit:** `tests/deploy-wait.spec.ts` checks the wait the Smoke test workflow does after a deploy (see Workflows): the commit is read from the real traceability page (so changing its wording breaks the test), the decision to start, keep waiting, or give up, the polling loop on a fake clock, the script against a local stand-in for the site, and that `smoke.yml` runs the script after a deploy only, with the commit passed through an environment variable and no `sleep`. No browser needed.
 
 A passing suite only means something if it can fail, so each area was checked by breaking the site on purpose (a dead link, a missing heading, a truncated PDF, pale text, players that load by themselves) and confirming the right tests failed.
 
@@ -480,7 +481,7 @@ npm run perf -- --only lighthouse # or --only k6
 - **Deploy** ([deploy.yml](.github/workflows/deploy.yml)) builds the site, builds the requirements traceability matrix (from the pull request's test results when they are for exactly the code being deployed, otherwise by running the suite), and publishes both to GitHub Pages on every push to `main`.
 - **API live** ([api-live.yml](.github/workflows/api-live.yml)) runs the live GitHub API contract checks and the Newman run weekly and on demand, and never on a pull request.
 - **Performance** ([performance.yml](.github/workflows/performance.yml)) builds the site and runs Lighthouse CI budgets and the k6 smoke test against a local preview on every pull request that changes site code or content, and on demand. It is not a required check (see Performance budgets and the k6 smoke test).
-- **Smoke test** ([smoke.yml](.github/workflows/smoke.yml)) checks the live site after every deployment, weekly, and on demand. It is a separate workflow so a failure can never block a deployment.
+- **Smoke test** ([smoke.yml](.github/workflows/smoke.yml)) checks the live site after every deployment, weekly, and on demand. It is a separate workflow so a failure can never block a deployment. After a deployment it first waits for the live site to report the deployed commit: [`scripts/wait-for-deploy.mjs`](scripts/wait-for-deploy.mjs) asks the traceability page, which prints the first 7 characters of the commit it was built from, every 5 seconds for up to 3 minutes, and fails with the commit it saw if the deployed one never shows up. That replaced a fixed 30 second pause, which could still test the previous version of the site. Weekly, manual, and pull request runs have no new deployment, so they skip the wait.
 
 This site was built with an AI coding agent (Claude Code) working inside that workflow, with its changes going through pull requests and the checks above.
 

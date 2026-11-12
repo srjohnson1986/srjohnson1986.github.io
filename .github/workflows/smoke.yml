@@ -25,7 +25,7 @@ jobs:
     # After a deployment, only run when it succeeded. Every other trigger always runs.
     if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
-    # The measured runs took 50 to 100 seconds, including a 30 second pause. Ten minutes is a generous ceiling.
+    # The measured runs took 50 to 100 seconds, with a fixed 30 second pause that the commit wait replaced (it takes a few seconds, at most three minutes). Ten minutes is a generous ceiling.
     timeout-minutes: 10
     env:
       SMOKE_ONLY: '1'
@@ -52,10 +52,16 @@ jobs:
       - name: Install Chromium
         run: npx playwright install --with-deps chromium-headless-shell
 
-      # A fresh deployment can take a moment to reach every visitor. The checks also retry.
-      - name: Give a fresh deployment a moment to settle
+      # A fresh deployment can take a moment to reach every visitor, so after a deploy this asks the live site
+      # which commit it was built from (the traceability page prints it) and waits, for up to three minutes,
+      # until it is the deployed one. It fails with the commit it saw if that never happens. A scheduled,
+      # manual, or pull request run has no new deploy, so it skips the wait. The checks also retry.
+      - name: Wait for the deployed commit to be live
         if: github.event_name == 'workflow_run'
-        run: sleep 30
+        env:
+          # Passed as an environment variable, not pasted into the command, so the value is never parsed as shell.
+          DEPLOYED_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: node scripts/wait-for-deploy.mjs
 
       - name: Run the smoke checks against the live site
         run: npx playwright test
