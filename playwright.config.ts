@@ -25,10 +25,11 @@ const usingLocalServer = !smokeOnly && !apiLive && !process.env.BASE_URL;
 export default defineConfig({
   testDir: './tests',
   fullyParallel: !apiLive,
-  // One worker for the live API run, so the whole run makes each call once. In CI, use every core of the
-  // runner: Playwright's default is half the cores, which left half of the 4-core runner idle. Locally the
-  // default stays, so a laptop keeps some headroom.
-  workers: apiLive ? 1 : process.env.CI ? '100%' : undefined,
+  // One worker for the live API run, so the whole run makes each call once. Everything else uses
+  // Playwright's default, half the cores (2 workers on GitHub's 4-core runner). Using every core in CI was
+  // tried and measured on 2026-11-12 (#432, #439): the suite took 125, 124, and 97 s on 4 workers against
+  // 102, 140, and 90 s on 2, so it was no faster, and more workers on the same cores only add contention.
+  workers: apiLive ? 1 : undefined,
   forbidOnly: Boolean(process.env.CI),
   retries: process.env.CI ? 1 : 0,
   // The JSON file is what scripts/traceability.mjs reads to link tests to requirements.
