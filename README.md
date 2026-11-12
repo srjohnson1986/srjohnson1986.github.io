@@ -198,7 +198,7 @@ The trade-off: a requirement stays "planned" for as long as the label stays, and
 4. CI fails until every requirement has a test, a reason, or the `planned` label, and every tag points at a real requirement.
 5. Straight after the merge, remove the `planned` label (`gh issue edit N --remove-label planned`). Until then every run warns that it is stale.
 
-`tests/traceability.spec.ts` tests the check itself on made-up requirements and results: each failure above, the exemption, the retired and closed cases, the `planned` label (not a gap, stale once tested, a warning that never fails, nothing else excused), and the exit codes. The logic is in `scripts/lib/traceability.mjs` and the command line in `scripts/traceability.mjs`.
+`tests/traceability.spec.ts` tests the check itself on made-up requirements and results: each failure above, the exemption, the retired and closed cases, the `planned` label (not a gap, stale once tested, a warning that never fails, nothing else excused), the exit codes, and the matrix being added to the CI job summary. Its command line tests run without the GitHub Actions variables, so they never write to the real job summary. The logic is in `scripts/lib/traceability.mjs` and the command line in `scripts/traceability.mjs`.
 
 ## API and contract tests for the site totals
 
