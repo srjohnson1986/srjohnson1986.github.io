@@ -2,7 +2,7 @@
 name: Requirement
 about: A behavior the site must keep. Each requirement needs a Playwright test tagged with its number, or the no-automated-test label with a written reason.
 title: 'REQ: '
-labels: requirement
+labels: requirement, planned
 ---
 
 ## Requirement
@@ -14,7 +14,9 @@ One sentence: what the site must do, stated so that someone could check it.
 - [ ]
 
 <!--
-Delete this comment. If the requirement stays manual (judgment, a person's review, a setting outside
+Delete this comment. The planned label means "the tests are not merged yet": it keeps this issue from
+failing other pull requests in the meantime. Remove it straight after the pull request with the tests
+merges. If the requirement stays manual (judgment, a person's review, a setting outside
 the code), add the no-automated-test label and a section like this:
 
 ## No automated test - reason
