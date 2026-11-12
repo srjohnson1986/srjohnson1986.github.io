@@ -31,9 +31,11 @@ jobs:
       # The pull request's CI run already ran the whole suite. When that run tested exactly the code being
       # deployed (the same Git tree), this copies its results to traceability/results.json and the build
       # below skips the suite, which saves about two minutes. Otherwise it writes nothing and the suite
-      # runs here as before. It always succeeds: a failed lookup must never fail a deploy.
+      # runs here as before. A failed lookup must never fail a deploy: the script exits 0 whatever happens,
+      # and continue-on-error covers the case where the script cannot even start.
       # The GitHub CLI reads the job's GITHUB_TOKEN.
       - name: Reuse the pull request's test results when they are for this exact code
+        continue-on-error: true
         run: node scripts/reuse-ci-results.mjs
       - name: Install, build, and upload the site
         uses: withastro/action@v6

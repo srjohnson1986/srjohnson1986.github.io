@@ -152,7 +152,7 @@ test.describe('the deploy reuses test results only for the exact code being depl
   });
 });
 
-type Step = { name?: string; uses?: string; run?: string; if?: string; with?: Record<string, string> };
+type Step = { name?: string; uses?: string; run?: string; if?: string; 'continue-on-error'?: boolean; with?: Record<string, string> };
 type Workflow = { permissions: Record<string, string>; jobs: Record<string, { steps: Step[] }> };
 const load = (name: string) => yaml.load(fs.readFileSync(path.join(root, '.github', 'workflows', name), 'utf8')) as Workflow;
 
@@ -180,6 +180,8 @@ test.describe('the workflows are wired to the reuse rule', { tag: ['@req-430'] }
     expect(build).toBeGreaterThan(reuse);
     // The lookup has no condition and no dry run: it runs on every deploy and really writes the file.
     expect(steps[reuse].if).toBeUndefined();
+    // Even a script that cannot start (a syntax error, a missing file) must not stop the deploy.
+    expect(steps[reuse]['continue-on-error']).toBe(true);
 
     const command = String(steps[build].with?.['build-cmd']).replace(/\s+/g, ' ').trim();
     // Reused results skip the suite; otherwise it runs, and a failure there still does not stop the deploy.
