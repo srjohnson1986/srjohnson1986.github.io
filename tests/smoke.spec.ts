@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, type Request } from '@playwright/test';
 import { shownResumes, releases, projects, navPages } from './helpers/data';
 
 // Short checks that the real, public site is alive and serving what it should. They run against
@@ -92,8 +92,22 @@ test('the main pages have no console errors or failed requests', { tag: ['@req-3
     }
   });
   page.on('pageerror', (error) => problems.push(`script error on ${page.url()}: ${error}`));
+  // This site's own requests that have started and not yet finished or failed, and when anything last happened.
+  const inFlight = new Set<Request>();
+  let lastActivity = Date.now();
+  page.on('request', (request) => {
+    if (!ours(request.url())) return;
+    inFlight.add(request);
+    lastActivity = Date.now();
+  });
+  page.on('requestfinished', (request) => {
+    inFlight.delete(request);
+    lastActivity = Date.now();
+  });
   page.on('requestfailed', (request) => {
-    if (ours(request.url())) problems.push(`request failed: ${request.url()}`);
+    inFlight.delete(request);
+    lastActivity = Date.now();
+    if (ours(request.url())) problems.push(`request failed (${request.failure()?.errorText}): ${request.url()}`);
   });
   page.on('response', (response) => {
     if (ours(response.url()) && response.status() >= 400) problems.push(`${response.status()} for ${response.url()}`);
@@ -102,6 +116,17 @@ test('the main pages have no console errors or failed requests', { tag: ['@req-3
   for (const path of mainPages) {
     // 'load', not 'networkidle': the players on the Audio page keep the network busy.
     await page.goto(path, { waitUntil: 'load' });
+    // The load event does not wait for lazy-loaded images (the Art page has dozens), and leaving a page
+    // cancels whatever is still downloading: the browser reports each one as a failed request with
+    // net::ERR_ABORTED, although the files are fine. So let this site's own requests finish before
+    // moving on: none in flight, and none started or finished for a moment (a lazy image can start just
+    // after the load event). Nothing is ignored: a missing file still shows as a 4xx status, a real
+    // network error still fails, and a request still unfinished after 15 seconds is reported too.
+    lastActivity = Date.now();
+    const deadline = Date.now() + 15_000;
+    while ((inFlight.size > 0 || Date.now() - lastActivity < 400) && Date.now() < deadline) await page.waitForTimeout(50);
+    for (const request of inFlight) problems.push(`still loading after 15 seconds on ${path}: ${request.url()}`);
+    inFlight.clear();
   }
   expect(problems, problems.join('\n')).toEqual([]);
 });
