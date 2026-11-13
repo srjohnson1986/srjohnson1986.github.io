@@ -6,6 +6,7 @@
 // engine keeps them. Every change goes through one function (change), which redraws the squares it touched,
 // repaints the highlights, remembers the move so it can be undone, and saves the board in the browser.
 import { SIZES, LEVELS, geometry, generate, sizeById } from './engine.js';
+import { SETTINGS, SETTINGS_STORE, chosen } from './settings.js';
 
 interface Puzzle {
   size: string;
@@ -620,6 +621,47 @@ function setUp(root: HTMLElement) {
   });
   button('smaller').addEventListener('click', () => setZoom(zoom - 1));
   button('larger').addEventListener('click', () => setZoom(zoom + 1));
+
+  // -----------------------------------------------------------------------------------------------------------
+  // Settings
+  // -----------------------------------------------------------------------------------------------------------
+
+  /** What is saved for the settings, or null. Storage can refuse to be read, and the page works without it. */
+  const savedSettings = () => {
+    try {
+      return localStorage.getItem(SETTINGS_STORE);
+    } catch {
+      return null;
+    }
+  };
+  let settings: Record<string, string> = chosen(savedSettings());
+
+  /** Puts each choice on the game's outer element, where the styles pick it up, and ticks it in the panel. */
+  function applySettings() {
+    for (const setting of SETTINGS as { id: string }[]) {
+      root.setAttribute(`data-${setting.id}`, settings[setting.id]);
+      const choice = root.querySelector<HTMLInputElement>(`input[name="setting-${setting.id}"][value="${settings[setting.id]}"]`);
+      if (choice) choice.checked = true;
+    }
+    // Bolder and Boldest use a fourth weight of the site font that only this page has. Fetch it now, in the
+    // background, so it is ready before a number is selected. Otherwise the first bold marks would be drawn in a
+    // stand-in font for a moment and then jump.
+    if (settings.emphasis !== 'bold') document.fonts?.load(`800 1em ${getComputedStyle(root).fontFamily}`).catch(() => {});
+  }
+
+  root.querySelector<HTMLElement>('[data-settings]')!.addEventListener('change', (event) => {
+    const input = event.target as HTMLInputElement;
+    if (!input.name?.startsWith('setting-')) return;
+    // Through `chosen` again, so only a choice the list knows can ever be applied or saved.
+    settings = chosen(JSON.stringify({ ...settings, [input.name.slice('setting-'.length)]: input.value }));
+    applySettings();
+    try {
+      localStorage.setItem(SETTINGS_STORE, JSON.stringify(settings));
+    } catch {
+      // Not saved this time. The choice still holds until the page is closed.
+    }
+  });
+  applySettings();
 
   sizeSelect.addEventListener('change', syncLevels);
   form.addEventListener('submit', (event) => {
