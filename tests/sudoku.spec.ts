@@ -682,6 +682,420 @@ test.describe('Sudoku page: candidates', { tag: ['@req-460'] }, () => {
 
 // ---------------------------------------------------------------------------------------------------------------
 
+/** The numbers and candidate marks of every square: what Undo and a reload must bring back exactly. */
+const snapshot = async (page: Page) => (await read(page)).map((s) => ({ value: s.value, notes: s.notes }));
+const cleanBoard = (p: Puzzle) => p.puzzle.map((value) => ({ value, notes: [] as number[] }));
+const madeLine = (p: Puzzle, label: string) => `${label} puzzle: ${p.clues} clues, ${p.side * p.side - p.clues} squares to fill.`;
+
+test.describe('Sudoku page: undo and start over', { tag: ['@req-463'] }, () => {
+  test('Undo takes back every kind of move, newest first, and restores the board exactly each time', async ({ page }) => {
+    const p = await open(page);
+    const undo = tool(page, 'undo');
+    await expect(undo).toHaveText('Undo');
+    await expect(undo).toBeDisabled();
+    const [first, second, third] = p.puzzle.flatMap((v, i) => (v ? [] : [i]));
+    const marks = candidatesFor(p, p.puzzle);
+
+    const moves: [string, () => Promise<void>][] = [
+      ['Fill in candidates', () => tool(page, 'fill').click()],
+      ['place a number, which also clears its marks nearby', async () => {
+        await square(page, first).click();
+        await page.keyboard.press(String(p.solution[first]));
+      }],
+      ['unmark a candidate', async () => {
+        await tool(page, 'candidates').click();
+        await square(page, second).click();
+        await page.keyboard.press(String(marks[second][0]));
+      }],
+      ['mark it again from the number pad', () => padKey(page, marks[second][0]).click()],
+      ['erase a number', async () => {
+        await square(page, first).click();
+        await tool(page, 'erase').click();
+      }],
+      ['place a number from the number pad', async () => {
+        await tool(page, 'candidates').click();
+        await square(page, third).click();
+        await padKey(page, p.solution[third]).click();
+      }],
+      ['take it out by entering it again', () => padKey(page, p.solution[third]).click()],
+      ['erase a square that only has marks', async () => {
+        await square(page, second).click();
+        await page.keyboard.press('Backspace');
+      }],
+    ];
+    const states = [await snapshot(page)];
+    expect(states[0]).toEqual(cleanBoard(p));
+    for (const [name, move] of moves) {
+      await move();
+      states.push(await snapshot(page));
+      expect(states.at(-1), `"${name}" changes the board`).not.toEqual(states.at(-2));
+      await expect(undo).toBeEnabled();
+    }
+    for (let i = moves.length - 1; i >= 0; i--) {
+      await undo.click();
+      expect(await snapshot(page), `the board after undoing "${moves[i][0]}"`).toEqual(states[i]);
+    }
+    await expect(undo).toBeDisabled();
+    expect(await values(page)).toEqual(p.puzzle);
+  });
+
+  test('undoing a placed number brings back the candidate marks it cleared', async ({ page }) => {
+    const p = await open(page);
+    await tool(page, 'fill').click();
+    const empty = p.puzzle.indexOf(0);
+    const n = p.solution[empty];
+    const marks = candidatesFor(p, p.puzzle);
+    expect(marks.some((m, i) => m.includes(n) && sees(p, empty, i)), 'a mark for the placed number to clear').toBe(true);
+    await square(page, empty).click();
+    await page.keyboard.press(String(n));
+    expect((await read(page)).map((s) => s.notes)).not.toEqual(marks);
+    await tool(page, 'undo').click();
+    expect((await read(page)).map((s) => s.notes)).toEqual(marks);
+    // One Undo for one move: the next takes back Fill in candidates, not half a move.
+    await tool(page, 'undo').click();
+    expect(await snapshot(page)).toEqual(cleanBoard(p));
+  });
+
+  test('Ctrl+Z undoes too, and the square of the undone move becomes the selected one', async ({ page }) => {
+    const p = await open(page);
+    const [first, second] = p.puzzle.flatMap((v, i) => (v ? [] : [i]));
+    const clue = p.puzzle.findLastIndex((v) => v !== 0);
+    // With nothing to undo, it does nothing.
+    await square(page, clue).click();
+    await page.keyboard.press('Control+z');
+    expect(await snapshot(page)).toEqual(cleanBoard(p));
+
+    await square(page, first).click();
+    await page.keyboard.press('5');
+    await square(page, second).click();
+    await page.keyboard.press('6');
+    await square(page, clue).click();
+
+    await page.keyboard.press('Control+z');
+    await expect(square(page, second)).not.toHaveAttribute('data-value');
+    await expect(square(page, second)).toHaveClass(/is-selected/);
+    await expect(square(page, second)).toBeFocused();
+    await expect(square(page, first)).toHaveAttribute('data-value', '5');
+
+    // From the number pad the move is undone and its square selected, and the keyboard stays where it was.
+    await padKey(page, 9).focus();
+    await page.keyboard.press('Meta+z');
+    await expect(square(page, first)).not.toHaveAttribute('data-value');
+    await expect(square(page, first)).toHaveClass(/is-selected/);
+    await expect(padKey(page, 9)).toBeFocused();
+    await expect(tool(page, 'undo')).toBeDisabled();
+    // Ctrl+Shift+Z is not Undo.
+    await padKey(page, 4).click();
+    await page.keyboard.press('Control+Shift+z');
+    await expect(square(page, first)).toHaveAttribute('data-value', '4');
+  });
+
+  test('undoing the last number of a solved puzzle takes the solved message away', async ({ page }) => {
+    const p = await open(page, '4', 'easy', 'a');
+    for (const i of p.puzzle.flatMap((v, at) => (v ? [] : [at]))) {
+      await square(page, i).click();
+      await page.keyboard.press(String(p.solution[i]));
+    }
+    await expect(root(page)).toHaveClass(/is-solved/);
+    await expect(status(page)).toHaveText('Solved. That was a 4x4 Easy puzzle. Well done.');
+    await tool(page, 'undo').click();
+    await expect(root(page)).not.toHaveClass(/is-solved/);
+    await expect(status(page)).toHaveText(madeLine(p, '4x4 Easy'));
+    expect((await values(page)).filter((v) => v === 0)).toHaveLength(1);
+  });
+
+  test('Start over clears every number and mark the visitor entered, leaves the clues, and can be undone', async ({ page }) => {
+    const p = await open(page);
+    const startOver = tool(page, 'start-over');
+    await expect(startOver).toHaveText('Start over');
+    // On an untouched board it is not a move.
+    await startOver.click();
+    await expect(tool(page, 'undo')).toBeDisabled();
+
+    const [first, second] = p.puzzle.flatMap((v, i) => (v ? [] : [i]));
+    await tool(page, 'fill').click();
+    await square(page, first).click();
+    await page.keyboard.press(String(p.solution[first]));
+    await square(page, second).click();
+    await page.keyboard.press(String(p.solution[second]));
+    const played = await snapshot(page);
+
+    await startOver.click();
+    expect(await snapshot(page)).toEqual(cleanBoard(p));
+    expect(where(await read(page), (s) => s.given)).toEqual(p.puzzle.flatMap((v, i) => (v ? [i] : [])));
+    await tool(page, 'undo').click();
+    expect(await snapshot(page)).toEqual(played);
+  });
+
+  test('a new puzzle starts with nothing to undo', async ({ page }) => {
+    const p = await open(page);
+    await square(page, p.puzzle.indexOf(0)).click();
+    await page.keyboard.press('5');
+    await expect(tool(page, 'undo')).toBeEnabled();
+    await page.getByRole('button', { name: 'New puzzle' }).click();
+    await expect.poll(() => new URL(page.url()).searchParams.get('seed')).not.toBe('a');
+    await ready(page);
+    await expect(tool(page, 'undo')).toBeDisabled();
+  });
+});
+
+// ---------------------------------------------------------------------------------------------------------------
+
+const STORE = 'sudoku-progress-v1';
+type Stored = { last?: string; games: Record<string, { values: number[]; notes: number[]; at: number; done: boolean }> } | null;
+const stored = (page: Page): Promise<Stored> => page.evaluate((name) => JSON.parse(localStorage.getItem(name) ?? 'null'), STORE);
+const store = (page: Page, value: string) => page.evaluate(([name, text]) => localStorage.setItem(name, text), [STORE, value]);
+/** A few moves that leave numbers and candidate marks on the board. */
+async function play(page: Page, p: Puzzle) {
+  const [first, second] = p.puzzle.flatMap((v, i) => (v ? [] : [i]));
+  await tool(page, 'fill').click();
+  await square(page, first).click();
+  await page.keyboard.press(String(p.solution[first]));
+  await tool(page, 'candidates').click();
+  await square(page, second).click();
+  await page.keyboard.press(String(candidatesFor(p, p.puzzle)[second][0]));
+  await tool(page, 'candidates').click();
+}
+
+test.describe('Sudoku page: saved progress', { tag: ['@req-464'] }, () => {
+  test('after a reload the board shows the same numbers and candidate marks, and says so', async ({ page }) => {
+    const p = await open(page);
+    await expect(status(page)).toHaveText(madeLine(p, '9x9 Hard'));
+    await play(page, p);
+    const left = await snapshot(page);
+    expect(left).not.toEqual(cleanBoard(p));
+
+    await page.reload();
+    await ready(page);
+    expect(await snapshot(page)).toEqual(left);
+    await expect(status(page)).toHaveText(`${madeLine(p, '9x9 Hard')} Picked up where you left off.`);
+    // Clues are still clues, and the visitor's numbers are still theirs to change.
+    const board = await read(page);
+    expect(where(board, (s) => s.given)).toEqual(p.puzzle.flatMap((v, i) => (v ? [i] : [])));
+    const first = p.puzzle.indexOf(0);
+    await expect(square(page, first)).toHaveClass(/is-entry/);
+    await square(page, first).click();
+    await page.keyboard.press('Backspace');
+    await expect(square(page, first)).not.toHaveAttribute('data-value');
+    // The undo history is not kept between visits: Undo starts again from the board as it was picked up.
+    await tool(page, 'undo').click();
+    expect(await snapshot(page)).toEqual(left);
+    await expect(tool(page, 'undo')).toBeDisabled();
+  });
+
+  test('progress is kept per puzzle', async ({ page }) => {
+    const a = await open(page, '9', 'hard', 'a');
+    await play(page, a);
+    const leftA = await snapshot(page);
+
+    const b = await open(page, '9', 'hard', 'b');
+    expect(await snapshot(page)).toEqual(cleanBoard(b));
+    await expect(status(page)).toHaveText(madeLine(b, '9x9 Hard'));
+    await square(page, b.puzzle.indexOf(0)).click();
+    await page.keyboard.press('1');
+    const leftB = await snapshot(page);
+
+    await open(page, '9', 'hard', 'a');
+    expect(await snapshot(page)).toEqual(leftA);
+    await open(page, '9', 'hard', 'b');
+    expect(await snapshot(page)).toEqual(leftB);
+    // The same seed at another level is another puzzle, with its own progress.
+    const easy = await open(page, '9', 'easy', 'a');
+    expect(await snapshot(page)).toEqual(cleanBoard(easy));
+  });
+
+  test('with nothing in the address, the page opens the last unfinished puzzle the visitor touched', async ({ page }) => {
+    const p = await open(page, '6', 'medium', 'b');
+    await play(page, p);
+    const left = await snapshot(page);
+    // Looking at another puzzle without touching it does not make it the last one played.
+    await open(page, '9', 'hard', 'a');
+
+    await page.goto('/sudoku/');
+    await ready(page);
+    expect(new URL(page.url()).search).toBe('?size=6&level=medium&seed=b');
+    await expect(page.locator('select[name="size"]')).toHaveValue('6');
+    await expect(page.locator('select[name="level"]')).toHaveValue('medium');
+    expect(await snapshot(page)).toEqual(left);
+    await expect(status(page)).toContainText('Picked up where you left off.');
+  });
+
+  test('if the last puzzle was finished, the page starts a new one of the same board and level', async ({ page }) => {
+    const p = await open(page, '4', 'easy', 'a');
+    for (const i of p.puzzle.flatMap((v, at) => (v ? [] : [at]))) {
+      await square(page, i).click();
+      await page.keyboard.press(String(p.solution[i]));
+    }
+    await expect(root(page)).toHaveClass(/is-solved/);
+    expect((await stored(page))!.games['4/easy/a'].done).toBe(true);
+
+    await page.goto('/sudoku/');
+    await ready(page);
+    const address = new URL(page.url()).searchParams;
+    expect([address.get('size'), address.get('level')]).toEqual(['4', 'easy']);
+    expect(address.get('seed')).not.toBe('a');
+    await expect(root(page)).not.toHaveClass(/is-solved/);
+    expect(await values(page)).toEqual((generate({ size: '4', level: 1, seed: address.get('seed')! }) as Puzzle).puzzle);
+
+    // The finished one is still there at its own address, shown as solved.
+    await open(page, '4', 'easy', 'a');
+    expect(await values(page)).toEqual(p.solution);
+    await expect(root(page)).toHaveClass(/is-solved/);
+    await expect(status(page)).toHaveText('Solved. That was a 4x4 Easy puzzle. Well done.');
+  });
+
+  test('Start over removes the saved progress, and Undo saves it again', async ({ page }) => {
+    const p = await open(page);
+    await play(page, p);
+    const left = await snapshot(page);
+    expect(Object.keys((await stored(page))!.games)).toEqual(['9/hard/a']);
+
+    await tool(page, 'start-over').click();
+    expect(await stored(page)).toEqual({ games: {} });
+    await page.reload();
+    await ready(page);
+    expect(await snapshot(page)).toEqual(cleanBoard(p));
+    await expect(status(page)).toHaveText(madeLine(p, '9x9 Hard'));
+
+    // Undoing a move saves the board it brings back.
+    await play(page, p);
+    await tool(page, 'start-over').click();
+    await tool(page, 'undo').click();
+    await page.reload();
+    await ready(page);
+    expect(await snapshot(page)).toEqual(left);
+  });
+
+  test('a save that cannot be read, has the wrong shape, or is at odds with the puzzle is ignored', async ({ page }) => {
+    const p = generate({ size: '9', level: 3, seed: 'a' }) as Puzzle;
+    const empty = p.puzzle.indexOf(0);
+    const clue = p.puzzle.findIndex((v) => v !== 0);
+    const zeros = new Array(81).fill(0);
+    const game = (change: (values: number[], notes: number[]) => void) => {
+      const [boardValues, notes] = [p.puzzle.slice(), zeros.slice()];
+      change(boardValues, notes);
+      return JSON.stringify({ last: '9/hard/a', games: { '9/hard/a': { values: boardValues, notes, at: 1, done: false } } });
+    };
+    const bad: Record<string, string> = {
+      'not JSON': '{oops',
+      'a list': '[1, 2, 3]',
+      'games as a list': '{"games": []}',
+      'a game that is not an object': '{"games": {"9/hard/a": "yes"}}',
+      'values that are not a list': '{"games": {"9/hard/a": {"values": "x", "notes": []}}}',
+      'a board of the wrong size': JSON.stringify({ games: { '9/hard/a': { values: new Array(16).fill(0), notes: new Array(16).fill(0), at: 1, done: false } } }),
+      'a clue changed': game((v) => (v[clue] = (v[clue] % 9) + 1)),
+      'a clue removed': game((v) => (v[clue] = 0)),
+      'a number too big for the board': game((v) => (v[empty] = 10)),
+      'a number that is not whole': game((v) => (v[empty] = 2.5)),
+      'a negative number': game((v) => (v[empty] = -1)),
+      'candidate marks on a clue': game((_, n) => (n[clue] = 3)),
+      'marks for numbers the board does not have': game((_, n) => (n[empty] = 2 ** 9)),
+      'a number and marks in one square': game((v, n) => ((v[empty] = 5), (n[empty] = 3))),
+    };
+    const errors: string[] = [];
+    page.on('pageerror', (error) => errors.push(error.message));
+    await open(page);
+    for (const [name, text] of Object.entries(bad)) {
+      await store(page, text);
+      await page.reload();
+      await ready(page);
+      expect(await snapshot(page), name).toEqual(cleanBoard(p));
+      await expect(status(page), name).toHaveText(madeLine(p, '9x9 Hard'));
+    }
+    // A sound save in the same form is used, so the cases above were refused for their fault and not their form.
+    await store(page, game((v, n) => ((v[empty] = 5), (n[p.puzzle.indexOf(0, empty + 1)] = 3))));
+    await page.reload();
+    await ready(page);
+    expect((await snapshot(page))[empty]).toEqual({ value: 5, notes: [] });
+    expect((await snapshot(page))[p.puzzle.indexOf(0, empty + 1)]).toEqual({ value: 0, notes: [1, 2] });
+
+    // And after a bad save the page saves over it as usual.
+    await store(page, '{oops');
+    await page.reload();
+    await ready(page);
+    await square(page, empty).click();
+    await page.keyboard.press('7');
+    expect((await stored(page))!.games['9/hard/a'].values[empty]).toBe(7);
+    expect(errors).toEqual([]);
+  });
+
+  test('a last puzzle the page cannot make is ignored', async ({ page }) => {
+    await open(page);
+    for (const last of ['nonsense', '10/hard/a', '4/expert/a', '9/hard/<b>', '9/hard/a/b', 42]) {
+      await store(page, JSON.stringify({ last, games: {} }));
+      await page.goto('/sudoku/');
+      await ready(page);
+      const address = new URL(page.url()).searchParams;
+      expect([address.get('size'), address.get('level')], String(last)).toEqual(['9', 'hard']);
+      expect(address.get('seed'), String(last)).toMatch(/^[a-z0-9]{1,10}$/);
+    }
+  });
+
+  test('with storage unavailable the page still works, with no error', async ({ page }) => {
+    const errors: string[] = [];
+    page.on('pageerror', (error) => errors.push(error.message));
+    page.on('console', (message) => message.type() === 'error' && errors.push(message.text()));
+    await page.addInitScript(() => {
+      const refuse = () => {
+        throw new DOMException('Storage is turned off', 'SecurityError');
+      };
+      Storage.prototype.getItem = refuse;
+      Storage.prototype.setItem = refuse;
+    });
+    const p = await open(page);
+    await play(page, p);
+    const first = p.puzzle.indexOf(0);
+    await expect(square(page, first)).toHaveAttribute('data-value', String(p.solution[first]));
+    await tool(page, 'undo').click();
+    await tool(page, 'start-over').click();
+    expect(await snapshot(page)).toEqual(cleanBoard(p));
+    await page.reload();
+    await ready(page);
+    expect(await snapshot(page)).toEqual(cleanBoard(p));
+    expect(errors).toEqual([]);
+  });
+
+  test('only the 12 most recently played puzzles are kept', async ({ page }) => {
+    const p = await open(page);
+    const older = Object.fromEntries(Array.from({ length: 12 }, (_, i) => [`9/easy/s${i + 1}`, { values: [], notes: [], at: i + 1, done: false }]));
+    await store(page, JSON.stringify({ last: '9/easy/s12', games: older }));
+    await square(page, p.puzzle.indexOf(0)).click();
+    await page.keyboard.press('5');
+    const after = (await stored(page))!;
+    expect(Object.keys(after.games).sort()).toEqual(['9/hard/a', ...Array.from({ length: 11 }, (_, i) => `9/easy/s${i + 2}`)].sort());
+    expect(after.last).toBe('9/hard/a');
+  });
+
+  test('the save holds only board state, and playing sends nothing over the network', async ({ page }) => {
+    const p = await open(page);
+    const requests: string[] = [];
+    page.on('request', (request) => requests.push(request.url()));
+    const before = Date.now();
+    await play(page, p);
+    await tool(page, 'undo').click();
+    await tool(page, 'start-over').click();
+    await tool(page, 'undo').click();
+
+    expect(await page.evaluate(() => Object.keys(localStorage))).toEqual([STORE]);
+    const saved = (await stored(page))!;
+    expect(Object.keys(saved).sort()).toEqual(['games', 'last']);
+    expect(saved.last).toBe('9/hard/a');
+    expect(Object.keys(saved.games)).toEqual(['9/hard/a']);
+    const game = saved.games['9/hard/a'];
+    expect(Object.keys(game).sort()).toEqual(['at', 'done', 'notes', 'values']);
+    const board = await read(page);
+    expect(game.values).toEqual(board.map((s) => s.value));
+    // Marks are saved as one number per square, a bit for each candidate.
+    expect(game.notes).toEqual(board.map((s) => s.notes.reduce((bits, n) => bits + 2 ** (n - 1), 0)));
+    expect(game.done).toBe(false);
+    expect(game.at).toBeGreaterThanOrEqual(before);
+    expect(game.at).toBeLessThanOrEqual(Date.now());
+    expect(requests).toEqual([]);
+  });
+});
+
+// ---------------------------------------------------------------------------------------------------------------
+
 // The accessibility scan of every page (accessibility.spec.ts) sees this page as it loads. These scans cover what
 // play adds: a selection, highlights, bold candidates, a clash, placed numbers, and a zoomed board.
 test.describe('Sudoku page: axe scan while playing', { tag: ['@req-341'] }, () => {
