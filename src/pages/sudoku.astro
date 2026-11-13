@@ -40,6 +40,8 @@ const intro = (await getEntry('intros', 'sudoku'))!.data;
         <button type="button" class="sdk-tool" data-action="candidates" aria-pressed="false">Candidates</button>
         <button type="button" class="sdk-tool" data-action="fill">Fill in candidates</button>
         <button type="button" class="sdk-tool" data-action="erase">Erase</button>
+        <button type="button" class="sdk-tool" data-action="undo" disabled>Undo</button>
+        <button type="button" class="sdk-tool" data-action="start-over">Start over</button>
         <button type="button" class="sdk-tool" data-action="smaller" aria-label="Make the board smaller">Smaller</button>
         <button type="button" class="sdk-tool" data-action="larger" aria-label="Make the board larger">Larger</button>
       </div>
@@ -68,6 +70,14 @@ const intro = (await getEntry('intros', 'sudoku'))!.data;
       </li>
       <li>The arrow keys move around the board, Backspace or <strong>Erase</strong> clears a square, and Escape clears the selection.</li>
       <li>A number that appears twice in a row, column, or box is shown in red.</li>
+      <li>
+        <strong>Undo</strong> (or Ctrl+Z, Cmd+Z on a Mac) takes back your last move, one move at a time.
+        <strong>Start over</strong> clears everything you entered, and Undo brings it back.
+      </li>
+      <li>
+        Your progress is saved in this browser after every move, so you can close the page and pick the puzzle up
+        later. It stays on your device: nothing is sent anywhere. The undo history is not kept between visits.
+      </li>
       <li><strong>Larger</strong> and <strong>Smaller</strong> change the size of the board on screen, which helps with the candidate marks on the big boards.</li>
     </ul>
   </section>
