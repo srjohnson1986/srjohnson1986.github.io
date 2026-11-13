@@ -339,7 +339,7 @@ const intros = defineCollection({
   schema: z
     .strictObject({
       // Which page the text is for.
-      id: z.enum(['home', 'art', 'audio', 'contact', 'jabroni-fest', 'creative', 'development-qa', 'not-found']),
+      id: z.enum(['home', 'art', 'audio', 'contact', 'jabroni-fest', 'creative', 'development-qa', 'not-found', 'sudoku']),
       // The page's title in the browser tab and in link previews, and its description.
       title: copy,
       description: copy,

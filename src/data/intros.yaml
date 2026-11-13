@@ -127,3 +127,12 @@
     what I built, the stack, the outcome, and links to the code.
   # Shown when the filters match no project.
   no_match: No projects match these filters. Try removing one.
+
+- id: sudoku
+  title: "Sudoku | {name}"
+  description: >-
+    A Sudoku game with boards from 4x4 to 25x25 and four levels. Every puzzle is made in your browser,
+    has exactly one solution, and never needs a guess.
+  lead: >-
+    Boards from 4x4 to 25x25, made fresh in your browser. Every puzzle has exactly one solution and
+    never needs a guess.
