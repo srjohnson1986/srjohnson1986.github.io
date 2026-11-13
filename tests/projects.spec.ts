@@ -86,6 +86,10 @@ for (const project of projects) {
       if (project.links.retrieval) await expect(retrieval).toHaveAttribute('href', project.links.retrieval);
       else await expect(retrieval).toHaveCount(0);
 
+      const play = links.getByRole('link', { name: 'Play it on this site' });
+      if (project.links.play) await expect(play).toHaveAttribute('href', project.links.play);
+      else await expect(play).toHaveCount(0);
+
       await expect(links.getByRole('link')).toHaveCount(Object.values(project.links).filter(Boolean).length);
     });
   });

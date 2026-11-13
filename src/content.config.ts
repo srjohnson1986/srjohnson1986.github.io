@@ -493,7 +493,8 @@ const projects = defineCollection({
     // Optional headline numbers. Only figures from the source bank or given by the owner.
     facts: z.array(fact).max(6).optional(),
     links: z
-      .strictObject({ repo: httpsUrl.optional(), demo: httpsUrl.optional(), report: sitePath.optional(), retrieval: sitePath.optional() })
+      // `play` is for a project that runs on a page of this site, such as the Sudoku game at /sudoku/.
+      .strictObject({ repo: httpsUrl.optional(), demo: httpsUrl.optional(), report: sitePath.optional(), retrieval: sitePath.optional(), play: sitePath.optional() })
       .refine((l) => Boolean(l.repo || l.demo), 'Give at least a repo or a demo link'),
   }),
 });

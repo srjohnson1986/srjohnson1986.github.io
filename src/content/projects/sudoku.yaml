@@ -1,0 +1,64 @@
+title: Sudoku with graded puzzles up to 25x25
+navTitle: Sudoku
+summary: >-
+  A Sudoku game on this site with boards from 4x4 to 25x25. Every puzzle is made in the browser,
+  has exactly one solution, and is graded by the techniques it needs.
+year: 2026
+type: app
+tags:
+  - web
+  - test-automation
+  - accessibility
+  - playwright
+  - astro
+  - ai-assisted
+  - open-source
+stack:
+  - JavaScript
+  - TypeScript
+  - Web Workers
+  - Astro
+  - HTML
+  - CSS
+  - Playwright
+  - Claude Code
+
+problem: >-
+  I love Sudoku, and I wanted a version that is reasonably hard at every level and goes well past
+  the usual 9x9 board. Many generators grade a puzzle by how many clues it has, which says little
+  about how hard it is to solve. I wanted the level on the label to mean something I could test.
+
+built:
+  - >-
+    A puzzle engine in plain JavaScript with no dependency. It fills a valid grid, then takes
+    clues away only while a logic solver can still finish the puzzle, so every puzzle has exactly
+    one solution and never needs a guess.
+  - >-
+    Four levels defined by technique instead of clue count: Easy needs only singles, Medium needs
+    locked candidates, Hard needs pairs, triples, or quads, and Expert needs an X-Wing, coloring,
+    or a wing. Every puzzle needs its level and has no clue to spare.
+  - >-
+    Seven board sizes from 4x4 to 25x25, including boards whose boxes are not square, made in a
+    web worker so the page stays responsive while a big puzzle is built.
+  - >-
+    A board that highlights every match of the selected number and makes matching candidate marks
+    bold, with candidate marking, a number pad, keyboard play, and screen reader labels.
+  - Built with Claude Code under the same issue-first workflow as the rest of this site.
+
+outcome:
+  - >-
+    Playable on this site, with the size, level, and seed in the address so a puzzle can be
+    shared or played again.
+  - >-
+    A second solver, written only for the tests and sharing no code with the engine, confirms
+    that each puzzle has exactly one solution.
+  - >-
+    Each rule was broken on purpose to confirm the tests fail: an unsound technique, a wrong
+    grade, a spare clue, and an ignored seed.
+  - >-
+    Measuring replaced two assumptions: a 4x4 board never needs more than the Easy techniques,
+    and a 6x6 board can reach Hard, but only about once in 5,000 grids.
+
+links:
+  repo: https://github.com/srjohnson1986/srjohnson1986.github.io
+  play: /sudoku/
