@@ -3,7 +3,8 @@
 //
 // What it keeps in memory for the puzzle on screen: the value in each square (0 for empty), which squares are
 // clues, and each empty square's candidate marks as bits of one number (bit 0 is the number 1), the same way the
-// engine keeps them. Every change redraws the squares it touched and then repaints the highlights.
+// engine keeps them. Every change goes through one function (change), which redraws the squares it touched,
+// repaints the highlights, remembers the move so it can be undone, and saves the board in the browser.
 import { SIZES, LEVELS, geometry, generate, sizeById } from './engine.js';
 
 interface Puzzle {
@@ -29,8 +30,65 @@ interface Level {
   label: string;
 }
 
+/** One square as it was before a move: what Undo puts back. */
+interface Before {
+  cell: number;
+  value: number;
+  notes: number;
+}
+/** One move: the squares it changed, and the square it was made in (-1 for a move on the whole board). */
+interface Move {
+  at: number;
+  squares: Before[];
+}
+/** A board saved in the browser: every square's number and candidate marks, when, and whether it was finished. */
+interface Saved {
+  values: number[];
+  notes: number[];
+  at: number;
+  done: boolean;
+}
+interface Store {
+  last?: string;
+  games: Record<string, Saved>;
+}
+
 const ZOOMS = [1, 1.25, 1.5, 2, 2.5, 3];
 const levels = LEVELS as Level[];
+const SEED = /^[A-Za-z0-9_-]{1,40}$/;
+
+// Saved progress lives in the browser's localStorage, under this one name, and never leaves the browser. It holds
+// the last few puzzles played, each under "size/level/seed" (the same three things that are in the address), and
+// which of them was played last. Reading and writing are wrapped in try/catch because a browser can refuse both
+// (private windows, blocked site data, full storage), and the game must still work without it.
+const STORE = 'sudoku-progress-v1';
+const KEPT = 12;
+
+function readStore(): Store {
+  try {
+    const store = JSON.parse(localStorage.getItem(STORE) ?? 'null');
+    if (store && typeof store === 'object' && store.games && typeof store.games === 'object' && !Array.isArray(store.games)) return store as Store;
+  } catch {
+    // Nothing saved that can be read: start with nothing.
+  }
+  return { games: {} };
+}
+
+function writeStore(store: Store) {
+  try {
+    localStorage.setItem(STORE, JSON.stringify(store));
+  } catch {
+    // Not saved this time. The game carries on.
+  }
+}
+
+/** The size, level, and seed a saved board's name stands for, or null if it is not one this page can make. */
+function parseKey(key: string | undefined): { size: string; level: string; seed: string } | null {
+  const [size, level, seed, ...more] = (typeof key === 'string' ? key : '').split('/');
+  const info = sizeById(size);
+  const found = levels.find((l) => l.id === level);
+  return info && found && info.levels.includes(found.level) && SEED.test(seed ?? '') && more.length === 0 ? { size, level, seed } : null;
+}
 
 const root = document.querySelector<HTMLElement>('[data-sudoku]');
 if (root) setUp(root);
@@ -60,6 +118,9 @@ function setUp(root: HTMLElement) {
   let zoom = 0;
   let worker: Worker | null = null;
   let current: Puzzle | null = null;
+  let key = ''; // the name the puzzle on screen is saved under: "size/level/seed"
+  let madeLine = ''; // the line that describes the puzzle on screen, shown again when a solved board is reopened
+  let undoStack: Move[] = [];
   // The first digit of a two-digit number, kept for a moment while the second may still be typed.
   let pending = 0;
   let pendingTimer = 0;
@@ -97,6 +158,7 @@ function setUp(root: HTMLElement) {
     const address = new URL(location.href);
     address.search = new URLSearchParams({ size: sizeId, level: levelId, seed }).toString();
     history.replaceState(null, '', address);
+    key = `${sizeId}/${levelId}/${seed}`;
 
     root.setAttribute('aria-busy', 'true');
     progress.textContent = '';
@@ -140,6 +202,12 @@ function setUp(root: HTMLElement) {
     selected = -1;
     tabStop = 0;
     pending = 0;
+    undoStack = [];
+    const saved = savedBoard(puzzle);
+    if (saved) {
+      values = saved.values.slice();
+      notes = saved.notes.slice();
+    }
 
     root.style.setProperty('--side', String(side));
     root.style.setProperty('--box-rows', String(puzzle.boxRows));
@@ -190,12 +258,58 @@ function setUp(root: HTMLElement) {
     game.hidden = false;
     root.removeAttribute('aria-busy');
     progress.textContent = '';
-    const made = `${sizeById(puzzle.size).label} ${labelOf(puzzle.level)} puzzle: ${puzzle.clues} clues, ${shape.cells - puzzle.clues} squares to fill.`;
+    syncTools();
+    const solvedAlready = root.classList.contains('is-solved'); // a finished board that was saved: paint has said so
+    madeLine = `${sizeById(puzzle.size).label} ${labelOf(puzzle.level)} puzzle: ${puzzle.clues} clues, ${shape.cells - puzzle.clues} squares to fill.`;
+    if (solvedAlready) return;
     say(
       puzzle.level < puzzle.asked
-        ? `No ${labelOf(puzzle.asked)} puzzle turned up in ${puzzle.attempts} tries, so this one is ${labelOf(puzzle.level)}. New puzzle tries again. ${made}`
-        : made,
+        ? `No ${labelOf(puzzle.asked)} puzzle turned up in ${puzzle.attempts} tries, so this one is ${labelOf(puzzle.level)}. New puzzle tries again. ${madeLine}`
+        : saved
+          ? `${madeLine} Picked up where you left off.`
+          : madeLine,
     );
+  }
+
+  // ---------------------------------------------------------------------------------------------------------
+  // Saving
+  // ---------------------------------------------------------------------------------------------------------
+
+  /**
+   * The saved board for a puzzle, if there is one and it can be trusted. It is checked against the puzzle before
+   * it is used, because storage can hold anything: an older version's data, a hand-edited value, or a board from
+   * a puzzle that this seed no longer makes. Every clue must be in place and every number and mark must fit.
+   */
+  function savedBoard(puzzle: Puzzle): Saved | null {
+    const saved = readStore().games[key];
+    const count = puzzle.side * puzzle.side;
+    const whole = (list: unknown): list is number[] => Array.isArray(list) && list.length === count && list.every((n) => Number.isInteger(n) && n >= 0);
+    if (!saved || typeof saved !== 'object' || !whole(saved.values) || !whole(saved.notes)) return null;
+    const fits = puzzle.puzzle.every((clue, i) => {
+      if (clue) return saved.values[i] === clue && saved.notes[i] === 0;
+      return saved.values[i] <= puzzle.side && saved.notes[i] < 2 ** puzzle.side && (saved.values[i] === 0 || saved.notes[i] === 0);
+    });
+    return fits ? saved : null;
+  }
+
+  /**
+   * Saves the board on screen. A board with nothing entered is not kept (there is nothing to pick up), and only
+   * the most recently played puzzles are kept, so the storage cannot grow without limit.
+   */
+  function save() {
+    if (!current) return;
+    const store = readStore();
+    const touched = values.some((v, i) => v !== 0 && !given[i]) || notes.some((n) => n !== 0);
+    if (touched) {
+      store.games[key] = { values: values.slice(), notes: notes.slice(), at: Date.now(), done: root.classList.contains('is-solved') };
+      store.last = key;
+    } else {
+      delete store.games[key];
+      if (store.last === key) delete store.last;
+    }
+    const newestFirst = Object.entries(store.games).sort((a, b) => (Number(b[1]?.at) || 0) - (Number(a[1]?.at) || 0));
+    store.games = Object.fromEntries(newestFirst.slice(0, KEPT));
+    writeStore(store);
   }
 
   // ---------------------------------------------------------------------------------------------------------
@@ -280,8 +394,15 @@ function setUp(root: HTMLElement) {
       for (const mark of cell.querySelectorAll<HTMLElement>('.sdk-note')) mark.classList.toggle('is-match', match !== 0 && Number(mark.dataset.note) === match);
     }
     const solved = clash.size === 0 && values.every((v) => v !== 0);
-    if (solved && !root.classList.contains('is-solved') && current) say(`Solved. That was a ${sizeById(current.size).label} ${labelOf(current.level)} puzzle. Well done.`);
+    const was = root.classList.contains('is-solved');
+    if (solved && !was && current) say(`Solved. That was a ${sizeById(current.size).label} ${labelOf(current.level)} puzzle. Well done.`);
+    if (!solved && was) say(madeLine); // a move was taken back, so it is a puzzle again
     root.classList.toggle('is-solved', solved);
+  }
+
+  /** Undo is only on offer when there is a move to take back. */
+  function syncTools() {
+    button('undo').disabled = undoStack.length === 0;
   }
 
   // ---------------------------------------------------------------------------------------------------------
@@ -298,6 +419,23 @@ function setUp(root: HTMLElement) {
     paint();
   }
 
+  /**
+   * Every move goes through here. `squares` lists the squares the move may touch and `apply` makes the move. The
+   * squares that really changed are redrawn and remembered as one step for Undo, and the board is saved. `at` is
+   * the square the move was made in, which Undo selects again (-1 for a move on the whole board).
+   */
+  function change(at: number, squares: number[], apply: () => void) {
+    const before: Before[] = squares.map((cell) => ({ cell, value: values[cell], notes: notes[cell] }));
+    apply();
+    const changed = before.filter((b) => values[b.cell] !== b.value || notes[b.cell] !== b.notes);
+    if (changed.length === 0) return;
+    undoStack.push({ at, squares: changed });
+    for (const b of changed) draw(b.cell);
+    paint();
+    syncTools();
+    save();
+  }
+
   /** Puts a number in the selected square, or in Candidates mode marks or unmarks it there. Clues never change. */
   function enter(n: number) {
     if (selected < 0) {
@@ -305,45 +443,72 @@ function setUp(root: HTMLElement) {
       return;
     }
     if (given[selected] || n < 1 || n > side) return;
+    const at = selected;
     const bit = 1 << (n - 1);
     if (noteMode) {
-      if (values[selected]) return;
-      notes[selected] ^= bit;
-    } else if (values[selected] === n) {
-      values[selected] = 0; // the same number again takes it back out
+      if (!values[at]) change(at, [at], () => (notes[at] ^= bit));
+    } else if (values[at] === n) {
+      change(at, [at], () => (values[at] = 0)); // the same number again takes it back out
     } else {
-      values[selected] = n;
-      notes[selected] = 0;
-      // The number is now used in this row, column, and box, so its marks there are out of date.
-      for (const peer of shape.peers[selected]) {
-        if (!(notes[peer] & bit)) continue;
-        notes[peer] &= ~bit;
-        draw(peer);
-      }
+      change(at, [at, ...shape.peers[at]], () => {
+        values[at] = n;
+        notes[at] = 0;
+        // The number is now used in this row, column, and box, so its marks there are out of date.
+        for (const peer of shape.peers[at]) notes[peer] &= ~bit;
+      });
     }
-    draw(selected);
-    paint();
   }
 
   function erase() {
     if (selected < 0 || given[selected]) return;
-    values[selected] = 0;
-    notes[selected] = 0;
-    draw(selected);
-    paint();
+    const at = selected;
+    change(at, [at], () => {
+      values[at] = 0;
+      notes[at] = 0;
+    });
   }
+
+  const everySquare = () => [...cells.keys()];
 
   /** Marks, in every empty square, each number not already placed in its row, column, or box. */
   function fillCandidates() {
     const all = 2 ** side - 1;
-    for (let i = 0; i < cells.length; i++) {
-      if (values[i]) continue;
-      let open = all;
-      for (const peer of shape.peers[i]) if (values[peer]) open &= ~(1 << (values[peer] - 1));
-      notes[i] = open;
-      draw(i);
+    change(-1, everySquare(), () => {
+      for (let i = 0; i < cells.length; i++) {
+        if (values[i]) continue;
+        let open = all;
+        for (const peer of shape.peers[i]) if (values[peer]) open &= ~(1 << (values[peer] - 1));
+        notes[i] = open;
+      }
+    });
+  }
+
+  /** Clears every number and mark the visitor entered, leaving the clues. It is a move like any other, so Undo brings it all back. */
+  function startOver() {
+    commitPending();
+    change(-1, everySquare(), () => {
+      for (let i = 0; i < cells.length; i++) {
+        if (!given[i]) values[i] = 0;
+        notes[i] = 0;
+      }
+    });
+  }
+
+  /** Takes back the newest move: puts its squares back as they were, and selects the square it was made in. */
+  function undo() {
+    commitPending();
+    const move = undoStack.pop();
+    if (!move) return;
+    for (const b of move.squares) {
+      values[b.cell] = b.value;
+      notes[b.cell] = b.notes;
+      draw(b.cell);
     }
-    paint();
+    syncTools();
+    // Keep the keyboard on the board if it was there, and leave it on the button if that was pressed.
+    if (move.at >= 0) select(move.at, board.contains(document.activeElement));
+    else paint();
+    save();
   }
 
   function setNoteMode(on: boolean) {
@@ -445,6 +610,14 @@ function setUp(root: HTMLElement) {
     commitPending();
     erase();
   });
+  button('undo').addEventListener('click', undo);
+  button('start-over').addEventListener('click', startOver);
+  // Ctrl+Z, or Cmd+Z on a Mac, anywhere in the game: on the board, the number pad, or the buttons.
+  root.addEventListener('keydown', (event) => {
+    if (!(event.ctrlKey || event.metaKey) || event.shiftKey || event.altKey || event.key.toLowerCase() !== 'z') return;
+    event.preventDefault();
+    undo();
+  });
   button('smaller').addEventListener('click', () => setZoom(zoom - 1));
   button('larger').addEventListener('click', () => setZoom(zoom + 1));
 
@@ -454,13 +627,20 @@ function setUp(root: HTMLElement) {
     make(sizeSelect.value, levelSelect.value, newSeed());
   });
 
-  // The first puzzle: whatever the address asks for, or a 9x9 Hard puzzle with a fresh seed.
+  // The first puzzle. An address that names one wins. With nothing in the address, go back to the puzzle played
+  // last, or, if that one was finished, start a new one of the same board and level. Failing all that, a 9x9
+  // Hard puzzle with a fresh seed.
   const asked = new URLSearchParams(location.search);
-  const size = (SIZES as { id: string }[]).some((s) => s.id === asked.get('size')) ? asked.get('size')! : '9';
+  const store = readStore();
+  const last = ['size', 'level', 'seed'].some((name) => asked.has(name)) ? null : parseKey(store.last);
+  const lastDone = Boolean(last && store.games[store.last!]?.done);
+  const wantedSize = last?.size ?? asked.get('size');
+  const wantedLevel = last?.level ?? asked.get('level');
+  const size = (SIZES as { id: string }[]).some((s) => s.id === wantedSize) ? wantedSize! : '9';
   sizeSelect.value = size;
-  if (levels.some((l) => l.id === asked.get('level'))) levelSelect.value = asked.get('level')!;
+  if (levels.some((l) => l.id === wantedLevel)) levelSelect.value = wantedLevel!;
   syncLevels();
   setZoom(0);
-  const seed = asked.get('seed') ?? '';
-  make(size, levelSelect.value, /^[A-Za-z0-9_-]{1,40}$/.test(seed) ? seed : newSeed());
+  const seed = (last && !lastDone ? last.seed : asked.get('seed')) ?? '';
+  make(size, levelSelect.value, SEED.test(seed) ? seed : newSeed());
 }
