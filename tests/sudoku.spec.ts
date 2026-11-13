@@ -2,6 +2,8 @@ import AxeBuilder from '@axe-core/playwright';
 import { test, expect, type Page } from './helpers/test';
 // @ts-expect-error - plain JavaScript module with no type declarations
 import { SIZES, LEVELS, generate } from '../src/lib/sudoku/engine.js';
+// @ts-expect-error - plain JavaScript module with no type declarations
+import { SETTINGS, SETTINGS_STORE, chosen } from '../src/lib/sudoku/settings.js';
 
 // The Sudoku page (/sudoku/). The board is drawn in the browser from a puzzle the engine makes for the size, level,
 // and seed in the address, so each test opens an address with a fixed seed and asks the same engine what the page
@@ -45,8 +47,9 @@ const read = (page: Page): Promise<Square[]> =>
       return {
         value: Number((cell as HTMLElement).dataset.value ?? 0),
         notes: marks.map((m) => Number(m.textContent)),
-        // Bold as the visitor sees it: the computed weight, not a class name.
-        bold: marks.filter((m) => getComputedStyle(m).fontWeight === '700').map((m) => Number(m.textContent)),
+        // Bold as the visitor sees it: the computed weight (700 or more), not a class name. How bold exactly is
+        // a setting, checked in the settings tests below.
+        bold: marks.filter((m) => Number(getComputedStyle(m).fontWeight) >= 700).map((m) => Number(m.textContent)),
         same: cell.classList.contains('is-same'),
         selected: cell.classList.contains('is-selected'),
         clash: cell.classList.contains('is-clash'),
@@ -1096,8 +1099,238 @@ test.describe('Sudoku page: saved progress', { tag: ['@req-464'] }, () => {
 
 // ---------------------------------------------------------------------------------------------------------------
 
+type Setting = { id: string; label: string; first: string; options: { id: string; label: string }[] };
+const settingsList = SETTINGS as Setting[];
+const emphasis = settingsList.find((s) => s.id === 'emphasis')!;
+const panel = (page: Page) => page.locator('[data-settings]');
+const choice = (page: Page, name: string) => panel(page).getByRole('radio', { name, exact: true });
+/** A choice by its saved value. Unlike `choice`, this finds it while the panel is closed and its controls are hidden. */
+const choiceInput = (page: Page, id: string) => panel(page).locator(`input[name="setting-emphasis"][value="${id}"]`);
+const savedSettings = (page: Page) => page.evaluate((name) => localStorage.getItem(name), SETTINGS_STORE as string);
+/** How the candidate marks are drawn: [weight, has an outline] for the selected number's marks and for the rest. */
+const markStyles = (page: Page) =>
+  page.locator('.sdk-note').evaluateAll((all) => {
+    const style = (m: Element) => `${getComputedStyle(m).fontWeight}${parseFloat(getComputedStyle(m).webkitTextStrokeWidth) > 0 ? ' outlined' : ''}`;
+    const kinds = (list: Element[]) => [...new Set(list.map(style))].sort();
+    return { selected: kinds(all.filter((m) => m.classList.contains('is-match'))), others: kinds(all.filter((m) => !m.classList.contains('is-match'))) };
+  });
+/** A board with candidates filled in and a clue selected whose number is still a candidate somewhere. */
+async function withMarksSelected(page: Page, p: Puzzle) {
+  await tool(page, 'fill').click();
+  const marks = candidatesFor(p, p.puzzle);
+  const clue = p.puzzle.findIndex((v) => v !== 0 && marks.some((m) => m.includes(v)));
+  await square(page, clue).click();
+  return clue;
+}
+
+test.describe('Sudoku page: settings', { tag: ['@req-467'] }, () => {
+  test('the list of settings is sound, and saved choices are read safely', () => {
+    expect(settingsList.map((s) => s.id)).toEqual(['emphasis']);
+    for (const s of settingsList) {
+      expect(s.id).toMatch(/^[a-z]+(-[a-z]+)*$/);
+      expect(s.label.length).toBeGreaterThan(0);
+      expect(new Set(s.options.map((o) => o.id)).size).toBe(s.options.length);
+      expect(s.options.map((o) => o.id), `${s.id} starts on one of its own choices`).toContain(s.first);
+    }
+    expect(emphasis.options.map((o) => o.label)).toEqual(['Bold', 'Bolder', 'Boldest']);
+    expect(emphasis.first).toBe('bolder');
+
+    const first = { emphasis: 'bolder' };
+    expect(chosen(null)).toEqual(first);
+    expect(chosen('{"emphasis":"bold"}')).toEqual({ emphasis: 'bold' });
+    expect(chosen('{"emphasis":"boldest","extra":"dropped"}')).toEqual({ emphasis: 'boldest' });
+    for (const bad of ['{oops', '', 'null', '[]', '"bold"', '42', '{}', '{"emphasis":"huge"}', '{"emphasis":42}', '{"emphasis":["bold"]}', '{"emphasis":null}', '{"Emphasis":"bold"}']) {
+      expect(chosen(bad), bad).toEqual(first);
+    }
+  });
+
+  test('the Settings panel is closed at first, opens by pointer and by keyboard, and offers the choices from the list', async ({ page }) => {
+    await open(page);
+    const summary = panel(page).locator('summary');
+    await expect(summary).toHaveText('Settings');
+    await expect(panel(page)).not.toHaveAttribute('open');
+    await expect(choice(page, 'Bolder')).toBeHidden();
+
+    await summary.click();
+    await expect(panel(page)).toHaveAttribute('open');
+    const group = panel(page).getByRole('group', { name: emphasis.label });
+    await expect(group).toBeVisible();
+    await expect(group.locator('label')).toHaveText(emphasis.options.map((o) => o.label));
+    expect(await group.getByRole('radio').evaluateAll((all) => all.map((r) => (r as HTMLInputElement).value))).toEqual(emphasis.options.map((o) => o.id));
+    await expect(choice(page, 'Bolder')).toBeChecked();
+    await expect(root(page)).toHaveAttribute('data-emphasis', 'bolder');
+
+    // By keyboard: Enter on the summary closes and opens it, and the arrow keys move between the choices.
+    await summary.focus();
+    await page.keyboard.press('Enter');
+    await expect(panel(page)).not.toHaveAttribute('open');
+    await page.keyboard.press('Enter');
+    await expect(panel(page)).toHaveAttribute('open');
+    await page.keyboard.press('Tab');
+    await expect(choice(page, 'Bolder')).toBeFocused();
+    await page.keyboard.press('ArrowRight');
+    await expect(choice(page, 'Boldest')).toBeChecked();
+    await expect(root(page)).toHaveAttribute('data-emphasis', 'boldest');
+  });
+
+  test("each level changes the selected number's candidates at once, and no other mark", async ({ page }) => {
+    const p = await open(page);
+    const clue = await withMarksSelected(page, p);
+    const before = await snapshot(page);
+    await panel(page).locator('summary').click();
+
+    // Bolder to begin with, then each choice in turn, ending back on the first.
+    expect(await markStyles(page)).toEqual({ selected: ['800'], others: ['400'] });
+    for (const [name, selected] of [['Bold', '700'], ['Boldest', '800 outlined'], ['Bolder', '800']] as const) {
+      await choice(page, name).check();
+      await expect(root(page)).toHaveAttribute('data-emphasis', name.toLowerCase());
+      expect(await markStyles(page), name).toEqual({ selected: [selected], others: ['400'] });
+      await expect(choice(page, name)).toBeChecked();
+    }
+    // It is the same puzzle, with the same numbers, marks, and selection, and nothing to undo.
+    expect(await snapshot(page)).toEqual(before);
+    await expect(square(page, clue)).toHaveClass(/is-selected/);
+    expect(new URL(page.url()).search).toBe('?size=9&level=hard&seed=a');
+    await expect(tool(page, 'undo')).toBeEnabled(); // the Fill in candidates move, and only that
+    await tool(page, 'undo').click();
+    await expect(tool(page, 'undo')).toBeDisabled();
+
+    // With nothing selected, no mark is bold or outlined at any level.
+    await tool(page, 'fill').click();
+    await square(page, clue).click();
+    await page.keyboard.press('Escape');
+    for (const name of ['Bold', 'Bolder', 'Boldest']) {
+      await choice(page, name).check();
+      expect(await markStyles(page), `${name}, nothing selected`).toEqual({ selected: [], others: ['400'] });
+    }
+  });
+
+  test('Bolder is drawn in the 800 weight of the site font, loaded from this site, and is heavier than Bold', async ({ page }) => {
+    const requests: string[] = [];
+    page.on('request', (request) => requests.push(request.url()));
+    const p = await open(page);
+    await withMarksSelected(page, p);
+    await page.evaluate(() => document.fonts.ready);
+
+    // The browser really has the 800 file: asking for a weight is not enough (see fonts.spec.ts).
+    const loaded = await page.evaluate(() =>
+      [...document.fonts].filter((face) => face.family.replace(/"/g, '') === 'Atkinson Hyperlegible Next' && face.status === 'loaded').map((face) => face.weight).sort(),
+    );
+    expect(loaded).toEqual(['400', '600', '700', '800']);
+    const heavy = requests.filter((url) => url.includes('latin-800-normal'));
+    expect(heavy).toHaveLength(1);
+    expect(new URL(heavy[0]).origin).toBe(new URL(page.url()).origin);
+    expect(new URL(heavy[0]).pathname).toMatch(/^\/_astro\/.+\.woff2$/);
+    expect(requests.filter((url) => new URL(url).origin !== new URL(page.url()).origin), 'requests to other hosts').toEqual([]);
+
+    // Heavier strokes make wider numbers. (The marks themselves use fixed-width figures, which are one width at
+    // every weight, so this measures the same font with its ordinary figures.)
+    const widths = await page.evaluate(() => {
+      const family = getComputedStyle(document.querySelector('.sdk-note')!).fontFamily;
+      return [400, 700, 800].map((weight) => {
+        const probe = document.createElement('span');
+        probe.style.cssText = `position: absolute; font: ${weight} 40px ${family}; font-variant-numeric: normal`;
+        probe.textContent = '1234567890';
+        document.body.append(probe);
+        const width = probe.getBoundingClientRect().width;
+        probe.remove();
+        return width;
+      });
+    });
+    expect(widths[1]).toBeGreaterThan(widths[0]);
+    expect(widths[2]).toBeGreaterThan(widths[1]);
+  });
+
+  test('with Bold chosen, the extra font file is never fetched', async ({ page }) => {
+    await page.addInitScript(([name]) => localStorage.setItem(name, '{"emphasis":"bold"}'), [SETTINGS_STORE as string]);
+    const requests: string[] = [];
+    page.on('request', (request) => requests.push(request.url()));
+    const p = await open(page);
+    await withMarksSelected(page, p);
+    await page.evaluate(() => document.fonts.ready);
+    expect(await markStyles(page)).toEqual({ selected: ['700'], others: ['400'] });
+    expect(requests.filter((url) => url.includes('latin-800-normal'))).toEqual([]);
+  });
+
+  test('the choice survives a reload, applies to other puzzles, and is saved apart from progress, only once it is changed', async ({ page }) => {
+    const p = await open(page);
+    await withMarksSelected(page, p);
+    // Playing saves progress. It does not save settings nobody changed.
+    expect(await savedSettings(page)).toBeNull();
+    expect(await page.evaluate(() => Object.keys(localStorage))).toEqual([STORE]);
+
+    await panel(page).locator('summary').click();
+    await choice(page, 'Boldest').check();
+    expect(JSON.parse((await savedSettings(page))!)).toEqual({ emphasis: 'boldest' });
+    expect((await page.evaluate(() => Object.keys(localStorage))).sort()).toEqual([STORE, SETTINGS_STORE].sort());
+    const progress = await stored(page);
+
+    await page.reload();
+    await ready(page);
+    await expect(root(page)).toHaveAttribute('data-emphasis', 'boldest');
+    await expect(panel(page)).not.toHaveAttribute('open');
+    await panel(page).locator('summary').click();
+    await expect(choice(page, 'Boldest')).toBeChecked();
+    await square(page, p.puzzle.findIndex((v) => v !== 0 && candidatesFor(p, p.puzzle).some((m) => m.includes(v)))).click();
+    expect(await markStyles(page)).toEqual({ selected: ['800 outlined'], others: ['400'] });
+    // Changing a setting left the saved progress alone.
+    expect(await stored(page)).toEqual(progress);
+
+    const other = await open(page, '6', 'easy', 'a');
+    await expect(root(page)).toHaveAttribute('data-emphasis', 'boldest');
+    await withMarksSelected(page, other);
+    expect(await markStyles(page)).toEqual({ selected: ['800 outlined'], others: ['400'] });
+  });
+
+  test('a saved choice the page does not know, or cannot read, gives Bolder and no error', async ({ page }) => {
+    const errors: string[] = [];
+    page.on('pageerror', (error) => errors.push(error.message));
+    const p = await open(page);
+    for (const bad of ['{oops', '[]', '"bold"', '{"emphasis":"huge"}', '{"emphasis":42}', '{}']) {
+      await page.evaluate(([name, text]) => localStorage.setItem(name, text), [SETTINGS_STORE as string, bad]);
+      await page.reload();
+      await ready(page);
+      await expect(root(page), bad).toHaveAttribute('data-emphasis', 'bolder');
+      await expect(choiceInput(page, 'bolder'), bad).toBeChecked();
+    }
+    // A sound choice saved the same way is used, so the cases above were refused for their fault.
+    await page.evaluate(([name]) => localStorage.setItem(name, '{"emphasis":"bold"}'), [SETTINGS_STORE as string]);
+    await page.reload();
+    await ready(page);
+    await expect(root(page)).toHaveAttribute('data-emphasis', 'bold');
+    await expect(choiceInput(page, 'bold')).toBeChecked();
+    await withMarksSelected(page, p);
+    expect(await markStyles(page)).toEqual({ selected: ['700'], others: ['400'] });
+    expect(errors).toEqual([]);
+  });
+
+  test('with storage unavailable the settings still work for the visit, with no error', async ({ page }) => {
+    const errors: string[] = [];
+    page.on('pageerror', (error) => errors.push(error.message));
+    page.on('console', (message) => message.type() === 'error' && errors.push(message.text()));
+    await page.addInitScript(() => {
+      const refuse = () => {
+        throw new DOMException('Storage is turned off', 'SecurityError');
+      };
+      Storage.prototype.getItem = refuse;
+      Storage.prototype.setItem = refuse;
+    });
+    const p = await open(page);
+    await expect(root(page)).toHaveAttribute('data-emphasis', 'bolder');
+    await withMarksSelected(page, p);
+    await panel(page).locator('summary').click();
+    await choice(page, 'Boldest').check();
+    expect(await markStyles(page)).toEqual({ selected: ['800 outlined'], others: ['400'] });
+    await choice(page, 'Bold').check();
+    expect(await markStyles(page)).toEqual({ selected: ['700'], others: ['400'] });
+    expect(errors).toEqual([]);
+  });
+});
+
+// ---------------------------------------------------------------------------------------------------------------
+
 // The accessibility scan of every page (accessibility.spec.ts) sees this page as it loads. These scans cover what
-// play adds: a selection, highlights, bold candidates, a clash, placed numbers, and a zoomed board.
+// play adds: a selection, highlights, bold candidates, a clash, placed numbers, a zoomed board, and Settings open.
 test.describe('Sudoku page: axe scan while playing', { tag: ['@req-341'] }, () => {
   for (const scheme of ['light', 'dark'] as const) {
     test.describe(scheme, () => {
@@ -1116,6 +1349,9 @@ test.describe('Sudoku page: axe scan while playing', { tag: ['@req-341'] }, () =
           await padKey(page, p.puzzle[clue]).click();
           await tool(page, 'candidates').click();
           await tool(page, 'larger').click();
+          // The Settings panel open, on the level that draws the heaviest marks (the 9x9 run) or the default.
+          await panel(page).locator('summary').click();
+          if (size === '9') await choice(page, 'Boldest').check();
           // Select a clue whose number is still a candidate somewhere, so bold marks and highlights are on screen.
           const board = await read(page);
           const shown = p.puzzle.findIndex((v) => v !== 0 && board.some((s) => s.notes.includes(v)));
