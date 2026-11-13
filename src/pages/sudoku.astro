@@ -1,0 +1,417 @@
+---
+import { getEntry } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { fill } from '../lib/copy';
+import { SIZES, LEVELS } from '../lib/sudoku/engine.js';
+
+// The page ships the controls and the help text. The board itself is drawn in the visitor's browser by
+// src/lib/sudoku/board.ts (loaded at the bottom of this file), from a puzzle made by src/lib/sudoku/engine.js.
+const intro = (await getEntry('intros', 'sudoku'))!.data;
+---
+
+<BaseLayout title={fill(intro.title)} description={fill(intro.description)}>
+  <p class="back"><a href="/development-qa/sudoku/">&larr; About this project</a></p>
+
+  <h1>Sudoku</h1>
+  <p class="lead">{intro.lead}</p>
+
+  <div class="sdk" data-sudoku>
+    <form class="sdk-setup" data-setup>
+      <label>
+        Board
+        <select name="size">
+          {SIZES.map((s) => <option value={s.id} selected={s.id === '9'}>{s.label} ({s.boxRows}x{s.boxCols} boxes)</option>)}
+        </select>
+      </label>
+      <label>
+        Level
+        <select name="level">
+          {LEVELS.map((l) => <option value={l.id} selected={l.id === 'hard'}>{l.label}</option>)}
+        </select>
+      </label>
+      <button type="submit" class="button">New puzzle</button>
+    </form>
+    <p class="sdk-level-note" data-level-note hidden></p>
+    {/* The script replaces this line as soon as it starts, so it is only read where the script cannot run. */}
+    <p class="sdk-status"><span data-status role="status">The board is drawn by a script, so this page needs JavaScript turned on.</span> <span data-progress></span></p>
+
+    <div data-game hidden>
+      <div class="sdk-tools" role="group" aria-label="Tools">
+        <button type="button" class="sdk-tool" data-action="candidates" aria-pressed="false">Candidates</button>
+        <button type="button" class="sdk-tool" data-action="fill">Fill in candidates</button>
+        <button type="button" class="sdk-tool" data-action="erase">Erase</button>
+        <button type="button" class="sdk-tool" data-action="smaller" aria-label="Make the board smaller">Smaller</button>
+        <button type="button" class="sdk-tool" data-action="larger" aria-label="Make the board larger">Larger</button>
+      </div>
+      <div class="sdk-frame" data-frame>
+        <div class="sdk-board" data-board role="grid"></div>
+      </div>
+      <div class="sdk-pad" data-pad role="group" aria-label="Numbers"></div>
+    </div>
+  </div>
+
+  <section aria-labelledby="how-to-play">
+    <h2 id="how-to-play">How to play</h2>
+    <ul>
+      <li>
+        Select a square. If it holds a number, every other square with that number lights up, and that number turns
+        bold wherever it is marked as a candidate.
+      </li>
+      <li>
+        Type a number or use the number pad to place it. The same number again takes it back out. On boards above
+        9x9, type both digits of a two-digit number one after the other.
+      </li>
+      <li>
+        Turn on <strong>Candidates</strong> (or press C) to mark the numbers a square could hold instead of placing
+        one. <strong>Fill in candidates</strong> marks every number still possible in every empty square. Placing a
+        number clears its marks from the same row, column, and box.
+      </li>
+      <li>The arrow keys move around the board, Backspace or <strong>Erase</strong> clears a square, and Escape clears the selection.</li>
+      <li>A number that appears twice in a row, column, or box is shown in red.</li>
+      <li><strong>Larger</strong> and <strong>Smaller</strong> change the size of the board on screen, which helps with the candidate marks on the big boards.</li>
+    </ul>
+  </section>
+
+  <section aria-labelledby="levels">
+    <h2 id="levels">How the levels work</h2>
+    <p>
+      Every puzzle is made in your browser and graded by a solver that only uses techniques a person would, never a
+      guess. A puzzle of a level needs at least one technique of that level and none from a level above it, and it
+      is as bare as that allows: take away any clue and it would need something harder.
+    </p>
+    <dl class="levels">
+      {
+        LEVELS.map((l) => (
+          <>
+            <dt>{l.label}</dt>
+            <dd>{l.techniques.join(', ')}</dd>
+          </>
+        ))
+      }
+    </dl>
+    <p>A 4x4 board is too small to need anything above Easy, so it has the one level.</p>
+  </section>
+</BaseLayout>
+
+<script>
+  import '../lib/sudoku/board.ts';
+</script>
+
+{/* Global, not scoped: the board's squares are made by the script, and Astro's scoped styles only reach elements
+    written in this file. Every rule starts with a class used only on this page. */}
+<style is:global>
+  .sdk {
+    /* Set by the script for the puzzle on screen. */
+    --side: 9;
+    --box-rows: 3;
+    --box-cols: 3;
+    --note-scale: 0.28;
+    --zoom: 1;
+
+    /* The board's own colors. Each text color was checked against each background it can sit on (4.5 to 1 or
+       better), in both themes. */
+    --sdk-line: #8f8f99;
+    --sdk-entry: #8a4b1f;
+    --sdk-note: #4a4a55;
+    --sdk-same: #fde9d2;
+    --sdk-selected: #f9cfa0;
+    --sdk-clash-bg: #fde0dd;
+    --sdk-clash: #b3261e;
+
+    /* A square is as big as lets the whole board fit the window, both across and down, between a smallest size
+       that still fits a two-digit number and a comfortable largest. A big board may be wider than the page's
+       text column. On a board too wide for the window even at the smallest size, the frame below scrolls. */
+    /* (The 4px is the board's own border, which sits outside the squares.) */
+    --cell: clamp(1.7rem, calc((min(100vw - 2 * var(--gutter) - 1.25rem, 100vh - 6rem) - 4px) / var(--side)), 3.25rem);
+    --size: calc(var(--cell) * var(--zoom));
+
+    margin-top: 1.25rem;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme]) .sdk {
+      --sdk-line: #6a6a75;
+      --sdk-entry: #e0a070;
+      --sdk-note: #c2c2cc;
+      --sdk-same: #3a2c20;
+      --sdk-selected: #523820;
+      --sdk-clash-bg: #4a1f1c;
+      --sdk-clash: #ff9a8f;
+    }
+  }
+
+  :root[data-theme='dark'] .sdk {
+    --sdk-line: #6a6a75;
+    --sdk-entry: #e0a070;
+    --sdk-note: #c2c2cc;
+    --sdk-same: #3a2c20;
+    --sdk-selected: #523820;
+    --sdk-clash-bg: #4a1f1c;
+    --sdk-clash: #ff9a8f;
+  }
+
+  .sdk-setup {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: end;
+    gap: 0.75rem 1rem;
+    margin: 0 0 0.75rem;
+  }
+
+  .sdk-setup label {
+    display: grid;
+    gap: 0.2rem;
+    color: var(--muted);
+    font-size: 0.9rem;
+  }
+
+  .sdk select,
+  .sdk button {
+    font: inherit;
+  }
+
+  .sdk select {
+    padding: 0.5rem 0.6rem;
+    border: 1px solid var(--sdk-line);
+    border-radius: 0.4rem;
+    background: var(--card);
+    color: var(--fg);
+  }
+
+  .sdk .button {
+    border: 0;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .sdk-level-note,
+  .sdk-status {
+    margin: 0 0 0.75rem;
+    color: var(--muted);
+    font-size: 0.95rem;
+  }
+
+  .sdk-status {
+    min-height: 1.5em;
+  }
+
+  .sdk-tools {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 0 0 0.75rem;
+  }
+
+  .sdk-tool,
+  .sdk-key {
+    min-height: 2.75rem;
+    padding: 0.4rem 0.8rem;
+    border: 1px solid var(--sdk-line);
+    border-radius: 0.4rem;
+    background: var(--card);
+    color: var(--fg);
+    cursor: pointer;
+  }
+
+  .sdk-tool[aria-pressed='true'] {
+    border-color: var(--accent);
+    background: var(--accent);
+    color: var(--bg);
+    font-weight: 600;
+  }
+
+  .sdk-tool:disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
+
+  /* The frame is centered on the page column but may be wider than it, up to the width of the window, so a big
+     board gets all the room there is before it has to scroll. */
+  .sdk-frame {
+    position: relative;
+    left: 50%;
+    width: max-content;
+    max-width: calc(100vw - 2 * var(--gutter) - 1.25rem);
+    margin: 0 0 1rem;
+    overflow: auto;
+    transform: translateX(-50%);
+  }
+
+  /* Zoomed in, the board scrolls both ways inside the frame, so the frame stays on screen. */
+  .sdk.is-zoomed .sdk-frame {
+    max-height: 85vh;
+  }
+
+  .sdk-board {
+    width: max-content;
+    border: 2px solid var(--fg);
+    background: var(--card);
+    user-select: none;
+  }
+
+  .sdk-row {
+    display: grid;
+    grid-template-columns: repeat(var(--side), var(--size));
+  }
+
+  .sdk-cell {
+    position: relative;
+    display: grid;
+    place-items: center;
+    height: var(--size);
+    border-right: 1px solid var(--sdk-line);
+    border-bottom: 1px solid var(--sdk-line);
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+    cursor: pointer;
+  }
+
+  .sdk-cell:last-child {
+    border-right: 0;
+  }
+
+  .sdk-row:last-child .sdk-cell {
+    border-bottom: 0;
+  }
+
+  /* The heavier lines between boxes. */
+  .sdk-cell.box-right {
+    border-right: 2px solid var(--fg);
+  }
+
+  .sdk-cell.box-bottom {
+    border-bottom: 2px solid var(--fg);
+  }
+
+  /* Clues are bold. Numbers the visitor placed are lighter and in the accent color. */
+  .sdk-value {
+    color: var(--fg);
+    font-size: calc(var(--size) * 0.58);
+    font-weight: 700;
+  }
+
+  .sdk-two-digit .sdk-value {
+    font-size: calc(var(--size) * 0.46);
+  }
+
+  .sdk-cell.is-entry .sdk-value {
+    color: var(--sdk-entry);
+    font-weight: 400;
+  }
+
+  /* Candidate marks: a tiny copy of a box inside the square, each number in its own place. */
+  .sdk-notes {
+    position: absolute;
+    inset: 1px;
+    display: grid;
+    grid-template-rows: repeat(var(--box-rows), 1fr);
+    grid-template-columns: repeat(var(--box-cols), 1fr);
+    place-items: center;
+    color: var(--sdk-note);
+    font-size: calc(var(--size) * var(--note-scale));
+    pointer-events: none;
+  }
+
+  .sdk-note.is-match {
+    color: var(--fg);
+    font-weight: 700;
+  }
+
+  .sdk-cell.is-same {
+    background: var(--sdk-same);
+  }
+
+  .sdk-cell.is-selected {
+    background: var(--sdk-selected);
+    box-shadow: inset 0 0 0 2px var(--accent);
+  }
+
+  .sdk-cell.is-clash {
+    background: var(--sdk-clash-bg);
+  }
+
+  .sdk-cell.is-clash .sdk-value {
+    color: var(--sdk-clash);
+  }
+
+  .sdk-cell:focus-visible {
+    z-index: 1;
+    outline: 3px solid var(--focus);
+    outline-offset: -3px;
+  }
+
+  .sdk.is-solved .sdk-board {
+    border-color: var(--accent);
+  }
+
+  .sdk-pad {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(2.75rem, 1fr));
+    gap: 0.4rem;
+    margin: 0 0 1rem;
+  }
+
+  .sdk-key {
+    padding: 0.4rem 0;
+    font-variant-numeric: tabular-nums;
+  }
+</style>
+
+<style>
+  .back {
+    margin: 0 0 1rem;
+    font-size: 0.95rem;
+  }
+
+  h1 {
+    margin: 0 0 0.5rem;
+    font-size: 2rem;
+  }
+
+  .lead {
+    margin: 0;
+    color: var(--muted);
+  }
+
+  section {
+    margin-top: 1.75rem;
+  }
+
+  h2 {
+    margin: 0 0 0.6rem;
+    padding-bottom: 0.25rem;
+    border-bottom: 1px solid var(--rule);
+    color: var(--muted);
+    font-size: 0.85rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  section > p {
+    margin: 0 0 0.75rem;
+  }
+
+  section > ul {
+    margin: 0;
+    padding-left: 1.2rem;
+  }
+
+  section > ul li {
+    margin-bottom: 0.45rem;
+  }
+
+  .levels {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 0.35rem 1rem;
+    margin: 0 0 0.75rem;
+  }
+
+  .levels dt {
+    font-weight: 700;
+  }
+
+  .levels dd {
+    margin: 0;
+  }
+</style>

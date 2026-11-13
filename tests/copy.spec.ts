@@ -15,6 +15,7 @@ const pages: Record<string, string> = {
   'jabroni-fest': '/jabroni-fest/',
   'development-qa': '/development-qa/',
   'not-found': '/this-page-does-not-exist/',
+  sudoku: '/sudoku/',
 };
 
 test.describe('page titles and descriptions come from the file', { tag: ['@req-328'] }, () => {

@@ -339,7 +339,7 @@ const intros = defineCollection({
   schema: z
     .strictObject({
       // Which page the text is for.
-      id: z.enum(['home', 'art', 'audio', 'contact', 'jabroni-fest', 'creative', 'development-qa', 'not-found']),
+      id: z.enum(['home', 'art', 'audio', 'contact', 'jabroni-fest', 'creative', 'development-qa', 'not-found', 'sudoku']),
       // The page's title in the browser tab and in link previews, and its description.
       title: copy,
       description: copy,
@@ -493,7 +493,8 @@ const projects = defineCollection({
     // Optional headline numbers. Only figures from the source bank or given by the owner.
     facts: z.array(fact).max(6).optional(),
     links: z
-      .strictObject({ repo: httpsUrl.optional(), demo: httpsUrl.optional(), report: sitePath.optional(), retrieval: sitePath.optional() })
+      // `play` is for a project that runs on a page of this site, such as the Sudoku game at /sudoku/.
+      .strictObject({ repo: httpsUrl.optional(), demo: httpsUrl.optional(), report: sitePath.optional(), retrieval: sitePath.optional(), play: sitePath.optional() })
       .refine((l) => Boolean(l.repo || l.demo), 'Give at least a repo or a demo link'),
   }),
 });

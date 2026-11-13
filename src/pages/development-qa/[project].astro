@@ -55,6 +55,13 @@ const { title, summary, year, type, stack, problem, built, outcome, facts, links
     <h2 id="links">Links</h2>
     <ul class="links">
       {
+        links.play && (
+          <li>
+            <a class="button" href={links.play}>Play it on this site</a>
+          </li>
+        )
+      }
+      {
         links.repo && (
           <li>
             <a class="button" href={links.repo} rel="noopener">Code on GitHub</a>
