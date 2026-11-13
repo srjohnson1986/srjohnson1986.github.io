@@ -1,12 +1,19 @@
 ---
+// The heaviest weight of the site font, used only here, for the candidate marks of the selected number. It comes
+// from the same @fontsource package as the three weights the layout loads, so it is no new dependency.
+import '@fontsource/atkinson-hyperlegible-next/latin-800.css';
 import { getEntry } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { fill } from '../lib/copy';
 import { SIZES, LEVELS } from '../lib/sudoku/engine.js';
+import { SETTINGS } from '../lib/sudoku/settings.js';
 
 // The page ships the controls and the help text. The board itself is drawn in the visitor's browser by
 // src/lib/sudoku/board.ts (loaded at the bottom of this file), from a puzzle made by src/lib/sudoku/engine.js.
 const intro = (await getEntry('intros', 'sudoku'))!.data;
+// Each setting starts as an attribute on the game's outer element, such as data-emphasis="bolder". The script
+// changes it when the visitor chooses something else, and the styles below key off it.
+const firstChoices = Object.fromEntries(SETTINGS.map((s) => [`data-${s.id}`, s.first]));
 ---
 
 <BaseLayout title={fill(intro.title)} description={fill(intro.description)}>
@@ -15,7 +22,7 @@ const intro = (await getEntry('intros', 'sudoku'))!.data;
   <h1>Sudoku</h1>
   <p class="lead">{intro.lead}</p>
 
-  <div class="sdk" data-sudoku>
+  <div class="sdk" data-sudoku {...firstChoices}>
     <form class="sdk-setup" data-setup>
       <label>
         Board
@@ -49,6 +56,25 @@ const intro = (await getEntry('intros', 'sudoku'))!.data;
         <div class="sdk-board" data-board role="grid"></div>
       </div>
       <div class="sdk-pad" data-pad role="group" aria-label="Numbers"></div>
+      {/* Built from the list in src/lib/sudoku/settings.js, so a new setting needs no change here. */}
+      <details class="sdk-settings" data-settings>
+        <summary>Settings</summary>
+        {
+          SETTINGS.map((s) => (
+            <fieldset data-setting={s.id}>
+              <legend>{s.label}</legend>
+              <div class="sdk-choices">
+                {s.options.map((o) => (
+                  <label>
+                    <input type="radio" name={`setting-${s.id}`} value={o.id} checked={o.id === s.first} />
+                    {o.label}
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+          ))
+        }
+      </details>
     </div>
   </div>
 
@@ -79,6 +105,10 @@ const intro = (await getEntry('intros', 'sudoku'))!.data;
         later. It stays on your device: nothing is sent anywhere. The undo history is not kept between visits.
       </li>
       <li><strong>Larger</strong> and <strong>Smaller</strong> change the size of the board on screen, which helps with the candidate marks on the big boards.</li>
+      <li>
+        <strong>Settings</strong>, under the number pad, changes how bold the selected number's candidates are. Your
+        choice is remembered in this browser.
+      </li>
     </ul>
   </section>
 
@@ -322,9 +352,21 @@ const intro = (await getEntry('intros', 'sudoku'))!.data;
     pointer-events: none;
   }
 
+  /* The candidate marks of the selected number. How bold they are is a setting (data-emphasis on .sdk, see
+     src/lib/sudoku/settings.js): Bolder, the site font's heaviest weight, unless the visitor chose otherwise. */
   .sdk-note.is-match {
     color: var(--fg);
+    font-weight: 800;
+  }
+
+  .sdk[data-emphasis='bold'] .sdk-note.is-match {
     font-weight: 700;
+  }
+
+  /* There is no weight above 800, so Boldest thickens each stroke with a thin outline in the text's own color.
+     (The property keeps its -webkit- name in every browser.) */
+  .sdk[data-emphasis='boldest'] .sdk-note.is-match {
+    -webkit-text-stroke: 0.03em currentColor;
   }
 
   .sdk-cell.is-same {
@@ -364,6 +406,56 @@ const intro = (await getEntry('intros', 'sudoku'))!.data;
   .sdk-key {
     padding: 0.4rem 0;
     font-variant-numeric: tabular-nums;
+  }
+
+  .sdk-settings {
+    margin: 0 0 1rem;
+    border: 1px solid var(--rule);
+    border-radius: 0.5rem;
+    background: var(--card);
+  }
+
+  .sdk-settings > summary {
+    padding: 0.6rem 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .sdk-settings[open] > summary {
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .sdk-settings fieldset {
+    margin: 0;
+    padding: 0.6rem 0.9rem 0.4rem;
+    border: 0;
+  }
+
+  .sdk-settings legend {
+    padding: 0;
+    color: var(--muted);
+    font-size: 0.9rem;
+  }
+
+  .sdk-choices {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 1.5rem;
+  }
+
+  .sdk-choices label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    min-height: 2.25rem;
+    cursor: pointer;
+  }
+
+  .sdk-choices input {
+    width: 1.15rem;
+    height: 1.15rem;
+    margin: 0;
+    accent-color: var(--accent);
   }
 </style>
 
