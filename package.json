@@ -30,16 +30,16 @@
   "dependencies": {
     "@astrojs/sitemap": "^3.7.4",
     "@fontsource/atkinson-hyperlegible-next": "^5.3.0",
-    "astro": "^7.4.7"
+    "astro": "^7.4.11"
   },
   "allowScripts": {
     "esbuild": true
   },
   "devDependencies": {
-    "@anthropic-ai/sdk": "^1.6.0",
+    "@anthropic-ai/sdk": "^1.8.0",
     "@axe-core/playwright": "^4.14.0",
     "@huggingface/transformers": "^4.3.2",
-    "@lhci/cli": "^0.16.0",
+    "@lhci/cli": "^0.16.1",
     "@playwright/test": "^1.65.0",
     "ajv": "^8.20.0",
     "js-yaml": "^5.5.0"
